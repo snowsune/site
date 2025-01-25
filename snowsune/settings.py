@@ -65,6 +65,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "snowsune.context_processors.version_processor",
                 "snowsune.context_processors.debug_mode",
+                "snowsune.context_processors.expiry_links",
             ],
         },
     },
@@ -131,5 +132,3 @@ SECURE_SSL_REDIRECT = False  # Set to True in production
 SECURE_HSTS_SECONDS = 0  # Enable HSTS in production
 SECURE_HSTS_PRELOAD = False
 SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-
-print("TEMPLATES DIRS:", BASE_DIR / "templates")
