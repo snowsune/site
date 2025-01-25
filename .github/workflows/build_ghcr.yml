@@ -91,23 +91,23 @@ jobs:
         run: |
           echo BUILD_HASH=$(git describe --abbrev=8 --always --tags --dirty) >> $GITHUB_ENV
 
-      - name: Get branch name
-        id: branch-name
-        uses: tj-actions/branch-names@v5.2
-
-      - name: Get a Docker-ready tag
-        id: docker-tag
+      - name: Generate Docker package path and sanitized branch name
+        id: docker-path
         run: |
-          # Get lowercase repo and actor names
           REPO_NAME=$(echo "${{ github.repository }}" | awk -F'/' '{print tolower($2)}')
           ACTOR_NAME=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
-          BRANCH_NAME=$(echo "${{ steps.branch-name.outputs.current_branch }}" | sed 's/[^a-zA-Z0-9]/-/g; s/[A-Z]/\L&/g')
+          BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]/-/g; s/[A-Z]/\L&/g')
 
-          # Build Docker tag
-          echo "CUSTOM_TAG=${{ env.REGISTRY }}/${ACTOR_NAME}/${REPO_NAME}:${BRANCH_NAME}" >> $GITHUB_ENV
+          # Save into github env
+          echo "PACKAGE_PATH=${{ env.REGISTRY }}/${ACTOR_NAME}/${REPO_NAME}" >> $GITHUB_ENV
+          echo "SANITIZED_BRANCH=${BRANCH_NAME}" >> $GITHUB_ENV
 
-          # Debug output
-          echo "Generated Tag: ${{ env.CUSTOM_TAG }}"
+          # Done!
+          echo "Generated Path: ${{ env.PACKAGE_PATH }} and tag: ${{ env.SANITIZED_BRANCH }}"
+
+      - name: Inject Git commit into the build
+        run: |
+          echo "GIT_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
@@ -115,7 +115,15 @@ jobs:
           context: .
           push: true
           build-args: |
-            GIT_COMMIT=${{ env.BUILD_HASH }}
+            GIT_COMMIT=${{ env.GIT_COMMIT }}
             DEBUG=False
-          tags: ${{ env.CUSTOM_TAG }}
+          tags: |
+            ${{ env.PACKAGE_PATH }}:${{ env.SANITIZED_BRANCH }}
+            ${{ env.PACKAGE_PATH }}:latest
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Push stable tag if on main branch
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker tag ${{ env.PACKAGE_PATH }}:latest ${{ env.PACKAGE_PATH }}:stable
+          docker push ${{ env.PACKAGE_PATH }}:stable
