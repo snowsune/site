@@ -2,7 +2,8 @@
 *
 
 # Don't ignore...
-!battery/
+!snowsune/
+!apps/
 !bin/
 !log/
 !static/

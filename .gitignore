@@ -13,6 +13,7 @@ Pipfile*
 # Dev DB
 db.sqlite3
 .local/
+staticfiles
 
 # Art
 *.*~
