@@ -21,7 +21,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "default-secret-key")
 BAD_KEY = SECRET_KEY == "default-secret-key"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", False).lower() == "true"
+DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
@@ -63,6 +63,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "snowsune.context_processors.version_processor",
                 "snowsune.context_processors.debug_mode",
             ],
         },
@@ -130,3 +131,5 @@ SECURE_SSL_REDIRECT = False  # Set to True in production
 SECURE_HSTS_SECONDS = 0  # Enable HSTS in production
 SECURE_HSTS_PRELOAD = False
 SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+
+print("TEMPLATES DIRS:", BASE_DIR / "templates")
