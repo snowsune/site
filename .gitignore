@@ -1,0 +1,18 @@
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+
+### Dev ###
+docker-compose.yml
+.env
+Pipfile*
+
+# Dev DB
+db.sqlite3
+.local/
+
+# Art
+*.*~

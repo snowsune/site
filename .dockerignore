@@ -1,0 +1,15 @@
+# Ignore everything
+*
+
+# Don't ignore...
+!battery/
+!bin/
+!log/
+!static/
+!manage.py
+!README.md
+!LICENSE
+!requirements.txt
+
+# Testing
+!tests/

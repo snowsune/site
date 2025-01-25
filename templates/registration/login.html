@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% load static %}
+
+<head>
+  <title>1721 Battery Log</title>
+  <meta charset="UTF-8" />
+
+  <script src="{% static 'js/battery_format.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+  <header>
+    <h1>Login</h1>
+    <nav>
+      {% if bad_key %}
+      <div style="color: red; font-weight: bold;">
+        Security Token not found on server! Not recommended to log in.
+      </div>
+      {% endif %}
+    </nav>
+  </header>
+
+  <hr />
+  Enter your login information. Contact Dylan for a login.
+  <hr />
+
+  <form method="post" , style="max-width: 40vw;">
+    {% csrf_token %} {{ form.as_table }}
+    <button type="submit">Login</button>
+  </form>
+
+  <footer>
+    <a href="https://github.com/FRC-1721/battery.frc1721.org">Version: {{ version }}</a>
+  </footer>
+</body>
+
+</html>

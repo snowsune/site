@@ -1,0 +1,121 @@
+name: Build GHCR
+
+on:
+  push:
+    branches:
+      - "main"
+    tags:
+      - "*"
+  pull_request:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Test Django app
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pipenv
+          pipenv install --dev  # Install dev dependencies from Pipfile
+
+      - name: Run tests
+        run: |
+          pipenv run python manage.py test
+
+  formatblack:
+    name: Black Formatter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check files using the black formatter
+        uses: rickstaa/action-black@v1
+        id: action_black
+        with:
+          black_args: "."
+
+      - name: Annotate diff changes using reviewdog
+        if: steps.action_black.outputs.is_formatted == 'true'
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: blackfmt
+
+  build-and-publish-image:
+    name: Build and Publish Registry Image
+    runs-on: ubuntu-latest
+    needs: [test]
+
+    if: github.ref != 'refs/heads/main' || needs.test.result == 'success' # Prevent push on 'main' if tests fail
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Extract Version Information
+        id: extract_hash
+        run: |
+          echo BUILD_HASH=$(git describe --abbrev=8 --always --tags --dirty) >> $GITHUB_ENV
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v5.2
+
+      - name: Get a Docker-ready tag
+        id: docker-tag
+        run: |
+          # Get lowercase repo and actor names
+          REPO_NAME=$(echo "${{ github.repository }}" | awk -F'/' '{print tolower($2)}')
+          ACTOR_NAME=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
+          BRANCH_NAME=$(echo "${{ steps.branch-name.outputs.current_branch }}" | sed 's/[^a-zA-Z0-9]/-/g; s/[A-Z]/\L&/g')
+
+          # Build Docker tag
+          echo "CUSTOM_TAG=${{ env.REGISTRY }}/${ACTOR_NAME}/${REPO_NAME}:${BRANCH_NAME}" >> $GITHUB_ENV
+
+          # Debug output
+          echo "Generated Tag: ${{ env.CUSTOM_TAG }}"
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          build-args: |
+            GIT_COMMIT=${{ env.BUILD_HASH }}
+            DEBUG=False
+          tags: ${{ env.CUSTOM_TAG }}
+          labels: ${{ steps.meta.outputs.labels }}

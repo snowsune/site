@@ -1,0 +1,119 @@
+/* Body */
+body {
+  font-family: Arial, sans-serif;
+  background: url("/static/background/tile.png") repeat; /* Tiled background */
+  padding: 1em; /* Padding around the entire page */
+}
+
+/* My site is divided into chunks, they can inherit that style from here! */
+.tile {
+  background: #f8f9fa; /* Off-white background for tiles */
+  border-radius: 12px; /* Rounded corners */
+  padding: 1em; /* Internal spacing */
+  margin-bottom: 1em; /* Space between tiles */
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+}
+
+/* ======
+ * Header
+ * ====== */
+.header {
+  display: flex; /* Flexbox for aligning logo and navbar */
+  flex-direction: column; /* Stack logo and navbar vertically */
+  background: #00bcd4; /* Cyan background */
+  color: white; /* White text for contrast */
+  padding: 1em;
+  border-radius: 12px; /* Rounded corners */
+  gap: 0.5em; /* Space between logo and navbar */
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center; /* Center logo vertically */
+}
+.logo img {
+  height: 50px; /* Smaller logo */
+  margin-right: 1em; /* Space between logo and text */
+}
+
+/* Navbar */
+.navbar {
+  display: flex; /* Flexbox for side-by-side layout */
+  justify-content: space-between; /* Spread links and login/logout */
+  align-items: center; /* Vertically center items */
+}
+
+/* Navbar Styles */
+.navbar {
+  display: flex; /* Flexbox for layout */
+  justify-content: space-between; /* Links on the left, login/logout on the right */
+  align-items: center; /* Vertically align items */
+}
+
+/* Navbar Links */
+.nav-links {
+  display: flex; /* Flex container for links */
+  border: 2px solid #005f73; /* Outline the entire group */
+  border-radius: 4px; /* Rounded corners for the group */
+  overflow: hidden; /* Ensures corners are clipped when hovering */
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: white;
+  padding: 0.5em 1em; /* Spacing inside each link */
+  background: #005f73; /* Default dark cyan background */
+  transition: background 0.3s ease, margin 0.3s ease; /* Smooth hover effect */
+  border-right: 2px solid #00bcd4; /* Create a border between links */
+}
+
+.nav-links a:last-child {
+  border-right: none; /* Remove the right border on the last link */
+}
+
+.nav-links a:hover {
+  background: #83c5be; /* Light cyan on hover */
+  margin: 0 -2px; /* Slightly pull the hovered link out of the group */
+  z-index: 1; /* Bring the hovered link above its neighbors */
+}
+
+/* Login */
+.login {
+  display: flex; /* Flexbox for multiple login/logout buttons if needed */
+}
+
+.login a {
+  text-decoration: none;
+  color: white;
+  padding: 0.5em 1em;
+  background: #d90429; /* Red for contrast */
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.login a:hover {
+  background: #ff616f; /* Lighter red on hover */
+}
+
+/* =======================
+ * Main Layout and sidebar
+ * ======================= */
+.main-layout {
+  display: flex; /* Flexbox for side-by-side layout */
+  gap: 1em; /* Space between content and sidebar */
+}
+
+/* Content Section */
+.content {
+  flex: 3; /* Take up more space compared to the sidebar */
+  background: #ffffff; /* White background for content */
+  min-height: 60vh;
+}
+
+/* Sidebar Section */
+.sidebar {
+  flex: 1;
+  max-width: 15vw;
+  background: #eaeaea; /* Light grey background for sidebar */
+}

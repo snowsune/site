@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% load static %}
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Snowsune.net{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+</head>
+
+<body>
+  <header class="header tile">
+    <div class="logo">
+      <img src="{% static 'logos/placeholder_logo.png' %}" alt="Snowsune Logo">
+    </div>
+    <nav class="navbar">
+      <div class="nav-links">
+        <a href="#">Home</a>
+        <a href="#">Projects/Apps</a>
+        <a href="#">Blog</a>
+        <a href="#">Tools</a>
+        <a href="#">Comics</a>
+      </div>
+      <div class="login">
+        <a href="#">Log In</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- The stuff in the center of the page basically -->
+  <div class="main-layout">
+    <!-- Main content -->
+    <div class="content tile">
+      {% block content %}
+      <!-- Page-specific content goes here -->
+      {% endblock %}
+    </div>
+
+    <!-- Sidebar stuff -->
+    <div class="sidebar tile">
+      {% block sidebar %}
+      {% endblock %}
+    </div>
+  </div>
+
+  <footer class="footer tile">
+    <p>&copy; {{ year }} Snowsune.net</p>
+  </footer>
+</body>
+
+</html>
