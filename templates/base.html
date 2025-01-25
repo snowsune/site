@@ -13,7 +13,8 @@
 <body>
   <header class="header tile">
     <div class="logo">
-      <img src="{% static 'logos/placeholder_logo.png' %}" alt="Snowsune Logo">
+      <img src="{% if debug %}{% static 'logos/devlogo.png' %}{% else %}{% static 'logos/logo.png' %}{% endif %}"
+        alt="Snowsune Logo">
     </div>
     <nav class="navbar">
       <div class="nav-links">

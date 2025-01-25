@@ -34,7 +34,7 @@ ARG GIT_COMMIT
 ENV GIT_COMMIT=$GIT_COMMIT
 
 # Expose port
-EXPOSE 8000
+EXPOSE 80
 
 # Entrypoint
 ENTRYPOINT "bin/entrypoint.sh"
