@@ -33,7 +33,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "snowsune",  # Main app
+    # Main app
+    "snowsune",
+    # Custom apps
+    "apps.blog",
+    "apps.comics",
 ]
 
 MIDDLEWARE = [
