@@ -7,7 +7,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Snowsune.net{% endblock %}</title>
+
+  <!-- Default Meta Tags -->
+  <meta name="description"
+    content="{% block meta_description %}Welcome to Snowsune.net! A cozy space for projects, blogs, and more.{% endblock %}">
+  <meta name="keywords" content="{% block meta_keywords %}Snowsune, projects, blog, characters, tools{% endblock %}">
+
+  <!-- Open Graph / Discord Embed -->
+  <meta property="og:title" content="{% block og_title %}Snowsune.net{% endblock %}">
+  <meta property="og:description"
+    content="{% block og_description %}A cozy website for projects, characters, and blogs!{% endblock %}">
+  <meta property="og:image" content="{% block og_image %}{% static 'logos/placeholder_logo.png' %}{% endblock %}">
+  <meta property="og:url" content="{% block og_url %}https://snowsune.net{% endblock %}">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% block twitter_title %}Snowsune.net{% endblock %}">
+  <meta name="twitter:description"
+    content="{% block twitter_description %}A cozy space for projects and creativity!{% endblock %}">
+  <meta name="twitter:image" content="{% block twitter_image %}{% static 'logos/placeholder_logo.png' %}{% endblock %}">
+
+  <!-- Favicon -->
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
 </head>
 
 <body>
