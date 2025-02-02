@@ -6,7 +6,7 @@
 <h1>Characters</h1>
 <ul>
     {% for char in characters %}
-    <li><a href="{% url 'character-detail' char %}">{{ char|title }}</a></li>
+    <li><a href="{% url 'character-detail' char.filename %}">{{ char.display_name }}</a></li>
     {% endfor %}
 </ul>
 {% endblock %}
