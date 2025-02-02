@@ -1,6 +1,7 @@
 # App
 django
 whitenoise
+markdown
 
 # App (graphics)
 pillow

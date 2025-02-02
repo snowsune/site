@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     # Custom apps
     "apps.blog",
     "apps.comics",
+    "apps.characters",
 ]
 
 MIDDLEWARE = [
@@ -120,7 +121,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # Normal Static Files
+    BASE_DIR / "apps/characters/static",  # Characters have their own static files too
+]
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}{{ character_name|title }}{% endblock %}
+
+{% block content %}
+<h1>{{ character_name|title }}</h1>
+<div class="character-content">
+    {{ content|safe }} <!-- Render Markdown as HTML -->
+</div>
+{% endblock %}

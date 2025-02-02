@@ -3,7 +3,6 @@ from django.urls import path, include
 
 from snowsune.views.home import HomeView
 from snowsune.views.projects import ProjectsView
-from snowsune.views.blog import BlogView
 from snowsune.views.tools import ToolsView
 
 urlpatterns = [
@@ -18,4 +17,5 @@ urlpatterns = [
     # "app" urls
     path("blog/", include("apps.blog.urls")),
     path("comics/", include("apps.comics.urls")),
+    path("characters/", include("apps.characters.urls")),
 ]

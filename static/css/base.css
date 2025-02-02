@@ -117,3 +117,16 @@ body {
   max-width: 15vw;
   background: #eaeaea; /* Light grey background for sidebar */
 }
+
+/*
+ * Apps! not all apps need to register css here, some can use their own, but for some apps
+ * its easy enough to just, squish in here
+ * */
+
+/* For the character images in apps/characters */
+.character-content img {
+  max-width: 100%; /* Ensures images fit inside their container */
+  height: auto; /* Maintains aspect ratio */
+  display: block;
+  margin: 0 auto; /* Centers the image */
+}
