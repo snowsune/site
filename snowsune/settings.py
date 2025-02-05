@@ -87,7 +87,7 @@ DATABASES = {
 }
 
 # Use PostgreSQL if DATABASE_URL is provided
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL", None)
 if DATABASE_URL:
     import dj_database_url
 

@@ -20,16 +20,10 @@ def character_list(request):
         if f.endswith(".md")
     ]
 
-    # Wrap the content in .character-content (for style)
-    wrapped_content = f'<div class="character-content">{html_content}</div>'
-
     return render(
         request,
-        "characters/detail.html",
-        {
-            "character_name": char_name.replace("_", " ").title(),
-            "content": wrapped_content,
-        },
+        "characters/list.html",  # Correct template for listing characters
+        {"characters": character_files},  # Pass list of characters to template
     )
 
 
