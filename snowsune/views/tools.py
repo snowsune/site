@@ -6,4 +6,4 @@ from datetime import datetime
 class ToolsView(View):
     def get(self, request, *args, **kwargs):
         context = {"year": datetime.now().year}
-        return render(request, "log/home.html", context)
+        return render(request, "tools.html", context)

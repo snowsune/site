@@ -7,6 +7,8 @@
   --navbar-text: white;
   --sidebar-bg: #eaeaea;
   --link-hover: #83c5be;
+  --link-default: #2222ff;
+  --link-visited: #29297d;
 }
 
 /* Dark Mode Variables */
@@ -18,6 +20,8 @@
   --navbar-text: white;
   --sidebar-bg: #222222;
   --link-hover: #66b3a6;
+  --link-default: #71e5ff;
+  --link-visited: #2bb5ff;
 }
 
 /* Body */
@@ -25,6 +29,15 @@ body {
   font-family: Arial, sans-serif;
   background: url("/static/background/tile.png") repeat, var(--background-color);
   padding: 1em; /* Padding around the entire page */
+}
+
+/* Links */
+a {
+  color: var(--link-default);
+}
+
+a:visited {
+  color: var(--link-visited);
 }
 
 /* My site is divided into chunks, they can inherit that style from here! */
