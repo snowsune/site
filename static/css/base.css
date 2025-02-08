@@ -1,17 +1,40 @@
+/* === Light Mode (Default) === */
+:root {
+  --background-color: #f8f9fa;
+  --tile-background: #ffffff;
+  --text-color: #000000;
+  --navbar-bg: #00bcd4;
+  --navbar-text: white;
+  --sidebar-bg: #eaeaea;
+  --link-hover: #83c5be;
+}
+
+/* Dark Mode Variables */
+.dark-mode {
+  --background-color: #121212;
+  --tile-background: #1e1e1e;
+  --text-color: #ffffff;
+  --navbar-bg: #18404b;
+  --navbar-text: white;
+  --sidebar-bg: #222222;
+  --link-hover: #66b3a6;
+}
+
 /* Body */
 body {
   font-family: Arial, sans-serif;
-  background: url("/static/background/tile.png") repeat; /* Tiled background */
+  background: url("/static/background/tile.png") repeat, var(--background-color);
   padding: 1em; /* Padding around the entire page */
 }
 
 /* My site is divided into chunks, they can inherit that style from here! */
 .tile {
-  background: #f8f9fa; /* Off-white background for tiles */
+  background: var(--tile-background); /* Off-white background for tiles */
   border-radius: 12px; /* Rounded corners */
   padding: 1em; /* Internal spacing */
   margin-bottom: 1em; /* Space between tiles */
   box-shadow: 0 5px 5px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+  color: var(--text-color);
 }
 
 /* ======
@@ -20,7 +43,7 @@ body {
 .header {
   display: flex; /* Flexbox for aligning logo and navbar */
   flex-direction: column; /* Stack logo and navbar vertically */
-  background: #00bcd4; /* Cyan background */
+  background: var(--navbar-bg); /* Cyan background */
   color: white; /* White text for contrast */
   padding: 1em;
   border-radius: 12px; /* Rounded corners */
@@ -31,9 +54,10 @@ body {
 .logo {
   display: flex;
   align-items: center; /* Center logo vertically */
+  padding-left: 12px; /* Maybe not the best way to center with navbar but :/ */
 }
 .logo img {
-  height: 50px; /* Smaller logo */
+  height: 60px; /* Smaller logo */
   margin-right: 1em; /* Space between logo and text */
 }
 
@@ -45,12 +69,14 @@ body {
   justify-content: space-between; /* Spread links and login to edges */
   align-items: center;
   padding: 8px 15px;
+  padding-left: 0;
 }
 
 /* Navbar Links - Big, Bold, and Classic */
 .nav-links {
   display: flex;
   align-items: center; /* Align everything properly */
+  white-space: nowrap;
 }
 
 .nav-links a {
@@ -103,6 +129,7 @@ body {
   background: #d90429; /* Red for contrast */
   border-radius: 4px;
   transition: background 0.3s ease;
+  white-space: nowrap;
 }
 
 .login a:hover {
@@ -120,7 +147,7 @@ body {
 /* Content Section */
 .content {
   flex: 3; /* Take up more space compared to the sidebar */
-  background: #ffffff; /* White background for content */
+  background: var(--background-color); /* White background for content */
   min-height: 60vh;
 }
 
@@ -128,7 +155,7 @@ body {
 .sidebar {
   flex: 1;
   max-width: 15vw;
-  background: #eaeaea; /* Light grey background for sidebar */
+  background: var(--sidebar-bg); /* Light grey background for sidebar */
 }
 
 /*
@@ -142,4 +169,25 @@ body {
   height: auto; /* Maintains aspect ratio */
   display: block;
   margin: 0 auto; /* Centers the image */
+}
+
+/* === Responsive Sidebar Fix === */
+
+/* Completely hide sidebar on very small screens (phones) */
+@media (max-width: 900px) {
+  .sidebar {
+    display: none;
+  }
+}
+
+/* Move sidebar below content for slightly larger screens (small tablets) */
+@media (max-width: 1200px) and (min-width: 901px) {
+  .main-layout {
+    flex-direction: column; /* Stack content and sidebar vertically */
+  }
+
+  .sidebar {
+    max-width: 100%; /* Make sidebar take full width */
+    order: 1; /* Ensures sidebar appears after content */
+  }
 }
