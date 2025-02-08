@@ -1,0 +1,17 @@
+# Ignore everything
+*
+
+# Don't ignore...
+!snowsune/
+!apps/
+!bin/
+!log/
+!static/
+!templates/
+!manage.py
+!README.md
+!LICENSE
+!requirements.txt
+
+# Testing
+!tests/

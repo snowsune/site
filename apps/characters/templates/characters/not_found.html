@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}Character Not Found{% endblock %}
+
+{% block content %}
+<h1>Character Not Found</h1>
+<p>The character "{{ char_name }}" does not exist.</p>
+<a href="{% url 'character-list' %}">Go back to the character list</a>
+{% endblock %}

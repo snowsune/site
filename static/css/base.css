@@ -1,0 +1,206 @@
+/* === Light Mode (Default) === */
+:root {
+  --background-color: #f8f9fa;
+  --tile-background: #ffffff;
+  --text-color: #000000;
+  --navbar-bg: #00bcd4;
+  --navbar-text: white;
+  --sidebar-bg: #eaeaea;
+  --link-hover: #83c5be;
+  --link-default: #2222ff;
+  --link-visited: #29297d;
+}
+
+/* Dark Mode Variables */
+.dark-mode {
+  --background-color: #121212;
+  --tile-background: #1e1e1e;
+  --text-color: #ffffff;
+  --navbar-bg: #18404b;
+  --navbar-text: white;
+  --sidebar-bg: #222222;
+  --link-hover: #66b3a6;
+  --link-default: #71e5ff;
+  --link-visited: #2bb5ff;
+}
+
+/* Body */
+body {
+  font-family: Arial, sans-serif;
+  background: url("/static/background/tile.png") repeat, var(--background-color);
+  padding: 1em; /* Padding around the entire page */
+}
+
+/* Links */
+a {
+  color: var(--link-default);
+}
+
+a:visited {
+  color: var(--link-visited);
+}
+
+/* My site is divided into chunks, they can inherit that style from here! */
+.tile {
+  background: var(--tile-background); /* Off-white background for tiles */
+  border-radius: 12px; /* Rounded corners */
+  padding: 1em; /* Internal spacing */
+  margin-bottom: 1em; /* Space between tiles */
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+  color: var(--text-color);
+}
+
+/* ======
+ * Header
+ * ====== */
+.header {
+  display: flex; /* Flexbox for aligning logo and navbar */
+  flex-direction: column; /* Stack logo and navbar vertically */
+  background: var(--navbar-bg); /* Cyan background */
+  color: white; /* White text for contrast */
+  padding: 1em;
+  border-radius: 12px; /* Rounded corners */
+  gap: 0.5em; /* Space between logo and navbar */
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center; /* Center logo vertically */
+  padding-left: 12px; /* Maybe not the best way to center with navbar but :/ */
+}
+.logo img {
+  height: 60px; /* Smaller logo */
+  margin-right: 1em; /* Space between logo and text */
+}
+
+/* ==============
+ * Navbar styles!
+ * ============== */
+.navbar {
+  display: flex;
+  justify-content: space-between; /* Spread links and login to edges */
+  align-items: center;
+  padding: 8px 15px;
+  padding-left: 0;
+}
+
+/* Navbar Links - Big, Bold, and Classic */
+.nav-links {
+  display: flex;
+  align-items: center; /* Align everything properly */
+  white-space: nowrap;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: white;
+  font-size: 1.5em; /* Make text big and bold */
+  font-weight: bold;
+  text-transform: uppercase; /* Retro all-caps */
+  padding: 0 10px; /* Give spacing around the text */
+}
+
+/* Add vertical bars | between links */
+.nav-links span.separator {
+  color: white;
+  font-size: 1.5em;
+  font-weight: bold;
+  padding: 0 5px; /* Space around the separator */
+  user-select: none; /* Prevent it from being selectable */
+}
+
+/* Big Underline on Hover */
+.nav-links a:hover {
+  text-decoration: underline 4px solid white; /* Thick underline on hover */
+}
+
+/* Login Section */
+.login-area a {
+  text-decoration: none;
+  color: white;
+  font-size: 1.2em;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 2px solid transparent; /* Invisible border */
+  transition: border-bottom 0.1s ease-in-out;
+}
+
+.login-area a:hover {
+  border-bottom: 2px solid white; /* Underline only on hover */
+}
+
+/* Login */
+.login {
+  display: flex; /* Flexbox for multiple login/logout buttons if needed */
+}
+
+.login a {
+  text-decoration: none;
+  color: white;
+  padding: 0.5em 1em;
+  background: #d90429; /* Red for contrast */
+  border-radius: 4px;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+}
+
+.login a:hover {
+  background: #ff616f; /* Lighter red on hover */
+}
+
+/* =======================
+ * Main Layout and sidebar
+ * ======================= */
+.main-layout {
+  display: flex; /* Flexbox for side-by-side layout */
+  gap: 1em; /* Space between content and sidebar */
+}
+
+/* Content Section */
+.content {
+  flex: 3; /* Take up more space compared to the sidebar */
+  background: var(--background-color); /* White background for content */
+  min-height: 60vh;
+}
+
+/* Sidebar Section */
+.sidebar {
+  flex: 1;
+  max-width: 15vw;
+  background: var(--sidebar-bg); /* Light grey background for sidebar */
+}
+
+/*
+ * Apps! not all apps need to register css here, some can use their own, but for some apps
+ * its easy enough to just, squish in here
+ * */
+
+/* For the character images in apps/characters */
+.character-content img {
+  max-width: 100%; /* Ensures images fit inside their container */
+  height: auto; /* Maintains aspect ratio */
+  display: block;
+  margin: 0 auto; /* Centers the image */
+}
+
+/* === Responsive Sidebar Fix === */
+
+/* Completely hide sidebar on very small screens (phones) */
+@media (max-width: 900px) {
+  .sidebar {
+    display: none;
+  }
+}
+
+/* Move sidebar below content for slightly larger screens (small tablets) */
+@media (max-width: 1200px) and (min-width: 901px) {
+  .main-layout {
+    flex-direction: column; /* Stack content and sidebar vertically */
+  }
+
+  .sidebar {
+    max-width: 100%; /* Make sidebar take full width */
+    order: 1; /* Ensures sidebar appears after content */
+  }
+}

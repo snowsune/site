@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% load static %}
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Snowsune.net{% endblock %}</title>
+
+  <!-- Default Meta Tags -->
+  <meta name="description"
+    content="{% block meta_description %}Welcome to Snowsune.net! Vixi's website for projects, characters, tools and more!{% endblock %}">
+  <meta name="keywords"
+    content="{% block meta_keywords %}Snowsune, Vixi, projects, blog, characters, tools{% endblock %}">
+
+  <!-- Open Graph / Discord Embed -->
+  <meta property="og:title" content="{% block og_title %}Snowsune.net{% endblock %}">
+  <meta property="og:description"
+    content="{% block og_description %}Vixi's website for projects, characters, tools and more!{% endblock %}">
+  <meta property="og:image"
+    content="{% block og_image %}{% static 'placeholders/placeholder_wide.png' %}{% endblock %}">
+  <meta property="og:url" content="{% block og_url %}https://snowsune.net{% endblock %}">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter Card (not because i like twitter, only for compat in apps that accept the summary_large) -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% block twitter_title %}Snowsune.net{% endblock %}">
+  <meta name="twitter:description"
+    content="{% block twitter_description %}Vixi's website for projects, characters, tools and more!{% endblock %}">
+  <meta name="twitter:image"
+    content="{% block twitter_image %}{% static 'placeholders/placeholder_wide.png' %}{% endblock %}">
+
+  <!-- Favicon -->
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+</head>
+
+<body>
+  <header class="header tile">
+    <div class="logo">
+      <img src="{% if debug %}{% static 'logos/devlogo.png' %}{% else %}{% static 'logos/logo.png' %}{% endif %}"
+        alt="Snowsune Logo">
+    </div>
+    <nav class="navbar">
+      <div class="nav-links">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'tools' %}">Apps/Tools</a>
+        <a href="{% url 'character-list' %}">Characters</a>
+        <a href="#">Gallery</a>
+        <a href="{% url 'blog' %}">Blog</a>
+        <a href="{% url 'comics' %}">Comics</a>
+      </div>
+      <div class="login">
+        <a href="#">Log In</a>
+        <button id="dark-mode-toggle" onclick="toggleDarkMode()">Dark Mode</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- The stuff in the center of the page basically -->
+  <div class="main-layout">
+    <!-- Main content -->
+    <div class="content tile">
+      {% block content %}
+      <!-- Page-specific content goes here -->
+      {% endblock %}
+    </div>
+
+    <!-- Sidebar stuff -->
+    <div class="sidebar tile">
+      <h2>Global Links</h2>
+      <ul>
+        <li><a href="{% url 'home' %}">About</a></li> <!-- TODO: Change me to a proper about page later -->
+        <li><a href="{% url 'tools' %}">Tools</a></li>
+        <li><a href="{% url 'blog' %}">Blog</a></li>
+      </ul>
+      {% block sidebar %}
+      {% endblock %}
+    </div>
+  </div>
+
+  <footer class="footer tile">
+    <p>
+      &copy; {{ year }} snowsune.net,
+      <a href="https://github.com/snowsune/site/commits/{{ version }}">Version {{ version }}</a>
+    </p>
+  </footer>
+
+  <script>
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+
+      const isDarkMode = document.body.classList.contains("dark-mode");
+      localStorage.setItem("darkMode", isDarkMode ? "enabled" : "disabled");
+
+      // Update button text
+      document.getElementById("dark-mode-toggle").innerText = isDarkMode ? "Light Mode" : "Dark Mode";
+    }
+
+    // Apply Dark Mode on Page Load if Previously Enabled
+    window.onload = function () {
+      if (localStorage.getItem("darkMode") === "enabled") {
+        document.body.classList.add("dark-mode");
+      }
+
+      // Ensure button text matches current mode
+      const button = document.getElementById("dark-mode-toggle");
+      if (button) {
+        button.innerText = document.body.classList.contains("dark-mode") ? "Light Mode" : "Dark Mode";
+      }
+    };
+  </script>
+
+</body>
+
+</html>

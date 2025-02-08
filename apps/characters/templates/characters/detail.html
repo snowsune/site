@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{ character_name }} - Snowsune.net{% endblock %}
+{% block meta_description %}Character profile for {{ character_name }}!{% endblock %}
+{% block og_title %}{{ character_name }} - Snowsune.net{% endblock %}
+{% block og_description %}Learn more about {{ character_name }}!{% endblock %}
+
+
+{% block content %}
+<h1>{{ character_name }}</h1>
+<div class="character-content">
+    {{ content|safe }} <!-- Render Markdown as HTML -->
+</div>
+{% endblock %}

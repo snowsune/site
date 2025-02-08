@@ -1,0 +1,15 @@
+# App
+django
+whitenoise
+markdown
+
+# App (graphics)
+pillow
+qrcode
+
+# DB
+dj-database-url
+psycopg2
+
+# WSGI
+gunicorn
