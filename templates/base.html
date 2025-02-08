@@ -10,22 +10,24 @@
 
   <!-- Default Meta Tags -->
   <meta name="description"
-    content="{% block meta_description %}Welcome to Snowsune.net! A cozy space for projects, blogs, and more.{% endblock %}">
-  <meta name="keywords" content="{% block meta_keywords %}Snowsune, projects, blog, characters, tools{% endblock %}">
+    content="{% block meta_description %}Welcome to Snowsune.net! Vixi's website for projects, characters, tools and more!{% endblock %}">
+  <meta name="keywords"
+    content="{% block meta_keywords %}Snowsune, Vixi, projects, blog, characters, tools{% endblock %}">
 
   <!-- Open Graph / Discord Embed -->
   <meta property="og:title" content="{% block og_title %}Snowsune.net{% endblock %}">
   <meta property="og:description"
-    content="{% block og_description %}A cozy website for projects, characters, and blogs!{% endblock %}">
-  <meta property="og:image" content="{% block og_image %}{% static 'logos/placeholder_logo.png' %}{% endblock %}">
+    content="{% block og_description %}Vixi's website for projects, characters, tools and more!{% endblock %}">
+  <meta property="og:image"
+    content="{% block og_image %}{% static 'placeholders/placeholder_wide.png' %}{% endblock %}">
   <meta property="og:url" content="{% block og_url %}https://snowsune.net{% endblock %}">
   <meta property="og:type" content="website">
 
-  <!-- Twitter Card -->
+  <!-- Twitter Card (not because i like twitter, only for compat in apps that accept the summary_large) -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{% block twitter_title %}Snowsune.net{% endblock %}">
   <meta name="twitter:description"
-    content="{% block twitter_description %}A cozy space for projects and creativity!{% endblock %}">
+    content="{% block twitter_description %}Vixi's website for projects, characters, tools and more!{% endblock %}">
   <meta name="twitter:image" content="{% block twitter_image %}{% static 'logos/placeholder_logo.png' %}{% endblock %}">
 
   <!-- Favicon -->
@@ -42,9 +44,10 @@
     <nav class="navbar">
       <div class="nav-links">
         <a href="{% url 'home' %}">Home</a>
-        <a href="#">Projects/Apps</a>
+        <a href="#">Apps/Tools</a>
+        <a href="#">Characters</a>
+        <a href="#">Gallery</a>
         <a href="{% url 'blog' %}">Blog</a>
-        <a href="#">Tools</a>
         <a href="{% url 'comics' %}">Comics</a>
       </div>
       <div class="login">

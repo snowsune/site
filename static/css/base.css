@@ -37,45 +37,58 @@ body {
   margin-right: 1em; /* Space between logo and text */
 }
 
-/* Navbar */
+/* ==============
+ * Navbar styles!
+ * ============== */
 .navbar {
-  display: flex; /* Flexbox for side-by-side layout */
-  justify-content: space-between; /* Spread links and login/logout */
-  align-items: center; /* Vertically center items */
+  display: flex;
+  justify-content: space-between; /* Spread links and login to edges */
+  align-items: center;
+  padding: 8px 15px;
 }
 
-/* Navbar Styles */
-.navbar {
-  display: flex; /* Flexbox for layout */
-  justify-content: space-between; /* Links on the left, login/logout on the right */
-  align-items: center; /* Vertically align items */
-}
-
-/* Navbar Links */
+/* Navbar Links - Big, Bold, and Classic */
 .nav-links {
-  display: flex; /* Flex container for links */
-  border: 2px solid #005f73; /* Outline the entire group */
-  border-radius: 4px; /* Rounded corners for the group */
-  overflow: hidden; /* Ensures corners are clipped when hovering */
+  display: flex;
+  align-items: center; /* Align everything properly */
 }
 
 .nav-links a {
   text-decoration: none;
   color: white;
-  padding: 0.5em 1em; /* Spacing inside each link */
-  background: #005f73; /* Default dark cyan background */
-  transition: background 0.3s ease, margin 0.3s ease; /* Smooth hover effect */
-  border-right: 2px solid #00bcd4; /* Create a border between links */
+  font-size: 1.5em; /* Make text big and bold */
+  font-weight: bold;
+  text-transform: uppercase; /* Retro all-caps */
+  padding: 0 10px; /* Give spacing around the text */
 }
 
-.nav-links a:last-child {
-  border-right: none; /* Remove the right border on the last link */
+/* Add vertical bars | between links */
+.nav-links span.separator {
+  color: white;
+  font-size: 1.5em;
+  font-weight: bold;
+  padding: 0 5px; /* Space around the separator */
+  user-select: none; /* Prevent it from being selectable */
 }
 
+/* Big Underline on Hover */
 .nav-links a:hover {
-  background: #83c5be; /* Light cyan on hover */
-  margin: 0 -2px; /* Slightly pull the hovered link out of the group */
-  z-index: 1; /* Bring the hovered link above its neighbors */
+  text-decoration: underline 4px solid white; /* Thick underline on hover */
+}
+
+/* Login Section */
+.login-area a {
+  text-decoration: none;
+  color: white;
+  font-size: 1.2em;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 2px solid transparent; /* Invisible border */
+  transition: border-bottom 0.1s ease-in-out;
+}
+
+.login-area a:hover {
+  border-bottom: 2px solid white; /* Underline only on hover */
 }
 
 /* Login */
