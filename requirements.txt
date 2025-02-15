@@ -3,6 +3,9 @@ django
 whitenoise
 markdown
 
+# Middleware
+django-tracking2
+
 # App (graphics)
 pillow
 qrcode
