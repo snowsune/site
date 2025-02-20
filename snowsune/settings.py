@@ -11,7 +11,29 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
+import re
+import logging
 from pathlib import Path
+
+# Logging setup
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "debug.log",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,6 +47,8 @@ DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
+# For django-tracking
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -33,6 +57,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # External apps
+    "tracking",
     # Main app
     "snowsune",
     # Custom apps
@@ -50,6 +76,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "tracking.middleware.VisitorTrackingMiddleware",  # For tracking user visits
 ]
 
 # Trust reverse proxy headers
@@ -69,8 +96,10 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "snowsune.context_processors.version_processor",
+                "snowsune.context_processors.year_processor",
                 "snowsune.context_processors.debug_mode",
                 "snowsune.context_processors.expiry_links",
+                "snowsune.context_processors.visit_stats",
             ],
         },
     },

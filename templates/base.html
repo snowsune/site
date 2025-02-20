@@ -34,6 +34,9 @@
   <!-- Favicon -->
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+
+  <!-- Other -->
+  <link rel="stylesheet" href="https://furriesofnewengland.org/css/onionring.css"> <!-- Required for FONE <3 -->
 </head>
 
 <body>
@@ -83,8 +86,18 @@
   <footer class="footer tile">
     <p>
       &copy; {{ year }} snowsune.net,
-      <a href="https://github.com/snowsune/site/commits/{{ version }}">Version {{ version }}</a>
+      <a href="https://github.com/snowsune/site/commits/{{ version }}">Version {{ version }}</a> |
+      Total visits: {{ total_visits }} |
+      Unique visitors: {{ unique_visitors }} |
+      Art by <a href="https://mothwingart.carrd.co/">Mothwing</a> and others! |
+      If you think my site is helpful consider <a href="https://buymeacoffee.com/snowsune">Buying me a coffee!</a>
     </p>
+
+    <!-- This adds us to the FONE ring! -->
+    <div id='fone-ring'>
+      <script type="text/javascript" src="https://furriesofnewengland.org/js/onionring-variables.js"></script>
+      <script type="text/javascript" src="https://furriesofnewengland.org/js/onionring-widget.js"></script>
+    </div>
   </footer>
 
   <script>
@@ -111,6 +124,8 @@
       }
     };
   </script>
+
+
 
 </body>
 
