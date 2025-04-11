@@ -1,7 +1,79 @@
 {% extends "base.html" %} {% block title %}Register{% endblock %} {% block content %}
 <h1>Create an Account</h1>
 <form method="post">
-  {% csrf_token %} {{ form.as_p }}
+  {% csrf_token %} {{ form.non_field_errors }}
+
+  <div>
+    <label for="{{ form.username.id_for_label }}">Username</label>
+    {{ form.username }}
+
+    <!-- Help Box for username -->
+    {% if form.username.help_text %}
+    <small class="help-text">{{ form.username.help_text|safe }}</small>
+    {% endif %}
+
+    <!-- Errors! -->
+    {{ form.username.errors }}
+  </div>
+
+  <div>
+    <label for="{{ form.first_name.id_for_label }}">First Name</label>
+    {{ form.first_name }}
+
+    <!-- Help Box for first_name -->
+    {% if form.first_name.help_text %}
+    <small class="help-text">{{ form.first_name.help_text|safe }}</small>
+    {% endif %}
+
+    <!-- Errors! -->
+    {{ form.username.errors }}
+  </div>
+
+  <div>
+    <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+    {{ form.last_name }}
+
+    <!-- Help Box for last_name -->
+    {% if form.last_name.help_text %}
+    <small class="help-text">{{ form.last_name.help_text|safe }}</small>
+    {% endif %}
+
+    <!-- Errors! -->
+    {{ form.username.errors }}
+  </div>
+
+  <div>
+    <label for="{{ form.password1.id_for_label }}">Password</label>
+    {{ form.password1 }}
+
+    <!-- Help Box for password1 -->
+    {% if form.password1.help_text %}
+    <small class="help-text">{{ form.password1.help_text|safe }}</small>
+    {% endif %}
+
+    <!-- Errors! -->
+    {{ form.password1.errors }}
+  </div>
+
+  <div>
+    <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+    {{ form.password2 }}
+
+    <!-- Help Box for password2 -->
+    {% if form.password2.help_text %}
+    <small class="help-text">{{ form.password2.help_text|safe }}</small>
+    {% endif %}
+
+    <!-- Errors! -->
+    {{ form.password2.errors }}
+  </div>
+
   <button type="submit">Register</button>
 </form>
+
+<p>
+  Already have an account?
+  <a href="{% url 'login' %}">Log in here</a>
+  .
+</p>
 {% endblock %}
