@@ -1,9 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 from snowsune.views.home import HomeView
 from snowsune.views.projects import ProjectsView
 from snowsune.views.tools import ToolsView
+
 
 urlpatterns = [
     # django
@@ -19,3 +23,9 @@ urlpatterns = [
     path("comics/", include("apps.comics.urls")),
     path("characters/", include("apps.characters.urls")),
 ]
+
+
+# Extra/automated url patterns
+
+# For Media (Serving static from whats in config)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
