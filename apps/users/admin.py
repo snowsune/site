@@ -19,6 +19,10 @@ class CustomUserAdmin(UserAdmin):
                 )
             },
         ),
-        ("Roles", {"fields": ("is_moderator", "is_admin")}),
+        (
+            "Roles",
+            {"fields": ("is_moderator", "is_verified")},
+        ),
     )
-    list_display = ["username", "email", "is_staff", "is_moderator", "is_admin"]
+
+    list_display = ["username", "email", "is_staff", "is_moderator", "is_verified"]

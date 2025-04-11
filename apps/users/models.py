@@ -22,7 +22,8 @@ class CustomUser(AbstractUser):
 
     # Roles/flags
     is_moderator = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
+    # is_admin = models.BooleanField(default=False) # use staff instead
+    is_verified = models.BooleanField(default=False)  # Only i add this one
 
     def __str__(self):
         return self.username

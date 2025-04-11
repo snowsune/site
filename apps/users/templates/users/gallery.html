@@ -1,0 +1,14 @@
+{% extends "base.html" %} {% block title %}Verified Users{% endblock %} {% block content %}
+<h1>Verified Users</h1>
+<ul>
+  {% for u in users %}
+  <li>
+    {% if u.profile_picture %}
+    <img src="{{ u.profile_picture.url }}" style="height: 32px; border-radius: 50%" />
+    {% endif %} {{ u.username }}
+  </li>
+  {% empty %}
+  <li>No verified users yet!</li>
+  {% endfor %}
+</ul>
+{% endblock %}

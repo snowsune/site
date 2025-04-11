@@ -83,7 +83,7 @@
           <a href="{% url 'comics' %}">Comics</a>
         </div>
         <div class="login">
-          <a href="#">Log In</a>
+          {% include "users/widget.html" %}
           <button id="dark-mode-toggle" onclick="toggleDarkMode()">Dark Mode</button>
         </div>
       </nav>
