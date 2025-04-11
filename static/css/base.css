@@ -92,6 +92,12 @@ a:visited {
   padding-left: 0;
 }
 
+/* User avatars */
+.user-avatar {
+  width: 45px;
+  align-items: center;
+}
+
 /* Navbar Links - Big, Bold, and Classic */
 .nav-links {
   display: flex;
