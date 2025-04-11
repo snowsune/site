@@ -43,7 +43,7 @@ def edit_account_view(request):
     return render(request, "users/edit.html")
 
 
-# Verified user gallery
+# User Gallery!
 def user_gallery(request):
-    verified_users = CustomUser.objects.filter(verified=True)
+    verified_users = CustomUser.objects.filter(is_verified=True)
     return render(request, "users/gallery.html", {"users": verified_users})

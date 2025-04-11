@@ -1,14 +1,28 @@
-{% extends "base.html" %} {% block title %}Verified Users{% endblock %} {% block content %}
-<h1>Verified Users</h1>
-<ul>
+{% extends "base.html" %} {% load static %} {% block header %}
+<link rel="stylesheet" href="{% static 'css/gallery.css' %}" />
+{% endblock %} {% block title %}Verified Users{% endblock %} {% block content %}
+<h1>Verified Profiles</h1>
+
+<div class="user-gallery">
   {% for u in users %}
-  <li>
+  <div class="user-card">
     {% if u.profile_picture %}
-    <img src="{{ u.profile_picture.url }}" style="height: 32px; border-radius: 50%" />
-    {% endif %} {{ u.username }}
-  </li>
+    <img src="{{ u.profile_picture.url }}" alt="{{ u.username }}" class="user-avatar-large" />
+    {% else %}
+    <div class="user-avatar-placeholder">🦊</div>
+    {% endif %}
+    <h3>{{ u.first_name|default:u.username }}</h3>
+
+    <div class="badge-row">
+      {% if u.is_moderator %}
+      <img src="{% static 'badges/mod.png' %}" alt="Moderator" class="badge" />
+      {% endif %} {% for badge in u.badges %}
+      <img src="{% static 'badges/'|add:badge|add:'.png' %}" alt="{{ badge }}" class="badge" />
+      {% endfor %}
+    </div>
+  </div>
   {% empty %}
-  <li>No verified users yet!</li>
+  <p>No verified users yet.</p>
   {% endfor %}
-</ul>
+</div>
 {% endblock %}
