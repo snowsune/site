@@ -32,10 +32,7 @@
     />
 
     <!-- Open Graph / Discord Embed -->
-    <meta
-      property="og:title"
-      content="{% block og_title %}Snowsune.net{% endblock %}"
-    />
+    <meta property="og:title" content="{% block og_title %}Snowsune.net{% endblock %}" />
     <meta
       property="og:description"
       content="{% block og_description %}Vixi's website for projects, characters, tools and more!{% endblock %}"
@@ -44,18 +41,12 @@
       property="og:image"
       content="{% block og_image %}{% static 'placeholders/placeholder_wide.png' %}{% endblock %}"
     />
-    <meta
-      property="og:url"
-      content="{% block og_url %}https://snowsune.net{% endblock %}"
-    />
+    <meta property="og:url" content="{% block og_url %}https://snowsune.net{% endblock %}" />
     <meta property="og:type" content="website" />
 
     <!-- Twitter Card (not because i like twitter, only for compat in apps that accept the summary_large) -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="{% block twitter_title %}Snowsune.net{% endblock %}"
-    />
+    <meta name="twitter:title" content="{% block twitter_title %}Snowsune.net{% endblock %}" />
     <meta
       name="twitter:description"
       content="{% block twitter_description %}Vixi's website for projects, characters, tools and more!{% endblock %}"
@@ -70,10 +61,7 @@
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}" />
 
     <!-- Other -->
-    <link
-      rel="stylesheet"
-      href="https://furriesofnewengland.org/css/onionring.css"
-    />
+    <link rel="stylesheet" href="https://furriesofnewengland.org/css/onionring.css" />
     <!-- Required for FONE <3 -->
   </head>
 
@@ -96,9 +84,7 @@
         </div>
         <div class="login">
           <a href="#">Log In</a>
-          <button id="dark-mode-toggle" onclick="toggleDarkMode()">
-            Dark Mode
-          </button>
+          <button id="dark-mode-toggle" onclick="toggleDarkMode()">Dark Mode</button>
         </div>
       </nav>
     </header>
@@ -128,25 +114,17 @@
     <footer class="footer tile">
       <p>
         &copy; {{ year }} snowsune.net,
-        <a href="https://github.com/snowsune/site/commits/{{ version }}"
-          >Version {{ version }}</a
-        >
-        | Total visits: {{ total_visits }} | Unique visitors: {{ unique_visitors
-        }} | Art by <a href="https://mothwingart.carrd.co/">Mothwing</a> and
-        others! | If you think my site is helpful consider
+        <a href="https://github.com/snowsune/site/commits/{{ version }}">Version {{ version }}</a>
+        • Total visits: {{ total_visits }} • Unique visitors: {{ unique_visitors }} • Art by
+        <a href="https://mothwingart.carrd.co/">Mothwing</a>
+        and others! • If you think my site is helpful consider
         <a href="https://buymeacoffee.com/snowsune">Buying me a coffee!</a>
       </p>
 
       <!-- This adds us to the FONE ring! -->
       <div id="fone-ring">
-        <script
-          type="text/javascript"
-          src="https://furriesofnewengland.org/js/onionring-variables.js"
-        ></script>
-        <script
-          type="text/javascript"
-          src="https://furriesofnewengland.org/js/onionring-widget.js"
-        ></script>
+        <script type="text/javascript" src="https://furriesofnewengland.org/js/onionring-variables.js"></script>
+        <script type="text/javascript" src="https://furriesofnewengland.org/js/onionring-widget.js"></script>
       </div>
     </footer>
 
@@ -167,8 +145,7 @@
 
       // Set correct button text on page load
       window.onload = function () {
-        const isDarkMode =
-          document.documentElement.classList.contains("dark-mode");
+        const isDarkMode = document.documentElement.classList.contains("dark-mode");
         const btn = document.getElementById("dark-mode-toggle");
         if (btn) {
           btn.innerText = isDarkMode ? "Light Mode" : "Dark Mode";
