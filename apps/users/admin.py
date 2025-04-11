@@ -16,6 +16,7 @@ class CustomUserAdmin(UserAdmin):
                     "bio",
                     "discord_id",
                     "size_diff_image",
+                    "badges",
                 )
             },
         ),

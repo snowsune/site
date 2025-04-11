@@ -25,5 +25,8 @@ class CustomUser(AbstractUser):
     # is_admin = models.BooleanField(default=False) # use staff instead
     is_verified = models.BooleanField(default=False)  # Only i add this one
 
+    # Badges! (Not really implemented yet but~)
+    badges = models.JSONField(default=list, blank=True)
+
     def __str__(self):
         return self.username
