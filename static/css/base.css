@@ -31,6 +31,13 @@ body {
   padding: 1em; /* Padding around the entire page */
 }
 
+/* This could go somewhere else but, anything error-list can be styled with this */
+.errorlist {
+  color: red;
+  font-weight: bold;
+  margin-top: 0.25em;
+}
+
 /* Links */
 a {
   color: var(--link-default);
@@ -83,6 +90,12 @@ a:visited {
   align-items: center;
   padding: 8px 15px;
   padding-left: 0;
+}
+
+/* User avatars */
+.user-avatar {
+  width: 45px;
+  align-items: center;
 }
 
 /* Navbar Links - Big, Bold, and Classic */

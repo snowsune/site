@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from snowsune.models import CustomUser
+from apps.users.models import CustomUser
 
 
 class IndexViewTest(TestCase):

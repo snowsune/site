@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block title %}Register{% endblock %} {% block content %}
+<h1>Create an Account</h1>
+<form method="post">
+  {% csrf_token %}
+
+  <!-- For each field... -->
+  {{ form.non_field_errors }} {% for field in form.visible_fields %}
+  <div>
+    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+    <!-- The Field -->
+    {{ field }}
+
+    <!-- If help_text -->
+    {% if field.help_text %}
+    <small class="help-text">{{ field.help_text|safe }}</small>
+    {% endif %}
+
+    <!-- And any errors -->
+    {{ field.errors }}
+  </div>
+  {% endfor %}
+
+  <button type="submit">Register</button>
+</form>
+
+<p>
+  Already have an account?
+  <a href="{% url 'login' %}">Log in here</a>
+  .
+</p>
+{% endblock %}

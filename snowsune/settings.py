@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     # Main app
     "snowsune",
     # Custom apps
+    "apps.users",
     "apps.blog",
     "apps.comics",
     "apps.characters",
@@ -123,7 +124,7 @@ if DATABASE_URL:
     DATABASES["default"] = dj_database_url.parse(DATABASE_URL)
 
 # I'll use a custom user model for user-storage
-AUTH_USER_MODEL = "snowsune.CustomUser"
+AUTH_USER_MODEL = "users.CustomUser"
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -143,7 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = "EST"
+TIME_ZONE = "America/New_York"
 USE_I18N = True
 USE_TZ = True
 
@@ -154,6 +155,10 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",  # Normal Static Files
     BASE_DIR / "apps/characters/static",  # Characters have their own static files too
 ]
+
+# Media Paths (things like profile pictures and such are uploaded here)
+MEDIA_URL = "/media/"  # Base of the URL for media
+MEDIA_ROOT = BASE_DIR / "media" if not DEBUG else (BASE_DIR / ".local" / "media")
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
