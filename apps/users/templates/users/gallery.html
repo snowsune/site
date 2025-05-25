@@ -1,0 +1,28 @@
+{% extends "base.html" %} {% load static %} {% block header %}
+<link rel="stylesheet" href="{% static 'css/gallery.css' %}" />
+{% endblock %} {% block title %}Profile Gallery{% endblock %} {% block content %}
+<h1>Profile Gallery</h1>
+
+<div class="user-gallery">
+  {% for u in users %}
+  <div class="user-card">
+    {% if u.profile_picture %}
+    <img src="{{ u.profile_picture.url }}" alt="{{ u.username }}" class="user-avatar-large" />
+    {% else %}
+    <div class="user-avatar-placeholder">🦊</div>
+    {% endif %}
+    <h3>{{ u.first_name|default:u.username }}</h3>
+
+    <div class="badge-row">
+      {% if u.is_moderator %}
+      <img src="{% static 'badges/mod.png' %}" alt="Moderator" class="badge" />
+      {% endif %} {% for badge in u.badges %}
+      <img src="{% static 'badges/'|add:badge|add:'.png' %}" alt="{{ badge }}" class="badge" />
+      {% endfor %}
+    </div>
+  </div>
+  {% empty %}
+  <p>No verified users found.</p>
+  {% endfor %}
+</div>
+{% endblock %}
