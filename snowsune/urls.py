@@ -23,6 +23,7 @@ urlpatterns = [
     path("comics/", include("apps.comics.urls")),
     path("characters/", include("apps.characters.urls")),
     path("users/", include("apps.users.urls")),
+    path("", include("apps.pages.urls")),
 ]
 
 
