@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    {% if is_editable %}
+    <div class="mb-4 flex justify-end">
+        <a href="{% url 'pages:hungerfight-edit' %}"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Edit Page
+        </a>
+    </div>
+    {% endif %}
+
+    <article class="prose lg:prose-xl mx-auto">
+        <h1 class="text-4xl font-bold mb-8">{{ page.title }}</h1>
+
+        <div class="markdown-content">
+            {{ rendered_content|safe }} <!-- Markdown rendering insertion -->
+        </div>
+
+        <div class="mt-8 text-sm text-gray-600">
+            <p>Last updated: {{ page.updated_at|date:"F j, Y" }}</p>
+            {% if page.last_modified_by %}
+            <p>By: {{ page.last_modified_by.username }}</p>
+            {% endif %}
+        </div>
+    </article>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/markdown.css' %}">
+<link rel="stylesheet" href="{% static 'css/pygments.css' %}">
+{% endblock %}

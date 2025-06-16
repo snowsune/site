@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "apps.blog",
     "apps.comics",
     "apps.characters",
+    "apps.pages",
 ]
 
 MIDDLEWARE = [
@@ -164,8 +165,9 @@ MEDIA_ROOT = BASE_DIR / "media" if not DEBUG else (BASE_DIR / ".local" / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Login and logout redirects
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
+LOGIN_URL = "login"  # This tells Django where to redirect for login
+LOGIN_REDIRECT_URL = "home"  # Where to redirect after successful login
+LOGOUT_REDIRECT_URL = "home"  # Where to redirect after logout
 
 # HTTPS and security settings (adjust for production)
 SESSION_COOKIE_SECURE = False  # Set to True in production
