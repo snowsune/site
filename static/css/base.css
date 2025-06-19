@@ -61,20 +61,32 @@ a:visited {
  * Header
  * ====== */
 .header {
-  display: flex; /* Flexbox for aligning logo and navbar */
-  flex-direction: column; /* Stack logo and navbar vertically */
-  background: var(--navbar-bg); /* Cyan background */
-  color: white; /* White text for contrast */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: var(--navbar-bg);
+  color: white;
   padding: 1em;
-  border-radius: 12px; /* Rounded corners */
-  gap: 0.5em; /* Space between logo and navbar */
+  border-radius: 12px;
+  gap: 0.5em;
 }
-
-/* Logo */
+.header-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5em;
+}
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5em;
+}
 .logo {
   display: flex;
-  align-items: center; /* Center logo vertically */
-  padding-left: 12px; /* Maybe not the best way to center with navbar but :/ */
+  align-items: center;
+  padding-left: 12px;
 }
 .logo img {
   height: 60px; /* Smaller logo */
@@ -88,8 +100,8 @@ a:visited {
   display: flex;
   justify-content: space-between; /* Spread links and login to edges */
   align-items: center;
-  padding: 8px 15px;
-  padding-left: 0;
+  padding: 0;
+  margin: 0;
 }
 
 /* User avatars */
@@ -145,21 +157,39 @@ a:visited {
 
 /* Login */
 .login {
-  display: flex; /* Flexbox for multiple login/logout buttons if needed */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
-.login a {
+.discord-navbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  background: #5865F2;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.35em 1em 0.35em 0.8em;
+  font-size: 1em;
   text-decoration: none;
-  color: white;
-  padding: 0.5em 1em;
-  background: #d90429; /* Red for contrast */
-  border-radius: 4px;
-  transition: background 0.3s ease;
-  white-space: nowrap;
+  margin-bottom: 0.5em;
+  margin-right: 0;
+  box-shadow: 0 2px 8px rgba(88,101,242,0.08);
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+  animation: discord-bounce 1.2s infinite alternate;
 }
-
-.login a:hover {
-  background: #ff616f; /* Lighter red on hover */
+.login .discord-navbar-btn {
+  background: #5865F2;
+  color: #fff;
+  margin-bottom: 0.5em;
+}
+.login a:not(.discord-navbar-btn) {
+  background: #d90429;
+  color: #fff;
+}
+.login a:not(.discord-navbar-btn):hover {
+  background: #ff616f;
 }
 
 /* =======================
@@ -216,4 +246,29 @@ a:visited {
     max-width: 100%; /* Make sidebar take full width */
     order: 1; /* Ensures sidebar appears after content */
   }
+}
+
+/* Remove old banner styles if present */
+.discord-invite-banner, .discord-animated-link, .discord-icon, .discord-text {
+  display: none !important;
+}
+
+.discord-navbar-btn:hover {
+  background: #4752c4;
+  transform: scale(1.06);
+  box-shadow: 0 4px 16px rgba(88,101,242,0.18);
+  text-decoration: none;
+}
+.discord-navbar-icon {
+  font-size: 1.2em;
+  margin-right: 0.2em;
+  animation: discord-pulse 1.2s infinite alternate;
+}
+@keyframes discord-bounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-2px); }
+}
+@keyframes discord-pulse {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.4); }
 }

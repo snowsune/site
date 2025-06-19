@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 from datetime import datetime
 
 from tracking.models import Visitor
+from .models import SiteSetting
 
 
 # Returns the git version directly
@@ -51,3 +52,10 @@ def visit_stats(request):
         "total_visits": total_visits,
         "unique_visitors": unique_visitors,
     }
+
+
+# Quick processor for the discord invite link
+# TODO: Could be made generic for all SiteSettings
+def discord_invite_link(request):
+    invite = SiteSetting.objects.filter(key="discord_invite").first()
+    return {"discord_invite": invite.value if invite else ""}

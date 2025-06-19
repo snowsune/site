@@ -102,6 +102,7 @@ TEMPLATES = [
                 "snowsune.context_processors.debug_mode",
                 "snowsune.context_processors.expiry_links",
                 "snowsune.context_processors.visit_stats",
+                "snowsune.context_processors.discord_invite_link",  # TODO: Make generic!
             ],
         },
     },
