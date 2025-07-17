@@ -114,9 +114,15 @@ def artist_dashboard(request, commission_name):
                 )
                 # Send webhook if set
                 if commission.webhook_url:
+                    draft_url = (
+                        request.build_absolute_uri(
+                            reverse("commorganizer-public-view", args=[commission.name])
+                        )
+                        + f"?draft={draft.pk}"
+                    )
                     send_discord_webhook(
                         commission.webhook_url,
-                        f"🖼️ New draft #{draft.number} uploaded for commission '{commission.name}'.",
+                        f"🖼️ New draft #{draft.number} uploaded for commission '{commission.name}'.\n [Link]({draft_url})",
                     )
                 return HttpResponseRedirect(request.path)
         elif "toggle_resolve_comment" in request.POST:
