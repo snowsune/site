@@ -26,7 +26,7 @@
                     <img src="{{ draft.image.url }}" alt="Draft {{ draft.pk }}"
                         style="max-width: 120px; max-height: 120px; border: 1px solid #ccc; {% if draft.pk == current_draft.pk %}box-shadow: 0 0 8px #00bcd4;{% endif %}" />
                 </a>
-                <div style="text-align: center; font-size: 0.9em;">Draft {{ draft.pk }}</div>
+                <div style="text-align: center; font-size: 0.9em;">Draft {{ draft.number }}</div>
             </li>
             {% empty %}
             <li>No drafts yet.</li>

@@ -40,7 +40,7 @@
                     style="max-width: 120px; max-height: 120px; display: block; border: 1px solid #ccc;" />
             </a>
             <div style="text-align: center; font-size: 0.9em;">Draft
-                {{ draft.pk }}<br>{{ draft.created_at|date:"Y-m-d H:i" }}</div>
+                {{ draft.number }}<br>{{ draft.created_at|date:"Y-m-d H:i" }}</div>
         </li>
         {% empty %}
         <li>No drafts yet.</li>
@@ -55,7 +55,7 @@
         {% for comment in comments %}
         <li class="commorg-comment{% if comment.resolved %} resolved{% endif %}">
             <span class="commorg-commenter">{{ comment.commenter_name }}</span> <span class="commorg-meta">on Draft
-                {{ comment.draft.pk }} at ({{ comment.x }}, {{ comment.y }})</span><br>
+                {{ comment.draft.number }} at ({{ comment.x }}, {{ comment.y }})</span><br>
             <span>{{ comment.content }}</span><br>
             <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
             <form method="post" style="display: inline; margin-left: 1em;">
