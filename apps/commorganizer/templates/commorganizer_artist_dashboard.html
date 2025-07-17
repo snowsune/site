@@ -48,6 +48,19 @@
     </ul>
 </div>
 
+<!-- Webhook URL -->
+<div style="margin-bottom: 2em;">
+    <h2>Discord Webhook (Notifications)</h2>
+    <form method="post" style="display: flex; align-items: center; gap: 1em;">
+        {% csrf_token %}
+        {{ webhook_form.webhook_url }}
+        <button type="submit" name="set_webhook">Save Webhook</button>
+    </form>
+    {% if commission.webhook_url %}
+    <div style="font-size: 0.9em; color: #00eaff;">Current webhook set.</div>
+    {% endif %}
+</div>
+
 <!-- Comments List -->
 <div>
     <h2>All Comments</h2>

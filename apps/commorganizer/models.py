@@ -7,6 +7,9 @@ class Commission(models.Model):
     name = models.CharField(max_length=32, unique=True)
     artist_password = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
+    webhook_url = models.URLField(
+        blank=True, null=True, help_text="Optional: Discord webhook for notifications."
+    )
 
     def __str__(self):
         return self.name

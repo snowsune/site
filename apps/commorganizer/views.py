@@ -5,6 +5,7 @@ from .forms import CommissionCreateForm, CommissionReturnForm
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django import forms
+from .utils import send_discord_webhook
 
 # Create your views here.
 
@@ -63,6 +64,20 @@ class DraftUploadForm(forms.Form):
     image = forms.ImageField()
 
 
+class WebhookForm(forms.ModelForm):
+    class Meta:
+        model = Commission
+        fields = ["webhook_url"]
+        widgets = {
+            "webhook_url": forms.URLInput(
+                attrs={
+                    "placeholder": "https://discord.com/api/webhooks/...",
+                    "size": 60,
+                }
+            ),
+        }
+
+
 def artist_dashboard(request, commission_name):
     commission = Commission.objects.get(name=commission_name)
     # Comments: unresolved first, then resolved, both sorted by age
@@ -80,15 +95,29 @@ def artist_dashboard(request, commission_name):
         reverse("commorganizer-public-view", args=[commission.name])
     )
 
+    # Webhook form
+    webhook_form = WebhookForm(instance=commission)
+    if request.method == "POST" and "set_webhook" in request.POST:
+        webhook_form = WebhookForm(request.POST, instance=commission)
+        if webhook_form.is_valid():
+            webhook_form.save()
+            return HttpResponseRedirect(request.path)
+
     # Handle draft upload (stub)
     upload_form = DraftUploadForm()
     if request.method == "POST":
         if "upload_draft" in request.POST:
             upload_form = DraftUploadForm(request.POST, request.FILES)
             if upload_form.is_valid():
-                Draft.objects.create(
+                draft = Draft.objects.create(
                     commission=commission, image=upload_form.cleaned_data["image"]
                 )
+                # Send webhook if set
+                if commission.webhook_url:
+                    send_discord_webhook(
+                        commission.webhook_url,
+                        f"🖼️ New draft #{draft.number} uploaded for commission '{commission.name}'.",
+                    )
                 return HttpResponseRedirect(request.path)
         elif "toggle_resolve_comment" in request.POST:
             comment_id = request.POST.get("toggle_resolve_comment")
@@ -111,6 +140,8 @@ def artist_dashboard(request, commission_name):
             "drafts": drafts,
             "share_link": share_link,
             "upload_form": upload_form,
+            "webhook_form": webhook_form,
+            "commission": commission,
         },
     )
 
@@ -139,13 +170,19 @@ def public_commission_view(request, commission_name):
         commenter_name = request.POST.get("commenter_name", "").strip()[:32]
         content = request.POST.get("content", "").strip()
         if commenter_name and content:
-            Comment.objects.create(
+            comment = Comment.objects.create(
                 draft=current_draft,
                 x=x,
                 y=y,
                 commenter_name=commenter_name,
                 content=content,
             )
+            # Send webhook if set
+            if current_draft.commission.webhook_url:
+                send_discord_webhook(
+                    current_draft.commission.webhook_url,
+                    f"💬 New comment by {commenter_name} on draft #{current_draft.number} for commission '{commission_name}':\n{content}",
+                )
             # Redirect to same draft after comment
             return redirect(f"{request.path}?draft={current_draft.pk}")
 
