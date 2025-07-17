@@ -1,0 +1,67 @@
+/* CommOrganizer custom styles */
+
+.commorg-comment-list {
+  list-style: none;
+  padding: 0;
+}
+
+.commorg-comment {
+  margin-bottom: 1em;
+  padding: 0.5em;
+  border-radius: 6px;
+  background: #222a2e;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.commorg-comment.resolved {
+  background: #444a4e;
+  color: #aaa;
+}
+
+.commorg-comment .commorg-commenter {
+  color: #00eaff;
+  font-weight: bold;
+}
+
+.commorg-comment .commorg-meta {
+  font-size: 0.8em;
+  color: #aaa;
+}
+
+.commorg-comment-form {
+  background: #18304b;
+  color: #fff;
+  border: 2px solid #00eaff;
+  padding: 1em;
+  border-radius: 8px;
+  margin-top: 1em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.commorg-comment-form input,
+.commorg-comment-form textarea {
+  background: #222a2e;
+  color: #fff;
+  border: 1px solid #00eaff;
+  border-radius: 4px;
+  padding: 0.3em 0.5em;
+  margin-bottom: 0.5em;
+  width: 100%;
+}
+
+.commorg-comment-form button {
+  background: #00eaff;
+  color: #18304b;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5em 1em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 0.5em;
+}
+
+.commorg-comment-form button[type="button"] {
+  background: #444a4e;
+  color: #fff;
+} 

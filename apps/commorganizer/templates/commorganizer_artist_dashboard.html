@@ -1,6 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Manage Commission: {{ commission_name }}{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{% static 'commorganizer/commorganizer.css' %}">
+{% endblock %}
 
 {% block content %}
 <h1>Artist Dashboard for {{ commission_name }}</h1>
@@ -46,23 +51,19 @@
 <!-- Comments List -->
 <div>
     <h2>All Comments</h2>
-    <ul style="list-style: none; padding: 0;">
+    <ul class="commorg-comment-list">
         {% for comment in comments %}
-        <li
-            style="margin-bottom: 1em; padding: 0.5em; border-radius: 6px; {% if comment.resolved %}background: #eee; color: #888;{% else %}background: #fffbe6;{% endif %}">
-            <strong>{{ comment.commenter_name }}</strong> on Draft {{ comment.draft.pk }} at ({{ comment.x }},
-            {{ comment.y }})<br>
-            <span style="font-size: 0.95em;">{{ comment.content }}</span><br>
-            <span style="font-size: 0.8em; color: #888;">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
-            {% if not comment.resolved %}
+        <li class="commorg-comment{% if comment.resolved %} resolved{% endif %}">
+            <span class="commorg-commenter">{{ comment.commenter_name }}</span> <span class="commorg-meta">on Draft
+                {{ comment.draft.pk }} at ({{ comment.x }}, {{ comment.y }})</span><br>
+            <span>{{ comment.content }}</span><br>
+            <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
             <form method="post" style="display: inline; margin-left: 1em;">
                 {% csrf_token %}
-                <input type="hidden" name="resolve_comment" value="{{ comment.pk }}" />
-                <button type="submit">Mark Resolved</button>
+                <input type="hidden" name="toggle_resolve_comment" value="{{ comment.pk }}" />
+                <button type="submit">{% if comment.resolved %}Mark as Unresolved{% else %}Mark
+                    Resolved{% endif %}</button>
             </form>
-            {% else %}
-            <span style="font-size: 0.8em;">(Resolved)</span>
-            {% endif %}
         </li>
         {% empty %}
         <li>No comments yet.</li>

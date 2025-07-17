@@ -82,13 +82,25 @@ def artist_dashboard(request, commission_name):
 
     # Handle draft upload (stub)
     upload_form = DraftUploadForm()
-    if request.method == "POST" and "upload_draft" in request.POST:
-        upload_form = DraftUploadForm(request.POST, request.FILES)
-        if upload_form.is_valid():
-            Draft.objects.create(
-                commission=commission, image=upload_form.cleaned_data["image"]
-            )
-            return HttpResponseRedirect(request.path)
+    if request.method == "POST":
+        if "upload_draft" in request.POST:
+            upload_form = DraftUploadForm(request.POST, request.FILES)
+            if upload_form.is_valid():
+                Draft.objects.create(
+                    commission=commission, image=upload_form.cleaned_data["image"]
+                )
+                return HttpResponseRedirect(request.path)
+        elif "toggle_resolve_comment" in request.POST:
+            comment_id = request.POST.get("toggle_resolve_comment")
+            try:
+                comment = Comment.objects.get(
+                    pk=comment_id, draft__commission=commission
+                )
+                comment.resolved = not comment.resolved
+                comment.save()
+                return HttpResponseRedirect(request.path)
+            except Comment.DoesNotExist:
+                pass
 
     return render(
         request,

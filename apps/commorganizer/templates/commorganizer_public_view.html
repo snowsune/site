@@ -1,6 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Commission: {{ commission_name }}{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{% static 'commorganizer/commorganizer.css' %}">
+{% endblock %}
 
 {% block content %}
 <h1>Commission: {{ commission_name }}</h1>
@@ -54,7 +59,7 @@
                     }
                 });
                 const formHtml = `
-            <form method="post" style="background: #fff; border: 1px solid #ccc; padding: 1em; border-radius: 8px;">
+            <form method="post" class="commorg-comment-form">
               {% csrf_token %}
               <input type="hidden" name="x" value="${x}" />
               <input type="hidden" name="y" value="${y}" />
@@ -78,14 +83,14 @@
             });
         </script>
         <h3>Comments on this draft</h3>
-        <ul style="list-style: none; padding: 0;">
+        <ul class="commorg-comment-list">
             {% for comment in comments %}
-            <li
-                style="margin-bottom: 1em; padding: 0.5em; border-radius: 6px; {% if comment.resolved %}background: #eee; color: #888;{% else %}background: #fffbe6;{% endif %}">
-                <strong>{{ comment.commenter_name }}</strong> at ({{ comment.x }}, {{ comment.y }})<br>
-                <span style="font-size: 0.95em;">{{ comment.content }}</span><br>
-                <span style="font-size: 0.8em; color: #888;">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
-                {% if comment.resolved %}<span style="font-size: 0.8em;">(Resolved)</span>{% endif %}
+            <li class="commorg-comment{% if comment.resolved %} resolved{% endif %}">
+                <span class="commorg-commenter">{{ comment.commenter_name }}</span> <span class="commorg-meta">at
+                    ({{ comment.x }}, {{ comment.y }})</span><br>
+                <span>{{ comment.content }}</span><br>
+                <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }}{% if comment.resolved %}
+                    (Resolved){% endif %}</span>
             </li>
             {% empty %}
             <li>No comments yet.</li>
