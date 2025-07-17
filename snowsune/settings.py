@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "apps.comics",
     "apps.characters",
     "apps.pages",
+    "apps.commorganizer",  # Commission Organizer app
 ]
 
 MIDDLEWARE = [
