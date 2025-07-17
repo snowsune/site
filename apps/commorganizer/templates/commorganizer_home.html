@@ -3,8 +3,33 @@
 {% block title %}Commission Organizer - Coming Soon{% endblock %}
 
 {% block content %}
-<div class="commorganizer-home">
-    <h1>Commission Organizer</h1>
-    <p>Coming soon! If you're reading this it means that the commission organizer subapp works!</p>
+<div style="display: flex; gap: 2em; align-items: flex-start;">
+    <!-- Instructions (Left) -->
+    <div style="flex: 1; min-width: 250px;">
+        <h2>How to Use</h2>
+        <ol>
+            <li>To start a new commission, enter a unique name and password, then click Create.</li>
+            <li>To return to an existing commission, enter its password below.</li>
+            <li>Rememeber your password! It must be unique to each comission.</li>
+            <li>Snowsune.net account not required!</li>
+        </ol>
+    </div>
+
+    <!-- Forms (Right) -->
+    <div style="flex: 1; min-width: 300px;">
+        <h2>Start a New Commission</h2>
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+            {{ create_form.as_p }}
+            <button type="submit" name="action" value="create">Create</button>
+        </form>
+        <hr />
+        <h2>Return to Commission</h2>
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+            {{ return_form.as_p }}
+            <button type="submit" name="action" value="return">Enter</button>
+        </form>
+    </div>
 </div>
 {% endblock %}

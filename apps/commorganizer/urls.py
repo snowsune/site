@@ -3,4 +3,14 @@ from . import views
 
 urlpatterns = [
     path("", views.commorganizer_landing, name="commorganizer"),
+    path(
+        "manage/<str:commission_name>/",
+        views.artist_dashboard,
+        name="commorganizer-artist-dashboard",
+    ),
+    path(
+        "<str:commission_name>/",
+        views.public_commission_view,
+        name="commorganizer-public-view",
+    ),
 ]

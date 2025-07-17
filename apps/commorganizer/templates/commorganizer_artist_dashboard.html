@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Commission: {{ commission_name }}{% endblock %}
+
+{% block content %}
+<h1>Artist Dashboard for {{ commission_name }}</h1>
+
+<!-- Share Link -->
+<div style="margin-bottom: 1em;">
+    <label for="share-link"><strong>Share this link with viewers:</strong></label>
+    <input id="share-link" type="text" value="{{ share_link }}" readonly style="width: 60%;"
+        onclick="this.select();document.execCommand('copy');" />
+    <button
+        onclick="navigator.clipboard.writeText(document.getElementById('share-link').value);this.innerText='Copied!';setTimeout(()=>this.innerText='Copy',1000);">Copy</button>
+</div>
+
+<!-- Upload Draft -->
+<div style="margin-bottom: 2em;">
+    <h2>Upload New Draft</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ upload_form.as_p }}
+        <button type="submit" name="upload_draft">Upload</button>
+    </form>
+</div>
+
+<!-- Drafts Gallery -->
+<div style="margin-bottom: 2em;">
+    <h2>Previous Drafts</h2>
+    <ul style="list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 1em;">
+        {% for draft in drafts %}
+        <li>
+            <a href="{% url 'commorganizer-public-view' commission_name=commission_name %}#draft-{{ draft.pk }}">
+                <img src="{{ draft.image.url }}" alt="Draft {{ draft.pk }}"
+                    style="max-width: 120px; max-height: 120px; display: block; border: 1px solid #ccc;" />
+            </a>
+            <div style="text-align: center; font-size: 0.9em;">Draft
+                {{ draft.pk }}<br>{{ draft.created_at|date:"Y-m-d H:i" }}</div>
+        </li>
+        {% empty %}
+        <li>No drafts yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- Comments List -->
+<div>
+    <h2>All Comments</h2>
+    <ul style="list-style: none; padding: 0;">
+        {% for comment in comments %}
+        <li
+            style="margin-bottom: 1em; padding: 0.5em; border-radius: 6px; {% if comment.resolved %}background: #eee; color: #888;{% else %}background: #fffbe6;{% endif %}">
+            <strong>{{ comment.commenter_name }}</strong> on Draft {{ comment.draft.pk }} at ({{ comment.x }},
+            {{ comment.y }})<br>
+            <span style="font-size: 0.95em;">{{ comment.content }}</span><br>
+            <span style="font-size: 0.8em; color: #888;">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
+            {% if not comment.resolved %}
+            <form method="post" style="display: inline; margin-left: 1em;">
+                {% csrf_token %}
+                <input type="hidden" name="resolve_comment" value="{{ comment.pk }}" />
+                <button type="submit">Mark Resolved</button>
+            </form>
+            {% else %}
+            <span style="font-size: 0.8em;">(Resolved)</span>
+            {% endif %}
+        </li>
+        {% empty %}
+        <li>No comments yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
