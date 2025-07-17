@@ -104,7 +104,46 @@ def artist_dashboard(request, commission_name):
 
 
 def public_commission_view(request, commission_name):
-    # TODO: Implement public commission view logic
+    commission = Commission.objects.get(name=commission_name)
+    drafts = Draft.objects.filter(commission=commission).order_by("-created_at")
+    draft_id = request.GET.get("draft")
+    if draft_id:
+        try:
+            current_draft = drafts.get(pk=draft_id)
+        except Draft.DoesNotExist:
+            current_draft = drafts.first()
+    else:
+        current_draft = drafts.first()
+    comments = (
+        Comment.objects.filter(draft=current_draft).order_by("created_at")
+        if current_draft
+        else []
+    )
+
+    # Handle comment form POST
+    if request.method == "POST" and current_draft and "add_comment" in request.POST:
+        x = int(request.POST.get("x", 0))
+        y = int(request.POST.get("y", 0))
+        commenter_name = request.POST.get("commenter_name", "").strip()[:32]
+        content = request.POST.get("content", "").strip()
+        if commenter_name and content:
+            Comment.objects.create(
+                draft=current_draft,
+                x=x,
+                y=y,
+                commenter_name=commenter_name,
+                content=content,
+            )
+            # Redirect to same draft after comment
+            return redirect(f"{request.path}?draft={current_draft.pk}")
+
     return render(
-        request, "commorganizer_public_view.html", {"commission_name": commission_name}
+        request,
+        "commorganizer_public_view.html",
+        {
+            "commission_name": commission_name,
+            "drafts": drafts,
+            "current_draft": current_draft,
+            "comments": comments,
+        },
     )
