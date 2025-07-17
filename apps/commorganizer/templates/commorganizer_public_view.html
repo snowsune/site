@@ -7,6 +7,12 @@
 <link rel="stylesheet" href="{% static 'commorganizer/commorganizer.css' %}">
 {% endblock %}
 
+{% block og_image %}{% if current_draft %}{{ current_draft.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block twitter_image %}{% if current_draft %}{{ current_draft.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block meta_description %}Add comments/Suggestions to this draft!{% endblock %}
+{% block og_description %}Add comments/Suggestions to this draft!{% endblock %}
+{% block twitter_description %}Add comments/Suggestions to this draft!{% endblock %}
+
 {% block content %}
 <h1>Commission: {{ commission_name }}</h1>
 <div style="display: flex; gap: 2em; align-items: flex-start;">
