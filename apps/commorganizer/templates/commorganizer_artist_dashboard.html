@@ -8,7 +8,14 @@
 {% endblock %}
 
 {% block content %}
-<h1>Artist Dashboard for {{ commission_name }}</h1>
+<div id="artist-dashboard-container" data-commission-name="{{ commission_name|escapejs }}"
+    data-latest-comment-id="{% if comments %}{{ comments.0.id }}{% else %}0{% endif %}"
+    style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <h1>Artist Dashboard for {{ commission_name }}</h1>
+    <div id="notify-permission-container" style="display:none;">
+        <button id="notify-permission-btn">Enable Desktop Notifications</button>
+    </div>
+</div>
 
 <!-- Share Link -->
 <div style="margin-bottom: 1em;">
@@ -88,4 +95,8 @@
         {% endfor %}
     </ul>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'commorganizer/artist_dashboard.js' %}"></script>
 {% endblock %}

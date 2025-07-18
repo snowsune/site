@@ -3,10 +3,11 @@ from django.contrib import messages
 from .models import Commission, Draft, Comment
 from .forms import CommissionCreateForm, CommissionReturnForm
 from django.urls import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django import forms
 from .utils import send_discord_webhook
 from django.db.models import Count, Q
+from django.utils.dateparse import parse_datetime
 
 # Create your views here.
 
@@ -209,3 +210,36 @@ def public_commission_view(request, commission_name):
             "comments": comments,
         },
     )
+
+
+def api_new_comments(request):
+    commission_name = request.GET.get("commission_name")
+    since_id = request.GET.get("since_id")
+    if not commission_name:
+        return JsonResponse({"error": "Missing commission_name"}, status=400)
+    try:
+        commission = Commission.objects.get(name=commission_name)
+    except Commission.DoesNotExist:
+        return JsonResponse({"error": "Commission not found"}, status=404)
+    comments_qs = Comment.objects.filter(draft__commission=commission)
+    if since_id:
+        try:
+            since_id = int(since_id)
+            comments_qs = comments_qs.filter(id__gt=since_id)
+        except ValueError:
+            pass  # Ignore invalid since_id
+    comments_qs = comments_qs.order_by("id")
+    data = [
+        {
+            "id": c.id,
+            "draft_number": c.draft.number,
+            "x": c.x,
+            "y": c.y,
+            "commenter_name": c.commenter_name,
+            "resolved": c.resolved,
+            "content": c.content,
+            "created_at": c.created_at.isoformat(),
+        }
+        for c in comments_qs
+    ]
+    return JsonResponse({"comments": data})
