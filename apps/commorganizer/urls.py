@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("", views.commorganizer_landing, name="commorganizer"),
+    path("", views.commorganizer_landing, name="commorganizer-landing"),
     path(
         "manage/<str:commission_name>/",
         views.artist_dashboard,

@@ -14,6 +14,7 @@ import os
 import re
 import logging
 from pathlib import Path
+import sys
 
 # Logging setup
 LOGGING = {
@@ -178,3 +179,10 @@ SECURE_SSL_REDIRECT = False  # Set to True in production
 SECURE_HSTS_SECONDS = 0  # Enable HSTS in production
 SECURE_HSTS_PRELOAD = False
 SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+
+# If we're testing
+if "test" in sys.argv:
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
+    }
