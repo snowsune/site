@@ -64,4 +64,38 @@
 .commorg-comment-form button[type="button"] {
   background: #444a4e;
   color: #fff;
+}
+
+.commorg-bug-btn {
+    display: inline-block;
+    background: #d90429;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.1em;
+    padding: 0.7em 1.5em;
+    border-radius: 999px;
+    margin-top: 1em;
+    box-shadow: 0 2px 8px rgba(217, 4, 41, 0.18);
+    text-decoration: none;
+    animation: commorg-bounce 1.2s infinite alternate;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.commorg-bug-btn:hover {
+    background: #ff616f;
+    transform: scale(1.07);
+}
+
+.commorg-bug-btn,
+.commorg-bug-btn:visited {
+    color: #fff !important;
+}
+
+@keyframes commorg-bounce {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-6px);
+    }
 } 
