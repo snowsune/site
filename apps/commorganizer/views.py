@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django import forms
 from .utils import send_discord_webhook
+from django.db.models import Count, Q
 
 # Create your views here.
 
@@ -89,7 +90,13 @@ def artist_dashboard(request, commission_name):
     ).order_by("created_at")
     all_comments = list(unresolved_comments) + list(resolved_comments)
     # Drafts, newest first
-    drafts = Draft.objects.filter(commission=commission).order_by("-created_at")
+    drafts = (
+        Draft.objects.filter(commission=commission)
+        .order_by("-created_at")
+        .annotate(
+            unresolved_count=Count("comments", filter=Q(comments__resolved=False))
+        )
+    )
     # Share link
     share_link = request.build_absolute_uri(
         reverse("commorganizer-public-view", args=[commission.name])
