@@ -161,7 +161,7 @@ STATICFILES_DIRS = [
 
 # Media Paths (things like profile pictures and such are uploaded here)
 MEDIA_URL = "/media/"  # Base of the URL for media
-MEDIA_ROOT = BASE_DIR / "media" if not DEBUG else (BASE_DIR / ".local" / "media")
+MEDIA_ROOT = os.environ.get("MEDIA_ROOT", str(BASE_DIR / "media"))
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
