@@ -9,7 +9,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 class CommissionOrganizerTests(TestCase):
     def test_unauthenticated_commission_creation(self):
         """Test creating a commission without authentication (legacy password flow)."""
-        create_url = reverse("commorganizer-landing")
+        create_url = reverse("commorganizer")
         response = self.client.post(
             create_url,
             {
