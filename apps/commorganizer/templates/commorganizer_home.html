@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Commission Organizer - Coming Soon{% endblock %}
+
+{% load static %}
+
+{% block header %}
+<link rel="stylesheet" href="{% static 'commorganizer/commorganizer.css' %}">
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; gap: 2em; align-items: flex-start;">
+    <!-- Instructions (Left) -->
+    <div style="flex: 1; min-width: 250px;">
+        <h2>How to Use</h2>
+        <ol>
+            <li>To start a new commission, enter a unique name and password, then click Create.</li>
+            <li>To return to an existing commission, enter its password below.</li>
+            <li>Rememeber your password! It must be unique to each comission.</li>
+            <li>Snowsune.net account not required!</li>
+        </ol>
+        <hr />
+        <div style="margin-top: 10em;">
+            <h4>Thank you!</h4>
+            <ul style="padding-left: 1em;">
+                Artist and Tester <a href="https://www.furaffinity.net/user/sethraven4" target="_blank"
+                    rel="noopener">Seth Raven</a>
+            </ul>
+            <ul style="padding-left: 1em;">
+                Artist and Tester <a href="https://www.furaffinity.net/user/munchypony" target="_blank"
+                    rel="noopener">MunchyPony</a>
+            </ul>
+        </div>
+
+        <div style="margin-top: 2em; text-align: center;">
+            {% if debug %}
+            <a href="https://github.com/snowsune/site/issues/new?title=Commission%20Organizer%20Bug%20Report&body=**What%20happened%3F**%0A%0A%28Describe%20the%20bug%20or%20issue%20you%20found%20in%20the%20Commission%20Organizer%20app.%20Include%20steps%20to%20reproduce%2C%20screenshots%2C%20etc.%20if%20possible.%29%0A%0A**Browser%20%2F%20Device%20info%20%28optional%29**%3A%0A%0A"
+                target="_blank" rel="noopener" class="commorg-bug-btn">🐞 I'm still testing and ironing out this
+                app!<br>If you find bugs or have comments, click here!</a>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- Forms (Right) -->
+    <div style="flex: 1; min-width: 300px;">
+        <h2>Start a New Commission</h2>
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+            {{ create_form.as_p }}
+            <button type="submit" name="action" value="create">Create</button>
+        </form>
+        <hr />
+        <h2>Return to Commission</h2>
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+            {{ return_form.as_p }}
+            <button type="submit" name="action" value="return">Enter</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

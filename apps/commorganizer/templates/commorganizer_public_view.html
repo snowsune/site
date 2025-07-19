@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Commission: {{ commission_name }}{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{% static 'commorganizer/commorganizer.css' %}">
+{% endblock %}
+
+{% block og_image %}{% if current_draft %}{{ current_draft.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block twitter_image %}{% if current_draft %}{{ current_draft.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block meta_description %}Add comments/Suggestions to this draft!{% endblock %}
+{% block og_description %}Add comments/Suggestions to this draft!{% endblock %}
+{% block twitter_description %}Add comments/Suggestions to this draft!{% endblock %}
+
+{% block content %}
+<h1>Commission: {{ commission_name }}</h1>
+<div style="display: flex; gap: 2em; align-items: flex-start;">
+    <!-- Sidebar: Previous Drafts -->
+    <div style="flex: 0 0 140px;">
+        <h3>Drafts</h3>
+        <ul style="list-style: none; padding: 0;">
+            {% for draft in drafts %}
+            <li style="margin-bottom: 1em;">
+                <a href="?draft={{ draft.pk }}">
+                    <img src="{{ draft.image.url }}" alt="Draft {{ draft.pk }}"
+                        style="max-width: 120px; max-height: 120px; border: 1px solid #ccc; {% if draft.pk == current_draft.pk %}box-shadow: 0 0 8px #00bcd4;{% endif %}" />
+                </a>
+                <div style="text-align: center; font-size: 0.9em;">Draft {{ draft.number }}</div>
+            </li>
+            {% empty %}
+            <li>No drafts yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Main Draft Image and Comments -->
+    <div style="flex: 1;">
+        {% if current_draft %}
+        <div style="position: relative; display: inline-block;">
+            <img id="main-draft-img" src="{{ current_draft.image.url }}" alt="Current Draft"
+                style="max-width: 100%; border: 2px solid #00bcd4; cursor: crosshair;"
+                onclick="showCommentForm(event)" />
+            <!-- Render comment markers -->
+            {% for comment in comments %}
+            <div style="position: absolute; left: {{ comment.x }}px; top: {{ comment.y }}px; width: 18px; height: 18px; background: {% if comment.resolved %}#aaa{% else %}#d90429{% endif %}; border-radius: 50%; color: #fff; text-align: center; line-height: 18px; font-size: 0.8em; transform: translate(-50%, -50%);"
+                title="{{ comment.commenter_name }}: {{ comment.content }}">
+                💬
+            </div>
+            {% endfor %}
+        </div>
+        <div id="comment-form-container" style="display: none; margin-top: 1em;"></div>
+        <script>
+            // Show comment form at click location
+            function showCommentForm(event) {
+                const img = event.target;
+                const rect = img.getBoundingClientRect();
+                const x = Math.round(event.clientX - rect.left);
+                const y = Math.round(event.clientY - rect.top);
+                // Try to get name from cookie
+                let commenterName = '';
+                document.cookie.split(';').forEach(function (c) {
+                    if (c.trim().startsWith('commorg_name=')) {
+                        commenterName = decodeURIComponent(c.trim().substring('commorg_name='.length));
+                    }
+                });
+                const formHtml = `
+            <form method="post" class="commorg-comment-form">
+              {% csrf_token %}
+              <input type="hidden" name="x" value="${x}" />
+              <input type="hidden" name="y" value="${y}" />
+              <label>Name: <input type="text" name="commenter_name" value="${commenterName}" required /></label><br>
+              <label>Comment:<br><textarea name="content" required style="width: 100%;"></textarea></label><br>
+              <button type="submit" name="add_comment">Add Comment at (${x}, ${y})</button>
+              <button type="button" onclick="document.getElementById('comment-form-container').style.display='none';">Cancel</button>
+            </form>
+          `;
+                const container = document.getElementById('comment-form-container');
+                container.innerHTML = formHtml;
+                container.style.display = 'block';
+                window.scrollTo({ top: container.offsetTop - 100, behavior: 'smooth' });
+            }
+            // Save name to cookie on submit
+            document.addEventListener('submit', function (e) {
+                if (e.target && e.target.querySelector('input[name="commenter_name"]')) {
+                    const name = e.target.querySelector('input[name="commenter_name"]').value;
+                    document.cookie = 'commorg_name=' + encodeURIComponent(name) + ';path=/;max-age=31536000';
+                }
+            });
+        </script>
+        <h3>Comments on this draft</h3>
+        <ul class="commorg-comment-list">
+            {% for comment in comments %}
+            <li class="commorg-comment{% if comment.resolved %} resolved{% endif %}">
+                <span class="commorg-commenter">{{ comment.commenter_name }}</span> <span class="commorg-meta">at
+                    ({{ comment.x }}, {{ comment.y }})</span><br>
+                <span>{{ comment.content }}</span><br>
+                <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }}{% if comment.resolved %}
+                    (Resolved){% endif %}</span>
+            </li>
+            {% empty %}
+            <li>No comments yet.</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No drafts available for this commission yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Commission: {{ commission_name }}{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{% static 'commorganizer/commorganizer.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="artist-dashboard-container" data-commission-name="{{ commission_name|escapejs }}"
+    data-latest-comment-id="{% if comments %}{{ comments.0.id }}{% else %}0{% endif %}"
+    style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <h1>Artist Dashboard for {{ commission_name }}</h1>
+    <div id="notify-permission-container" style="display:none;">
+        <button id="notify-permission-btn">Enable Desktop Notifications</button>
+    </div>
+</div>
+
+<!-- Share Link -->
+<div style="margin-bottom: 1em;">
+    <label for="share-link"><strong>Share this link:</strong></label>
+    <input id="share-link" type="text" value="{{ share_link }}" readonly style="width: 60%;"
+        onclick="this.select();document.execCommand('copy');" />
+    <button
+        onclick="navigator.clipboard.writeText(document.getElementById('share-link').value);this.innerText='Copied!';setTimeout(()=>this.innerText='Copy',1000);">Copy</button>
+</div>
+
+<!-- Upload Draft -->
+<div style="margin-bottom: 2em;">
+    <h2>Upload New Draft</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ upload_form.as_p }}
+        <button type="submit" name="upload_draft">Upload</button>
+    </form>
+</div>
+
+<!-- Drafts Gallery -->
+<div style="margin-bottom: 2em;">
+    <h2>Previous Drafts</h2>
+    <ul style="list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 1em;">
+        {% for draft in drafts %}
+        <li style="position: relative;">
+            <a href="{% url 'commorganizer-public-view' commission_name=commission_name %}#draft-{{ draft.pk }}"
+                style="display: block; position: relative;">
+                <img src="{{ draft.image.url }}" alt="Draft {{ draft.number }}"
+                    style="max-width: 120px; max-height: 120px; display: block; border: 1px solid #ccc;" />
+                {% if draft.unresolved_count > 0 %}
+                <span
+                    style="position: absolute; top: 2px; right: 4px; background: #d90429; color: #fff; font-size: 1.25em; font-weight: bold; border-radius: 50%; padding: 2px 7px; z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.18);">{{ draft.unresolved_count }}</span>
+                {% endif %}
+            </a>
+            <div style="text-align: center; font-size: 0.9em;">Draft
+                {{ draft.number }}<br>{{ draft.created_at|date:"Y-m-d H:i" }}</div>
+        </li>
+        {% empty %}
+        <li>No drafts yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- Webhook URL -->
+<div style="margin-bottom: 2em;">
+    <h2>Discord Webhook (Notifications)</h2>
+    <form method="post" style="display: flex; align-items: center; gap: 1em;">
+        {% csrf_token %}
+        {{ webhook_form.webhook_url }}
+        <button type="submit" name="set_webhook">Save Webhook</button>
+    </form>
+    {% if commission.webhook_url %}
+    <div style="font-size: 0.9em; color: #00eaff;">Current webhook set.</div>
+    {% endif %}
+</div>
+
+<!-- Comments List -->
+<div>
+    <h2>All Comments</h2>
+    <ul class="commorg-comment-list">
+        {% for comment in comments %}
+        <li class="commorg-comment{% if comment.resolved %} resolved{% endif %}">
+            <span class="commorg-commenter">{{ comment.commenter_name }}</span> <span class="commorg-meta">on Draft
+                {{ comment.draft.number }} at ({{ comment.x }}, {{ comment.y }})</span><br>
+            <span>{{ comment.content }}</span><br>
+            <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
+            <form method="post" style="display: inline; margin-left: 1em;">
+                {% csrf_token %}
+                <input type="hidden" name="toggle_resolve_comment" value="{{ comment.pk }}" />
+                <button type="submit">{% if comment.resolved %}Mark as Unresolved{% else %}Mark
+                    Resolved{% endif %}</button>
+            </form>
+        </li>
+        {% empty %}
+        <li>No comments yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'commorganizer/artist_dashboard.js' %}"></script>
+{% endblock %}

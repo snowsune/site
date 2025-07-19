@@ -14,6 +14,7 @@ import os
 import re
 import logging
 from pathlib import Path
+import sys
 
 # Logging setup
 LOGGING = {
@@ -67,6 +68,7 @@ INSTALLED_APPS = [
     "apps.comics",
     "apps.characters",
     "apps.pages",
+    "apps.commorganizer",  # Commission Organizer app
 ]
 
 MIDDLEWARE = [
@@ -160,7 +162,7 @@ STATICFILES_DIRS = [
 
 # Media Paths (things like profile pictures and such are uploaded here)
 MEDIA_URL = "/media/"  # Base of the URL for media
-MEDIA_ROOT = BASE_DIR / "media" if not DEBUG else (BASE_DIR / ".local" / "media")
+MEDIA_ROOT = os.environ.get("MEDIA_ROOT", str(BASE_DIR / "media"))
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -177,3 +179,10 @@ SECURE_SSL_REDIRECT = False  # Set to True in production
 SECURE_HSTS_SECONDS = 0  # Enable HSTS in production
 SECURE_HSTS_PRELOAD = False
 SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+
+# If we're testing
+if "test" in sys.argv:
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
+    }
