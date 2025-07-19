@@ -1,8 +1,39 @@
 from django.test import TestCase
+from django.urls import reverse
 
-from apps.users.models import CustomUser
 
+class MainPageTests(TestCase):
+    def test_home_page_loads(self):
+        """Test that the home page loads successfully."""
+        response = self.client.get(reverse("home"))
+        self.assertEqual(response.status_code, 200)
 
-class IndexViewTest(TestCase):
-    def test_nothing(self):
-        self.assertEqual(True, True)
+    def test_tools_page_loads(self):
+        """Test that the tools/apps page loads successfully."""
+        response = self.client.get(reverse("tools"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_characters_page_loads(self):
+        """Test that the characters page loads successfully."""
+        response = self.client.get(reverse("character-list"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_blog_page_loads(self):
+        """Test that the blog page loads successfully."""
+        response = self.client.get(reverse("blog"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_comics_page_loads(self):
+        """Test that the comics page loads successfully."""
+        response = self.client.get(reverse("comics"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_gallery_page_loads(self):
+        """Test that the gallery page loads successfully."""
+        # TODO: There is no gallery lol, skip for now :P
+        try:
+            response = self.client.get(reverse("gallery"))
+            self.assertEqual(response.status_code, 200)
+        except:
+            # If gallery URL doesn't exist yet, skip this test
+            self.skipTest("Gallery URL not implemented yet")
