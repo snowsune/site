@@ -178,27 +178,45 @@ def public_commission_view(request, commission_name):
     )
 
     # Handle comment form POST
-    if request.method == "POST" and current_draft and "add_comment" in request.POST:
-        x = int(request.POST.get("x", 0))
-        y = int(request.POST.get("y", 0))
-        commenter_name = request.POST.get("commenter_name", "").strip()[:32]
-        content = request.POST.get("content", "").strip()
-        if commenter_name and content:
-            comment = Comment.objects.create(
-                draft=current_draft,
-                x=x,
-                y=y,
-                commenter_name=commenter_name,
-                content=content,
-            )
-            # Send webhook if set
-            if current_draft.commission.webhook_url:
-                send_discord_webhook(
-                    current_draft.commission.webhook_url,
-                    f"💬 New comment by {commenter_name} on draft #{current_draft.number} for commission '{commission_name}':\n{content}",
+    if request.method == "POST" and current_draft:
+        if "add_comment" in request.POST:
+            x = int(request.POST.get("x", 0))
+            y = int(request.POST.get("y", 0))
+            commenter_name = request.POST.get("commenter_name", "").strip()[:32]
+            content = request.POST.get("content", "").strip()
+            if commenter_name and content:
+                comment = Comment.objects.create(
+                    draft=current_draft,
+                    x=x,
+                    y=y,
+                    commenter_name=commenter_name,
+                    content=content,
                 )
-            # Redirect to same draft after comment
-            return redirect(f"{request.path}?draft={current_draft.pk}")
+
+                # Send webhook if set
+                if current_draft.commission.webhook_url:
+                    send_discord_webhook(
+                        current_draft.commission.webhook_url,
+                        f"\U0001f4ac New comment by {commenter_name} on draft #{current_draft.number} for commission '{commission_name}':\n{content}",
+                    )
+
+                # Redirect to same draft after comment
+                return redirect(f"{request.path}?draft={current_draft.pk}")
+
+        elif "acknowledge_draft" in request.POST:
+            commenter_name = request.POST.get("commenter_name", "").strip()[:32]
+            if commenter_name:
+                content = f"{commenter_name} acknowledged draft {current_draft.number}"
+                comment = Comment.objects.create(
+                    draft=current_draft,
+                    x=0,
+                    y=0,
+                    commenter_name=commenter_name,
+                    content=content,
+                    resolved=True,
+                )
+
+                return redirect(f"{request.path}?draft={current_draft.pk}")
 
     return render(
         request,
