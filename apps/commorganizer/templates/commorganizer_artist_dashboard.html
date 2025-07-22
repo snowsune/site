@@ -46,6 +46,10 @@
                 style="display: block; position: relative;">
                 <img src="{{ draft.image.url }}" alt="Draft {{ draft.number }}"
                     style="max-width: 120px; max-height: 120px; display: block; border: 1px solid #ccc;" />
+                {% if draft.satisfied_viewers_count > 0 %}
+                <span
+                    style="position: absolute; top: 2px; left: 4px; background: #1ec94c; color: #fff; font-size: 1.25em; font-weight: bold; border-radius: 50%; padding: 2px 7px; z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.18);">{{ draft.satisfied_viewers_count }}</span>
+                {% endif %}
                 {% if draft.unresolved_count > 0 %}
                 <span
                     style="position: absolute; top: 2px; right: 4px; background: #d90429; color: #fff; font-size: 1.25em; font-weight: bold; border-radius: 50%; padding: 2px 7px; z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.18);">{{ draft.unresolved_count }}</span>

@@ -83,6 +83,7 @@ class WebhookForm(forms.ModelForm):
 
 def artist_dashboard(request, commission_name):
     commission = Commission.objects.get(name=commission_name)
+
     # Comments: unresolved first, then resolved, both sorted by age
     unresolved_comments = Comment.objects.filter(
         draft__commission=commission, resolved=False
@@ -106,6 +107,20 @@ def artist_dashboard(request, commission_name):
             unresolved_count=Count("comments", filter=Q(comments__resolved=False))
         )
     )
+
+    # For each draft, calculate satisfied_viewers_count
+    for draft in drafts:
+        # Use a local variable to avoid overwriting the global comments_by_user
+        draft_comments_by_user = defaultdict(list)
+        for c in draft.comments.all():
+            draft_comments_by_user[c.commenter_name].append(c)
+        # Count users where all their comments on this draft are resolved
+        draft.satisfied_viewers_count = sum(
+            1
+            for comments in draft_comments_by_user.values()
+            if comments and all(c.resolved for c in comments)
+        )
+
     # Share link
     share_link = request.build_absolute_uri(
         reverse("commorganizer-public-view", args=[commission.name])
