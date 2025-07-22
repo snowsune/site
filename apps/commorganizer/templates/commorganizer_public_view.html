@@ -34,19 +34,30 @@
         </ul>
     </div>
 
+
     <!-- Main Draft Image and Comments -->
     <div style="flex: 1;">
+
         {% if current_draft %}
         <div style="position: relative; display: inline-block;">
             <img id="main-draft-img" src="{{ current_draft.image.url }}" alt="Current Draft"
                 style="max-width: 100%; border: 2px solid #00bcd4; cursor: crosshair;"
                 onclick="showCommentForm(event)" />
+
+            <!-- Instructions to let you know to click -->
+            <div
+                style="margin-bottom: 12px; background: #e0f7fa; color: #006064; padding: 8px 16px; border-radius: 6px; font-size: 1em; max-width: 100%;">
+                Click anywhere on the image to add a comment!
+            </div>
+
             <!-- Render comment markers -->
             {% for comment in comments %}
+            {% if comment.x != 0 or comment.y != 0 %}
             <div style="position: absolute; left: {{ comment.x }}px; top: {{ comment.y }}px; width: 18px; height: 18px; background: {% if comment.resolved %}#aaa{% else %}#d90429{% endif %}; border-radius: 50%; color: #fff; text-align: center; line-height: 18px; font-size: 0.8em; transform: translate(-50%, -50%);"
                 title="{{ comment.commenter_name }}: {{ comment.content }}">
                 💬
             </div>
+            {% endif %}
             {% endfor %}
         </div>
         <div id="comment-form-container" style="display: none; margin-top: 1em;"></div>
