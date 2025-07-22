@@ -19,7 +19,7 @@
 
 <!-- Share Link -->
 <div style="margin-bottom: 1em;">
-    <label for="share-link"><strong>Share this link:</strong></label>
+    <label for="share-link"><strong>Share this link with clients:</strong></label>
     <input id="share-link" type="text" value="{{ share_link }}" readonly style="width: 60%;"
         onclick="this.select();document.execCommand('copy');" />
     <button
@@ -63,11 +63,19 @@
 <!-- Webhook URL -->
 <div style="margin-bottom: 2em;">
     <h2>Discord Webhook (Notifications)</h2>
+
     <form method="post" style="display: flex; align-items: center; gap: 1em;">
         {% csrf_token %}
         {{ webhook_form.webhook_url }}
         <button type="submit" name="set_webhook">Save Webhook</button>
     </form>
+
+    <p style="font-size: 0.95em; color: #555; margin-bottom: 0.5em;">
+        To receive Discord notifications, go to your Discord server settings, In a channel, navigate to
+        <strong>Integrations &rarr;
+            Webhooks</strong>, create a new webhook, and paste the webhook URL here.
+    </p>
+
     {% if commission.webhook_url %}
     <div style="font-size: 0.9em; color: #00eaff;">Current webhook set.</div>
     {% endif %}
