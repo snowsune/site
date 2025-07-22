@@ -8,6 +8,7 @@ from django import forms
 from .utils import send_discord_webhook
 from django.db.models import Count, Q
 from django.utils.dateparse import parse_datetime
+from collections import defaultdict
 
 # Create your views here.
 
@@ -90,6 +91,13 @@ def artist_dashboard(request, commission_name):
         draft__commission=commission, resolved=True
     ).order_by("created_at")
     all_comments = list(unresolved_comments) + list(resolved_comments)
+
+    # Group comments by commenter_name
+    comments_by_user = defaultdict(list)
+    for c in all_comments:
+        comments_by_user[c.commenter_name].append(c)
+    comments_by_user = dict(comments_by_user)  # for template
+
     # Drafts, newest first
     drafts = (
         Draft.objects.filter(commission=commission)
@@ -130,7 +138,7 @@ def artist_dashboard(request, commission_name):
                     )
                     send_discord_webhook(
                         commission.webhook_url,
-                        f"🖼️ New draft #{draft.number} uploaded for commission '{commission.name}'.\n [Link]({draft_url})",
+                        f"New draft #{draft.number} uploaded for commission '{commission.name}'.\n [Link]({draft_url})",
                     )
                 return HttpResponseRedirect(request.path)
         elif "toggle_resolve_comment" in request.POST:
@@ -151,6 +159,7 @@ def artist_dashboard(request, commission_name):
         {
             "commission_name": commission_name,
             "comments": all_comments,
+            "comments_by_user": comments_by_user,
             "drafts": drafts,
             "share_link": share_link,
             "upload_form": upload_form,
@@ -178,27 +187,45 @@ def public_commission_view(request, commission_name):
     )
 
     # Handle comment form POST
-    if request.method == "POST" and current_draft and "add_comment" in request.POST:
-        x = int(request.POST.get("x", 0))
-        y = int(request.POST.get("y", 0))
-        commenter_name = request.POST.get("commenter_name", "").strip()[:32]
-        content = request.POST.get("content", "").strip()
-        if commenter_name and content:
-            comment = Comment.objects.create(
-                draft=current_draft,
-                x=x,
-                y=y,
-                commenter_name=commenter_name,
-                content=content,
-            )
-            # Send webhook if set
-            if current_draft.commission.webhook_url:
-                send_discord_webhook(
-                    current_draft.commission.webhook_url,
-                    f"💬 New comment by {commenter_name} on draft #{current_draft.number} for commission '{commission_name}':\n{content}",
+    if request.method == "POST" and current_draft:
+        if "add_comment" in request.POST:
+            x = int(request.POST.get("x", 0))
+            y = int(request.POST.get("y", 0))
+            commenter_name = request.POST.get("commenter_name", "").strip()[:32]
+            content = request.POST.get("content", "").strip()
+            if commenter_name and content:
+                comment = Comment.objects.create(
+                    draft=current_draft,
+                    x=x,
+                    y=y,
+                    commenter_name=commenter_name,
+                    content=content,
                 )
-            # Redirect to same draft after comment
-            return redirect(f"{request.path}?draft={current_draft.pk}")
+
+                # Send webhook if set
+                if current_draft.commission.webhook_url:
+                    send_discord_webhook(
+                        current_draft.commission.webhook_url,
+                        f"New comment by {commenter_name} on draft #{current_draft.number} for commission '{commission_name}':\n>>> {content}",
+                    )
+
+                # Redirect to same draft after comment
+                return redirect(f"{request.path}?draft={current_draft.pk}")
+
+        elif "acknowledge_draft" in request.POST:
+            commenter_name = request.POST.get("commenter_name", "").strip()[:32]
+            if commenter_name:
+                content = f"{commenter_name} acknowledged draft {current_draft.number}"
+                comment = Comment.objects.create(
+                    draft=current_draft,
+                    x=0,
+                    y=0,
+                    commenter_name=commenter_name,
+                    content=content,
+                    resolved=True,
+                )
+
+                return redirect(f"{request.path}?draft={current_draft.pk}")
 
     return render(
         request,

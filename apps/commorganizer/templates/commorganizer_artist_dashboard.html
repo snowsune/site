@@ -19,7 +19,7 @@
 
 <!-- Share Link -->
 <div style="margin-bottom: 1em;">
-    <label for="share-link"><strong>Share this link:</strong></label>
+    <label for="share-link"><strong>Share this link with clients:</strong></label>
     <input id="share-link" type="text" value="{{ share_link }}" readonly style="width: 60%;"
         onclick="this.select();document.execCommand('copy');" />
     <button
@@ -63,11 +63,19 @@
 <!-- Webhook URL -->
 <div style="margin-bottom: 2em;">
     <h2>Discord Webhook (Notifications)</h2>
+
     <form method="post" style="display: flex; align-items: center; gap: 1em;">
         {% csrf_token %}
         {{ webhook_form.webhook_url }}
         <button type="submit" name="set_webhook">Save Webhook</button>
     </form>
+
+    <p style="font-size: 0.95em; color: #555; margin-bottom: 0.5em;">
+        To receive Discord notifications, go to your Discord server settings, In a channel, navigate to
+        <strong>Integrations &rarr;
+            Webhooks</strong>, create a new webhook, and paste the webhook URL here.
+    </p>
+
     {% if commission.webhook_url %}
     <div style="font-size: 0.9em; color: #00eaff;">Current webhook set.</div>
     {% endif %}
@@ -76,7 +84,44 @@
 <!-- Comments List -->
 <div>
     <h2>All Comments</h2>
-    <ul class="commorg-comment-list">
+    <div style="margin-bottom: 1em;">
+        <label><input type="radio" name="comment_view_mode" value="per_user" checked> Per User</label>
+        <label style="margin-left: 1em;"><input type="radio" name="comment_view_mode" value="all"> All</label>
+    </div>
+    <div id="comments-scrollbar-top"
+        style="overflow-x: auto; overflow-y: hidden; max-width: calc(320px * 4); height: 16px;">
+        {% widthratio comments_by_user|length 1 320 as scrollbar_width %}
+        <div style="width: {{ scrollbar_width }}px; height: 1px;"></div>
+    </div>
+    <div id="comments-scrollbar-main" style="overflow-x: auto; overflow-y: hidden; max-width: calc(320px * 4);">
+        <div id="comments-per-user" style="display: flex; gap: 1em; min-height: 1px;">
+            {% for username, user_comments in comments_by_user.items %}
+            <div style="min-width: 260px; max-width: 320px; flex: 1 1 0;">
+                <div style="font-weight: bold; color: #00eaff; margin-bottom: 0.5em; text-align: center;">{{ username }}
+                </div>
+                <ul class="commorg-comment-list">
+                    {% for comment in user_comments %}
+                    <li class="commorg-comment{% if comment.resolved %} resolved{% endif %}">
+                        <span class="commorg-meta">on Draft {{ comment.draft.number }} at ({{ comment.x }},
+                            {{ comment.y }})</span><br>
+                        <span>{{ comment.content }}</span><br>
+                        <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
+                        <form method="post" style="display: inline; margin-left: 1em;">
+                            {% csrf_token %}
+                            <input type="hidden" name="toggle_resolve_comment" value="{{ comment.pk }}" />
+                            <button type="submit">{% if comment.resolved %}Mark as Unresolved{% else %}Mark
+                                Resolved{% endif %}</button>
+                        </form>
+                    </li>
+                    {% empty %}
+                    <li>No comments yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <ul id="comments-all" class="commorg-comment-list" style="display:none;">
         {% for comment in comments %}
         <li class="commorg-comment{% if comment.resolved %} resolved{% endif %}">
             <span class="commorg-commenter">{{ comment.commenter_name }}</span> <span class="commorg-meta">on Draft
@@ -95,6 +140,31 @@
         {% endfor %}
     </ul>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const perUserDiv = document.getElementById('comments-per-user');
+        const allList = document.getElementById('comments-all');
+        const radios = document.getElementsByName('comment_view_mode');
+        radios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                if (this.value === 'per_user') {
+                    perUserDiv.style.display = 'flex';
+                    allList.style.display = 'none';
+                } else {
+                    perUserDiv.style.display = 'none';
+                    allList.style.display = 'block';
+                }
+            });
+        });
+
+        const top = document.getElementById('comments-scrollbar-top');
+        const main = document.getElementById('comments-scrollbar-main');
+        if (top && main) {
+            top.addEventListener('scroll', () => { main.scrollLeft = top.scrollLeft; });
+            main.addEventListener('scroll', () => { top.scrollLeft = main.scrollLeft; });
+        }
+    });
+</script>
 {% endblock %}
 
 {% block extra_js %}

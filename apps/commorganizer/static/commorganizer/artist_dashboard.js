@@ -21,28 +21,40 @@ document.addEventListener('DOMContentLoaded', function () {
     var dashboard = document.getElementById('artist-dashboard-container');
     if (!dashboard) return;
     var commissionName = dashboard.getAttribute('data-commission-name');
-    var lastCheckId = parseInt(dashboard.getAttribute('data-latest-comment-id')) || 0;
+    var debug = false; // Set to true to enable debug logging
+    var lastCheckId = null; // Start as null, not 0
 
     function checkForNewComments() {
+        if (debug) console.log('[CommOrganizer] Polling for new comments...');
         let url = `/commorganizer/api/new_comments/?commission_name=${encodeURIComponent(commissionName)}`;
-        if (lastCheckId) {
+        if (lastCheckId !== null) {
             url += `&since_id=${encodeURIComponent(lastCheckId)}`;
         }
+        if (debug) console.log('[CommOrganizer] Fetching URL:', url);
         fetch(url)
             .then(response => response.json())
             .then(data => {
+                if (debug) console.log('[CommOrganizer] Data received:', data);
                 if (data.comments && data.comments.length > 0) {
+                    if (debug) console.log('[CommOrganizer] New comments found:', data.comments);
+                    if (lastCheckId === null) {
+                        // First poll: just update lastCheckId, skip notification/refresh
+                        lastCheckId = Math.max(...data.comments.map(c => c.id));
+                        if (debug) console.log('[CommOrganizer] First poll, updating lastCheckId but not notifying.');
+                        return;
+                    }
                     // Show desktop notification
                     if ("Notification" in window && Notification.permission === "granted") {
+                        if (debug) console.log('[CommOrganizer] Showing notification for new comments');
                         new Notification('New comments received! Refreshing…');
                     }
-                    // Refresh after short delay
                     setTimeout(() => { window.location.reload(); }, 2000);
-                    // Update lastCheckId to the highest returned comment ID
                     lastCheckId = Math.max(...data.comments.map(c => c.id));
+                } else {
+                    if (debug) console.log('[CommOrganizer] No new comments found.');
                 }
             });
     }
 
-    setInterval(checkForNewComments, 30000);
+    setInterval(checkForNewComments, 15000);
 }); 
