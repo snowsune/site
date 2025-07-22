@@ -75,17 +75,35 @@
         </div>
         <h3>Comments on this draft</h3>
         <ul class="commorg-comment-list">
-            {% for comment in comments %}
-            <li class="commorg-comment{% if comment.resolved %} resolved{% endif %}">
+            {% with has_comments=False %}
+            {# Unresolved comments first #}
+            {% for comment in comments|dictsortreversed:"created_at" %}
+            {% if not comment.resolved %}
+            {% if not has_comments %}{% with True as has_comments %}{% endwith %}{% endif %}
+            <li class="commorg-comment">
                 <span class="commorg-commenter">{{ comment.commenter_name }}</span> <span class="commorg-meta">at
                     ({{ comment.x }}, {{ comment.y }})</span><br>
                 <span>{{ comment.content }}</span><br>
-                <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }}{% if comment.resolved %}
-                    (Resolved){% endif %}</span>
+                <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
             </li>
-            {% empty %}
-            <li>No comments yet.</li>
+            {% endif %}
             {% endfor %}
+            {# Resolved comments next #}
+            {% for comment in comments|dictsortreversed:"created_at" %}
+            {% if comment.resolved %}
+            {% if not has_comments %}{% with True as has_comments %}{% endwith %}{% endif %}
+            <li class="commorg-comment resolved">
+                <span class="commorg-commenter">{{ comment.commenter_name }}</span> <span class="commorg-meta">at
+                    ({{ comment.x }}, {{ comment.y }})</span><br>
+                <span>{{ comment.content }}</span><br>
+                <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }} (Resolved)</span>
+            </li>
+            {% endif %}
+            {% endfor %}
+            {% if not has_comments %}
+            <li>No comments yet.</li>
+            {% endif %}
+            {% endwith %}
         </ul>
         {% else %}
         <p>No drafts available for this commission yet.</p>
