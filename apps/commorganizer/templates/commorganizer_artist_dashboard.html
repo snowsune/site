@@ -110,12 +110,29 @@
                             {{ comment.y }})</span><br>
                         <span>{{ comment.content }}</span><br>
                         <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
-                        <form method="post" style="display: inline; margin-left: 1em;">
-                            {% csrf_token %}
-                            <input type="hidden" name="toggle_resolve_comment" value="{{ comment.pk }}" />
-                            <button type="submit">{% if comment.resolved %}Mark as Unresolved{% else %}Mark
-                                Resolved{% endif %}</button>
-                        </form>
+                        <div style="margin-top: 0.3em; display: flex; gap: 0.4em; align-items: center;">
+                            <form method="post" style="display: inline; margin: 0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="toggle_resolve_comment" value="{{ comment.pk }}" />
+                                {% if comment.resolved %}
+                                <button type="submit"
+                                    style="font-size: 0.7em; color: #fff; background: #1e6f9c; border: none; border-radius: 3px; padding: 1px 6px; margin: 0; cursor: pointer;">Mark
+                                    as Unresolved</button>
+                                {% else %}
+                                <button type="submit"
+                                    style="font-size: 1em; color: #fff; background: #1ec94c; border: none; border-radius: 3px; padding: 3px 12px; margin: 0; cursor: pointer; font-weight: bold;">Mark
+                                    Resolved</button>
+                                {% endif %}
+                            </form>
+                            {% if comment.resolved %}
+                            <form method="post" style="display: inline; margin: 0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="delete_comment" value="{{ comment.pk }}" />
+                                <button type="submit"
+                                    style="font-size: 0.7em; color: #fff; background: #48020e; border: none; border-radius: 3px; padding: 1px 6px; margin: 0; cursor: pointer;">Delete</button>
+                            </form>
+                            {% endif %}
+                        </div>
                     </li>
                     {% empty %}
                     <li>No comments yet.</li>
@@ -132,12 +149,29 @@
                 {{ comment.draft.number }} at ({{ comment.x }}, {{ comment.y }})</span><br>
             <span>{{ comment.content }}</span><br>
             <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
-            <form method="post" style="display: inline; margin-left: 1em;">
-                {% csrf_token %}
-                <input type="hidden" name="toggle_resolve_comment" value="{{ comment.pk }}" />
-                <button type="submit">{% if comment.resolved %}Mark as Unresolved{% else %}Mark
-                    Resolved{% endif %}</button>
-            </form>
+            <div style="margin-top: 0.3em; display: flex; gap: 0.4em; align-items: center;">
+                <form method="post" style="display: inline; margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="toggle_resolve_comment" value="{{ comment.pk }}" />
+                    {% if comment.resolved %}
+                    <button type="submit"
+                        style="font-size: 0.7em; color: #fff; background: #1e6f9c; border: none; border-radius: 3px; padding: 1px 6px; margin: 0; cursor: pointer;">Mark
+                        as Unresolved</button>
+                    {% else %}
+                    <button type="submit"
+                        style="font-size: 1em; color: #fff; background: #1ec94c; border: none; border-radius: 3px; padding: 3px 12px; margin: 0; cursor: pointer; font-weight: bold;">Mark
+                        Resolved</button>
+                    {% endif %}
+                </form>
+                {% if comment.resolved %}
+                <form method="post" style="display: inline; margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="delete_comment" value="{{ comment.pk }}" />
+                    <button type="submit"
+                        style="font-size: 0.7em; color: #fff; background: #48020e; border: none; border-radius: 3px; padding: 1px 6px; margin: 0; cursor: pointer;">Delete</button>
+                </form>
+                {% endif %}
+            </div>
         </li>
         {% empty %}
         <li>No comments yet.</li>

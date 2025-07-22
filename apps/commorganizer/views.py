@@ -168,6 +168,18 @@ def artist_dashboard(request, commission_name):
             except Comment.DoesNotExist:
                 pass
 
+        # Delete comment
+        elif "delete_comment" in request.POST:
+            comment_id = request.POST.get("delete_comment")
+            try:
+                comment = Comment.objects.get(
+                    pk=comment_id, draft__commission=commission
+                )
+                comment.delete()
+                return HttpResponseRedirect(request.path)
+            except Comment.DoesNotExist:
+                pass
+
     return render(
         request,
         "commorganizer_artist_dashboard.html",
