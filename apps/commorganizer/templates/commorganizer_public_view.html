@@ -49,6 +49,10 @@
                 style="margin-bottom: 12px; background: #e0f7fa; color: #006064; padding: 8px 16px; border-radius: 6px; font-size: 1em; max-width: 100%;">
                 Click anywhere on the image to add a comment!
             </div>
+            <div style="text-align: left; margin-bottom: 1em;">
+                <a href="{{ current_draft.image.url }}" download
+                    style="display: inline-block; font-size: 0.95em; color: #fff; background: #1e6f9c; border: none; border-radius: 3px; padding: 4px 16px; margin: 0.2em 0 0 0; cursor: pointer; text-decoration: none;">Download</a>
+            </div>
 
             <!-- Render comment markers -->
             {% for comment in comments %}
