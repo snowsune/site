@@ -15,9 +15,28 @@
 
 {% block content %}
 <h1>Commission: {{ commission_name }}</h1>
-<div style="display: flex; gap: 2em; align-items: flex-start;">
-    <!-- Sidebar: Previous Drafts -->
-    <div style="flex: 0 0 140px;">
+
+<!-- Responsive Drafts Bar (horizontal on mobile, sidebar on desktop) -->
+<div id="drafts-responsive-bar">
+    <ul id="drafts-horizontal"
+        style="display: none; list-style: none; padding: 0; margin: 0; overflow-x: auto; white-space: nowrap; gap: 1em;">
+        {% for draft in drafts %}
+        <li style="display: inline-block; margin-right: 1em;">
+            <a href="?draft={{ draft.pk }}">
+                <img src="{{ draft.image.url }}" alt="Draft {{ draft.pk }}"
+                    style="max-width: 80px; max-height: 80px; border: 1px solid #ccc; {% if draft.pk == current_draft.pk %}box-shadow: 0 0 8px #00bcd4;{% endif %}" />
+            </a>
+            <div style="text-align: center; font-size: 0.8em;">Draft {{ draft.number }}</div>
+        </li>
+        {% empty %}
+        <li>No drafts yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div style="display: flex; gap: 2em; align-items: flex-start;" id="drafts-main-layout">
+    <!-- Sidebar: Previous Drafts (desktop only) -->
+    <div style="flex: 0 0 140px;" id="drafts-sidebar">
         <h3>Drafts</h3>
         <ul style="list-style: none; padding: 0;">
             {% for draft in drafts %}
@@ -33,7 +52,6 @@
             {% endfor %}
         </ul>
     </div>
-
 
     <!-- Main Draft Image and Comments -->
     <div style="flex: 1;">
@@ -104,9 +122,6 @@
             </li>
             {% endif %}
             {% endfor %}
-            {% if not has_comments %}
-            <li>No comments yet.</li>
-            {% endif %}
             {% endwith %}
         </ul>
         {% else %}
@@ -116,5 +131,23 @@
 </div>
 {% if csrf_token %}
 <script>window.csrf_token_html = `{% csrf_token %}`;</script>{% endif %}
+{% endblock %}
+{% block extra_js %}
+<script>
+    // Responsive drafts bar logic
+    function handleDraftsResponsiveBar() {
+        const sidebar = document.getElementById('drafts-sidebar');
+        const horizontal = document.getElementById('drafts-horizontal');
+        if (window.innerWidth <= 700) {
+            if (sidebar) sidebar.style.display = 'none';
+            if (horizontal) horizontal.style.display = 'flex';
+        } else {
+            if (sidebar) sidebar.style.display = '';
+            if (horizontal) horizontal.style.display = 'none';
+        }
+    }
+    window.addEventListener('resize', handleDraftsResponsiveBar);
+    document.addEventListener('DOMContentLoaded', handleDraftsResponsiveBar);
+</script>
 <script src="{% static 'commorganizer/public_view.js' %}"></script>
 {% endblock %}

@@ -11,11 +11,11 @@
     <a href="{% url 'account-edit' %}">Edit</a>
     <form action="{% url 'logout' %}" method="post" style="display: inline">
       {% csrf_token %}
-      <button type="submit">Log out</button>
+      <button type="submit" class="user-auth-btn">Log out</button>
     </form>
   </div>
   {% else %}
-  <a href="{% url 'login' %}">Log In</a>
-  <a href="{% url 'register' %}">Create Account</a>
+  <a href="{% url 'login' %}" class="user-auth-btn">Log In</a>
+  <a href="{% url 'register' %}" class="user-auth-btn">Create Account</a>
   {% endif %}
 </div>
