@@ -1,0 +1,488 @@
+{% extends "base.html" %}
+
+{% block title %}Subscription Settings - {{ subscription.webcomic.name }}{% endblock %}
+
+{% block content %}
+<div class="subscription-settings-page">
+    <div class="page-header">
+        <div class="breadcrumb">
+            <a href="{% url 'comics:my_subscriptions' %}">My Subscriptions</a>
+            <span class="separator">›</span>
+            <span>Settings</span>
+        </div>
+        <h1>Subscription Settings</h1>
+        <p>Customize your notification preferences for {{ subscription.webcomic.name }}</p>
+    </div>
+
+    <div class="settings-container">
+        <div class="webcomic-info-card">
+            <div class="webcomic-header">
+                {% if subscription.webcomic.icon %}
+                <img src="{{ subscription.webcomic.icon.url }}" alt="{{ subscription.webcomic.name }}"
+                    class="webcomic-icon">
+                {% else %}
+                <div class="webcomic-icon-placeholder">{{ subscription.webcomic.name|first|upper }}</div>
+                {% endif %}
+                <div class="webcomic-details">
+                    <h2>{{ subscription.webcomic.name }}</h2>
+                    {% if subscription.webcomic.author %}
+                    <p class="author">by {{ subscription.webcomic.author }}</p>
+                    {% endif %}
+                    <p class="subscription-date">Subscribed since {{ subscription.subscribed_at|date:"M j, Y" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" class="settings-form">
+            {% csrf_token %}
+
+            <div class="settings-section">
+                <h3>Notification Methods</h3>
+                <p class="section-description">Choose how you want to be notified when this webcomic updates.</p>
+
+                <div class="notification-options">
+                    <div class="notification-option">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="email_notifications"
+                                {% if subscription.email_notifications %}checked{% endif %}>
+                            <span class="checkmark"></span>
+                            <div class="option-content">
+                                <h4>📧 Email Notifications</h4>
+                                <p>Receive updates via email</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="notification-option">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="rss_enabled"
+                                {% if subscription.rss_enabled %}checked{% endif %}>
+                            <span class="checkmark"></span>
+                            <div class="option-content">
+                                <h4>📡 RSS Feed</h4>
+                                <p>Include in your personal RSS feed</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="notification-option">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="discord_notifications"
+                                {% if subscription.discord_notifications %}checked{% endif %}>
+                            <span class="checkmark"></span>
+                            <div class="option-content">
+                                <h4>💬 Discord Notifications</h4>
+                                <p>Send updates to Discord (if configured)</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Notification Frequency</h3>
+                <p class="section-description">How often would you like to receive notifications?</p>
+
+                <div class="frequency-options">
+                    <label class="radio-label">
+                        <input type="radio" name="notification_frequency" value="immediate"
+                            {% if subscription.notification_frequency == 'immediate' %}checked{% endif %}>
+                        <span class="radio-mark"></span>
+                        <div class="option-content">
+                            <h4>⚡ Immediate</h4>
+                            <p>Get notified as soon as a new comic is published</p>
+                        </div>
+                    </label>
+
+                    <label class="radio-label">
+                        <input type="radio" name="notification_frequency" value="daily"
+                            {% if subscription.notification_frequency == 'daily' %}checked{% endif %}>
+                        <span class="radio-mark"></span>
+                        <div class="option-content">
+                            <h4>📅 Daily Digest</h4>
+                            <p>Receive a daily summary of all updates</p>
+                        </div>
+                    </label>
+
+                    <label class="radio-label">
+                        <input type="radio" name="notification_frequency" value="weekly"
+                            {% if subscription.notification_frequency == 'weekly' %}checked{% endif %}>
+                        <span class="radio-mark"></span>
+                        <div class="option-content">
+                            <h4>📆 Weekly Digest</h4>
+                            <p>Receive a weekly summary of all updates</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+                <a href="{% url 'comics:my_subscriptions' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+
+        <div class="subscription-info">
+            <h3>Subscription Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value active">Active</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Last Notified:</span>
+                    <span class="info-value">
+                        {% if subscription.last_notified %}
+                        {{ subscription.last_notified|date:"M j, Y g:i A" }}
+                        {% else %}
+                        Never
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Polling Method:</span>
+                    <span class="info-value">{{ subscription.webcomic.get_polling_method_display }}</span>
+                </div>
+                {% if subscription.webcomic.latest_comic_date %}
+                <div class="info-item">
+                    <span class="info-label">Latest Update:</span>
+                    <span class="info-value">{{ subscription.webcomic.latest_comic_date }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .subscription-settings-page {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .breadcrumb a {
+        color: #667eea;
+        text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .breadcrumb .separator {
+        margin: 0 0.5rem;
+        color: #999;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .page-header p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .settings-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .webcomic-info-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .webcomic-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .webcomic-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 0.5rem;
+        object-fit: cover;
+    }
+
+    .webcomic-icon-placeholder {
+        width: 64px;
+        height: 64px;
+        border-radius: 0.5rem;
+        background: #667eea;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .webcomic-details h2 {
+        margin: 0 0 0.25rem 0;
+        color: #333;
+        font-size: 1.5rem;
+    }
+
+    .author {
+        color: #666;
+        font-style: italic;
+        margin: 0 0 0.25rem 0;
+        font-size: 0.9rem;
+    }
+
+    .subscription-date {
+        color: #666;
+        margin: 0;
+        font-size: 0.875rem;
+    }
+
+    .settings-form {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .settings-section {
+        margin-bottom: 2rem;
+    }
+
+    .settings-section h3 {
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-size: 1.25rem;
+    }
+
+    .section-description {
+        color: #666;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .notification-options,
+    .frequency-options {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .notification-option,
+    .radio-label {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .notification-option:hover,
+    .radio-label:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+    }
+
+    .checkbox-label,
+    .radio-label {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .checkbox-label input,
+    .radio-label input {
+        display: none;
+    }
+
+    .checkmark,
+    .radio-mark {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        margin-right: 1rem;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .radio-mark {
+        border-radius: 50%;
+    }
+
+    .checkbox-label input:checked+.checkmark {
+        background: #667eea;
+        border-color: #667eea;
+    }
+
+    .checkbox-label input:checked+.checkmark::after {
+        content: '✓';
+        color: white;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .radio-label input:checked+.radio-mark {
+        background: #667eea;
+        border-color: #667eea;
+    }
+
+    .radio-label input:checked+.radio-mark::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .option-content {
+        flex: 1;
+    }
+
+    .option-content h4 {
+        margin: 0 0 0.25rem 0;
+        color: #333;
+        font-size: 1rem;
+    }
+
+    .option-content p {
+        margin: 0;
+        color: #666;
+        font-size: 0.875rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e1e5e9;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #5a6fd8;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    .subscription-info {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .subscription-info h3 {
+        color: #333;
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        border: 1px solid #e1e5e9;
+    }
+
+    .info-label {
+        color: #666;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .info-value {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #333;
+    }
+
+    .info-value.active {
+        color: #28a745;
+    }
+
+    @media (max-width: 768px) {
+        .webcomic-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .info-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}

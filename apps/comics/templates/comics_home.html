@@ -1,10 +1,243 @@
 {% extends "base.html" %}
 
-{% block title %}Comics - Coming Soon{% endblock %}
+{% block title %}Comics - Snowsune{% endblock %}
 
 {% block content %}
 <div class="comics-home">
-    <h1>Comics</h1>
-    <p>Coming soon! If you're reading this it means that the comics subapp works!</p>
+    <div class="hero-section">
+        <h1>Snowsune.net Comic</h1>
+        <div class="coming-soon-badge">Coming Soon!</div>
+        <p class="lead">I'm still working on my own webcomic with Hunner! Stay tuned!</p>
+    </div>
+
+    <div class="content-section">
+        <h2>About the Comic</h2>
+        <p>I'm working on creating my own webcomic that will be hosted right here on snowsune.net. The story and
+            characters are still being developed, but I'm excited to share it with you soon!</p>
+
+        <div class="placeholder-content">
+            <div class="placeholder-box">
+                <h3>Sketches and WIPs!</h3>
+                <p>See some of the sketches and wiips <a href="https://booru.kitsunehosting.net/pools/126">here!</a>
+                </p>
+            </div>
+            <div class="placeholder-box">
+                <h3>Artist</h3>
+                <p>Go check out <a href="https://hunner.carrd.co/">Hunner's page!</a></p>
+            </div>
+            <div class="placeholder-box">
+                <h3>Schedule</h3>
+                <p>Update schedule and release plans will be announced when ready.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="news-section">
+        <h2>Latest News</h2>
+        <div class="news-item">
+            <span class="news-date">Coming Soon</span>
+            <p>Webcomic development has begun! More details to follow.</p>
+        </div>
+    </div>
 </div>
+
+{% block sidebar %}
+<div class="sidebar-section">
+    <h3>Webcomic Tools</h3>
+    <ul>
+        <li><a href="{% url 'comics:webcomic_list' %}">📚 Comic Aggregator</a></li>
+        <li><a href="{% url 'comics:my_subscriptions' %}">🔔 My Subscriptions</a></li>
+    </ul>
+    <p class="sidebar-note">Browse and subscribe to other webcomics while you wait!</p>
+</div>
+{% endblock %}
+
+<style>
+    .comics-home {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+    .hero-section {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 2rem;
+        background: #f5f5f5;
+        border: 2px solid #333;
+        border-radius: 8px;
+    }
+
+    .hero-section h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #333;
+        font-family: "Courier New", monospace;
+        font-weight: bold;
+    }
+
+    .coming-soon-badge {
+        display: inline-block;
+        background: #ff6b6b;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        font-family: "Courier New", monospace;
+    }
+
+    .hero-section .lead {
+        font-size: 1.1rem;
+        color: #555;
+        margin: 0;
+    }
+
+    .content-section {
+        margin-bottom: 2rem;
+    }
+
+    .content-section h2 {
+        color: #333;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        font-family: "Courier New", monospace;
+        border-bottom: 2px solid #333;
+        padding-bottom: 0.5rem;
+    }
+
+    .content-section p {
+        color: #555;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .placeholder-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .placeholder-box {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .placeholder-box h3 {
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .placeholder-box p {
+        color: #666;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .news-section {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 1.5rem;
+    }
+
+    .news-section h2 {
+        color: #333;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        font-family: "Courier New", monospace;
+    }
+
+    .news-item {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .news-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .news-date {
+        display: block;
+        color: #666;
+        font-size: 0.9rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .news-item p {
+        color: #333;
+        margin: 0;
+    }
+
+    .sidebar-section {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .sidebar-section h3 {
+        color: #333;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        font-family: "Courier New", monospace;
+        border-bottom: 1px solid #333;
+        padding-bottom: 0.5rem;
+    }
+
+    .sidebar-section ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1rem 0;
+    }
+
+    .sidebar-section li {
+        margin-bottom: 0.5rem;
+    }
+
+    .sidebar-section a {
+        color: #333;
+        text-decoration: none;
+        padding: 0.5rem;
+        display: block;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .sidebar-section a:hover {
+        background: #e9e9e9;
+        border-color: #ccc;
+    }
+
+    .sidebar-note {
+        color: #666;
+        font-size: 0.9rem;
+        font-style: italic;
+        margin: 0;
+        padding: 0.5rem;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+        .placeholder-content {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-section h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
 {% endblock %}

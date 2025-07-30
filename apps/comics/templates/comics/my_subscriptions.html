@@ -1,0 +1,486 @@
+{% extends "base.html" %}
+
+{% block title %}My Subscriptions - Comic Aggregator{% endblock %}
+
+{% block content %}
+<div class="my-subscriptions">
+    <div class="page-header">
+        <h1>My Subscriptions</h1>
+        <p>Manage your webcomic subscriptions and view recent updates</p>
+    </div>
+
+    {% if subscriptions %}
+    <div class="subscriptions-overview">
+        <div class="overview-card">
+            <h3>📊 Overview</h3>
+            <div class="overview-stats">
+                <div class="stat">
+                    <span class="stat-number">{{ subscriptions.count }}</span>
+                    <span class="stat-label">Active Subscriptions</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">{{ recent_updates|length }}</span>
+                    <span class="stat-label">Recent Updates</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if recent_updates %}
+    <div class="recent-updates-section">
+        <h2>Recent Updates</h2>
+        <div class="updates-grid">
+            {% for update in recent_updates %}
+            <div class="update-card">
+                <div class="update-header">
+                    {% if update.webcomic.icon %}
+                    <img src="{{ update.webcomic.icon.url }}" alt="{{ update.webcomic.name }}" class="webcomic-icon">
+                    {% else %}
+                    <div class="webcomic-icon-placeholder">{{ update.webcomic.name|first|upper }}</div>
+                    {% endif %}
+                    <div class="update-info">
+                        <h3>{{ update.webcomic.name }}</h3>
+                        <p class="update-title">{{ update.latest_page.title }}</p>
+                        <p class="update-date">{{ update.latest_page.comic_date }}</p>
+                    </div>
+                </div>
+                <div class="update-actions">
+                    <a href="{{ update.latest_page.comic_url }}" target="_blank" class="btn btn-primary">Read Now</a>
+                    <a href="{% url 'comics:webcomic_detail' slug=update.webcomic.slug %}" class="btn btn-outline">View
+                        Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="subscriptions-section">
+        <h2>My Subscriptions</h2>
+        <div class="subscriptions-grid">
+            {% for subscription in subscriptions %}
+            <div class="subscription-card">
+                <div class="subscription-header">
+                    {% if subscription.webcomic.icon %}
+                    <img src="{{ subscription.webcomic.icon.url }}" alt="{{ subscription.webcomic.name }}"
+                        class="webcomic-icon">
+                    {% else %}
+                    <div class="webcomic-icon-placeholder">{{ subscription.webcomic.name|first|upper }}</div>
+                    {% endif %}
+                    <div class="subscription-info">
+                        <h3>{{ subscription.webcomic.name }}</h3>
+                        {% if subscription.webcomic.author %}
+                        <p class="author">by {{ subscription.webcomic.author }}</p>
+                        {% endif %}
+                        <p class="subscription-date">Subscribed: {{ subscription.subscribed_at|date:"M j, Y" }}</p>
+                    </div>
+                </div>
+
+                <div class="subscription-settings">
+                    <div class="notification-preferences">
+                        <h4>Notifications</h4>
+                        <div class="preferences-grid">
+                            <div class="preference-item">
+                                <span class="preference-label">Email:</span>
+                                <span
+                                    class="preference-value {% if subscription.email_notifications %}enabled{% else %}disabled{% endif %}">
+                                    {% if subscription.email_notifications %}✓{% else %}✗{% endif %}
+                                </span>
+                            </div>
+                            <div class="preference-item">
+                                <span class="preference-label">RSS:</span>
+                                <span
+                                    class="preference-value {% if subscription.rss_enabled %}enabled{% else %}disabled{% endif %}">
+                                    {% if subscription.rss_enabled %}✓{% else %}✗{% endif %}
+                                </span>
+                            </div>
+                            <div class="preference-item">
+                                <span class="preference-label">Discord:</span>
+                                <span
+                                    class="preference-value {% if subscription.discord_notifications %}enabled{% else %}disabled{% endif %}">
+                                    {% if subscription.discord_notifications %}✓{% else %}✗{% endif %}
+                                </span>
+                            </div>
+                            <div class="preference-item">
+                                <span class="preference-label">Frequency:</span>
+                                <span
+                                    class="preference-value">{{ subscription.get_notification_frequency_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subscription-actions">
+                    <a href="{% url 'comics:subscription_settings' subscription_id=subscription.id %}"
+                        class="btn btn-outline">Settings</a>
+                    <a href="{% url 'comics:webcomic_detail' slug=subscription.webcomic.slug %}"
+                        class="btn btn-outline">View Comic</a>
+                    <form method="post" action="{% url 'comics:unsubscribe' subscription.webcomic.id %}"
+                        class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Unsubscribe</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% else %}
+    <div class="no-subscriptions">
+        <div class="empty-state">
+            <h3>No subscriptions yet</h3>
+            <p>You haven't subscribed to any webcomics yet. Start exploring to find your favorites!</p>
+            <div class="empty-actions">
+                <a href="{% url 'comics:webcomic_list' %}" class="btn btn-primary">Browse Webcomics</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .my-subscriptions {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .page-header p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .subscriptions-overview {
+        margin-bottom: 3rem;
+    }
+
+    .overview-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .overview-card h3 {
+        color: #333;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+    }
+
+    .overview-stats {
+        display: flex;
+        gap: 3rem;
+        justify-content: center;
+    }
+
+    .stat {
+        text-align: center;
+    }
+
+    .stat-number {
+        display: block;
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 1rem;
+    }
+
+    .recent-updates-section {
+        margin-bottom: 3rem;
+    }
+
+    .recent-updates-section h2 {
+        color: #333;
+        margin-bottom: 2rem;
+        font-size: 2rem;
+    }
+
+    .updates-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 2rem;
+    }
+
+    .update-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .update-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .update-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .webcomic-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 0.5rem;
+        margin-right: 1rem;
+        object-fit: cover;
+    }
+
+    .webcomic-icon-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 0.5rem;
+        background: #667eea;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-right: 1rem;
+    }
+
+    .update-info h3 {
+        margin: 0 0 0.25rem 0;
+        color: #333;
+        font-size: 1.1rem;
+    }
+
+    .update-title {
+        margin: 0 0 0.25rem 0;
+        color: #555;
+        font-weight: 600;
+    }
+
+    .update-date {
+        margin: 0;
+        color: #666;
+        font-size: 0.875rem;
+    }
+
+    .update-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: space-between;
+    }
+
+    .subscriptions-section h2 {
+        color: #333;
+        margin-bottom: 2rem;
+        font-size: 2rem;
+    }
+
+    .subscriptions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+    }
+
+    .subscription-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .subscription-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .subscription-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .subscription-info h3 {
+        margin: 0 0 0.25rem 0;
+        color: #333;
+        font-size: 1.25rem;
+    }
+
+    .author {
+        color: #666;
+        font-style: italic;
+        margin: 0 0 0.25rem 0;
+        font-size: 0.9rem;
+    }
+
+    .subscription-date {
+        color: #666;
+        margin: 0;
+        font-size: 0.875rem;
+    }
+
+    .subscription-settings {
+        margin-bottom: 1.5rem;
+    }
+
+    .notification-preferences h4 {
+        color: #333;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+    }
+
+    .preferences-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .preference-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .preference-label {
+        color: #666;
+        font-size: 0.875rem;
+    }
+
+    .preference-value {
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .preference-value.enabled {
+        color: #28a745;
+    }
+
+    .preference-value.disabled {
+        color: #dc3545;
+    }
+
+    .subscription-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: space-between;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #5a6fd8;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-outline:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+
+    .inline-form {
+        display: inline;
+    }
+
+    .no-subscriptions {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+    }
+
+    .empty-state {
+        text-align: center;
+        background: white;
+        border-radius: 1rem;
+        padding: 3rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .empty-state h3 {
+        color: #333;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .empty-state p {
+        color: #666;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+
+    .empty-actions {
+        display: flex;
+        justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+        .overview-stats {
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .updates-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .subscriptions-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .preferences-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .subscription-actions {
+            flex-direction: column;
+        }
+
+        .update-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

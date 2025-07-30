@@ -1,0 +1,510 @@
+{% extends "base.html" %}
+
+{% block title %}{{ webcomic.name }} - Comic Aggregator{% endblock %}
+
+{% block content %}
+<div class="webcomic-detail">
+    <div class="webcomic-header">
+        <div class="webcomic-info">
+            <div class="webcomic-basic">
+                {% if webcomic.icon %}
+                <img src="{{ webcomic.icon.url }}" alt="{{ webcomic.name }}" class="webcomic-icon">
+                {% else %}
+                <div class="webcomic-icon-placeholder">{{ webcomic.name|first|upper }}</div>
+                {% endif %}
+                <div class="webcomic-text">
+                    <h1>{{ webcomic.name }}</h1>
+                    {% if webcomic.author %}
+                    <p class="author">by {{ webcomic.author }}</p>
+                    {% endif %}
+                    <div class="webcomic-meta">
+                        <span class="polling-method">{{ webcomic.get_polling_method_display }}</span>
+                        {% if webcomic.latest_comic_date %}
+                        <span class="last-update">Last updated: {{ webcomic.latest_comic_date }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="webcomic-actions">
+                {% if user_subscription %}
+                <div class="subscription-status">
+                    <span class="status-badge subscribed">✓ Subscribed</span>
+                    <a href="{% url 'comics:subscription_settings' subscription_id=user_subscription.id %}"
+                        class="btn btn-outline">Settings</a>
+                    <form method="post" action="{% url 'comics:unsubscribe' webcomic.id %}" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Unsubscribe</button>
+                    </form>
+                </div>
+                {% else %}
+                <form method="post" action="{% url 'comics:subscribe' webcomic.id %}" class="subscribe-form">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">Subscribe</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if webcomic.banner %}
+    <div class="webcomic-banner">
+        <img src="{{ webcomic.banner.url }}" alt="{{ webcomic.name }} banner">
+    </div>
+    {% endif %}
+
+    <div class="webcomic-content">
+        <div class="main-content">
+            {% if webcomic.description %}
+            <div class="description-section">
+                <h2>About</h2>
+                <p>{{ webcomic.description }}</p>
+            </div>
+            {% endif %}
+
+            {% if webcomic.tags %}
+            <div class="tags-section">
+                <h3>Tags</h3>
+                <div class="tags">
+                    {% for tag in webcomic.tags %}
+                    <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="links-section">
+                <h3>Links</h3>
+                <div class="links">
+                    <a href="{{ webcomic.website_url }}" target="_blank" class="btn btn-outline">
+                        <span>🌐</span> Visit Website
+                    </a>
+                    {% if webcomic.rss_feed_url %}
+                    <a href="{{ webcomic.rss_feed_url }}" target="_blank" class="btn btn-outline">
+                        <span>📡</span> RSS Feed
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="status-card">
+                <h3>Status</h3>
+                <div class="status-info">
+                    <div class="status-item">
+                        <span class="label">Active:</span>
+                        <span class="value {% if webcomic.is_active %}active{% else %}inactive{% endif %}">
+                            {% if webcomic.is_active %}✓ Yes{% else %}✗ No{% endif %}
+                        </span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Polling Method:</span>
+                        <span class="value">{{ webcomic.get_polling_method_display }}</span>
+                    </div>
+                    {% if webcomic.last_polled %}
+                    <div class="status-item">
+                        <span class="label">Last Polled:</span>
+                        <span class="value">{{ webcomic.last_polled|date:"M j, Y g:i A" }}</span>
+                    </div>
+                    {% endif %}
+                    {% if webcomic.latest_comic_url %}
+                    <div class="status-item">
+                        <span class="label">Latest Comic:</span>
+                        <a href="{{ webcomic.latest_comic_url }}" target="_blank" class="value link">
+                            {{ webcomic.latest_comic_title|default:"View" }}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if recent_pages %}
+            <div class="recent-updates">
+                <h3>Recent Updates</h3>
+                <div class="updates-list">
+                    {% for page in recent_pages %}
+                    <div class="update-item">
+                        <div class="update-info">
+                            <h4>{{ page.title }}</h4>
+                            <p class="update-date">{{ page.comic_date }}</p>
+                        </div>
+                        <a href="{{ page.comic_url }}" target="_blank" class="btn btn-outline">View</a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if recent_pages|length == 10 %}
+                <div class="view-more">
+                    <a href="#" class="btn btn-outline">View All Updates</a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .webcomic-detail {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+    .webcomic-header {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .webcomic-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .webcomic-basic {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .webcomic-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 4px;
+        object-fit: cover;
+    }
+
+    .webcomic-icon-placeholder {
+        width: 64px;
+        height: 64px;
+        border-radius: 4px;
+        background: #333;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .webcomic-text h1 {
+        margin: 0 0 0.5rem 0;
+        color: #333;
+        font-size: 1.8rem;
+        font-family: "Courier New", monospace;
+        font-weight: bold;
+    }
+
+    .author {
+        color: #666;
+        font-style: italic;
+        margin: 0 0 0.5rem 0;
+        font-size: 1rem;
+    }
+
+    .webcomic-meta {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .polling-method {
+        background: #e9e9e9;
+        color: #333;
+        padding: 0.25rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.8rem;
+        border: 1px solid #ccc;
+    }
+
+    .last-update {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .webcomic-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-end;
+    }
+
+    .subscription-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .status-badge.subscribed {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: normal;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+        font-family: inherit;
+        background: #fff;
+        color: #333;
+    }
+
+    .btn-success {
+        background: #28a745;
+        color: white;
+        border-color: #28a745;
+    }
+
+    .btn-success:hover {
+        background: #218838;
+        border-color: #218838;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+        border-color: #dc3545;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+        border-color: #c82333;
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: #333;
+        border-color: #333;
+    }
+
+    .btn-outline:hover {
+        background: #333;
+        color: white;
+    }
+
+    .inline-form {
+        display: inline;
+    }
+
+    .webcomic-banner {
+        margin-bottom: 1rem;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+    }
+
+    .webcomic-banner img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .webcomic-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1rem;
+    }
+
+    .main-content {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 1rem;
+    }
+
+    .main-content h2 {
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-size: 1.3rem;
+        font-family: "Courier New", monospace;
+        font-weight: bold;
+        border-bottom: 1px solid #333;
+        padding-bottom: 0.25rem;
+    }
+
+    .main-content h3 {
+        color: #333;
+        margin: 1rem 0 0.5rem 0;
+        font-size: 1.1rem;
+        font-family: "Courier New", monospace;
+    }
+
+    .description-section p {
+        color: #555;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .tag {
+        background: #e9e9e9;
+        color: #333;
+        padding: 0.25rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.8rem;
+        border: 1px solid #ccc;
+    }
+
+    .links {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .links .btn {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .status-card,
+    .recent-updates {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 1rem;
+    }
+
+    .status-card h3,
+    .recent-updates h3 {
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        font-family: "Courier New", monospace;
+        font-weight: bold;
+        border-bottom: 1px solid #333;
+        padding-bottom: 0.25rem;
+    }
+
+    .status-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.25rem 0;
+    }
+
+    .status-item .label {
+        color: #666;
+        font-weight: normal;
+        font-size: 0.9rem;
+    }
+
+    .status-item .value {
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .status-item .value.active {
+        color: #28a745;
+    }
+
+    .status-item .value.inactive {
+        color: #dc3545;
+    }
+
+    .status-item .value.link {
+        color: #333;
+        text-decoration: none;
+    }
+
+    .status-item .value.link:hover {
+        text-decoration: underline;
+    }
+
+    .updates-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .update-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+    }
+
+    .update-info h4 {
+        margin: 0 0 0.25rem 0;
+        color: #333;
+        font-size: 0.9rem;
+    }
+
+    .update-date {
+        margin: 0;
+        color: #666;
+        font-size: 0.8rem;
+    }
+
+    .view-more {
+        text-align: center;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid #ddd;
+    }
+
+    @media (max-width: 768px) {
+        .webcomic-info {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .webcomic-actions {
+            align-items: stretch;
+        }
+
+        .webcomic-content {
+            grid-template-columns: 1fr;
+        }
+
+        .webcomic-meta {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .subscription-status {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
