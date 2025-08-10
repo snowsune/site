@@ -5,6 +5,8 @@ from django.utils.text import slugify
 from django.utils import timezone
 import markdown
 from django.utils.html import strip_tags
+from django.conf import settings
+from snowsune.models import SiteSetting
 
 User = get_user_model()
 
@@ -88,11 +90,59 @@ class BlogPost(models.Model):
                 else:
                     self.excerpt = html_text
 
+        # Check if status is changing to published
+        was_published = (
+            self.pk and BlogPost.objects.get(pk=self.pk).status == "published"
+        )
+        is_now_published = self.status == "published"
+
         # Set published_at when status changes to published
         if self.status == "published" and not self.published_at:
             self.published_at = timezone.now()
 
         super().save(*args, **kwargs)
+
+        # Send Discord webhook notification when post is newly published
+        if is_now_published and not was_published:
+            self.send_discord_notification()
+
+    def send_discord_notification(self):
+        """Send Discord webhook notification for newly published blog post"""
+        try:
+            # Get webhook URL from site settings
+            webhook_setting = SiteSetting.objects.filter(key="blogpost_webhook").first()
+            if not webhook_setting or not webhook_setting.value:
+                return  # No webhook configured
+
+            webhook_url = webhook_setting.value.strip()
+            if not webhook_url:
+                return
+
+            # Import here to avoid circular imports
+            from apps.commorganizer.utils import send_discord_webhook
+
+            # Create notification message
+            message = f"📝 **New Blog Post Published!**\n\n"
+            message += f"**{self.title}**\n"
+            message += f"by {self.author.username}\n\n"
+
+            if self.excerpt:
+                # Truncate excerpt if too long for Discord
+                excerpt = (
+                    self.excerpt[:150] + "..."
+                    if len(self.excerpt) > 150
+                    else self.excerpt
+                )
+                message += f"{excerpt}\n\n"
+
+            message += f"Read more: {settings.SITE_URL or 'http://localhost:8000'}{self.get_absolute_url()}"
+
+            # Send webhook
+            send_discord_webhook(webhook_url, message)
+
+        except Exception as e:
+            # Log error but don't break the save process
+            print(f"Failed to send Discord webhook for blog post {self.title}: {e}")
 
     def get_absolute_url(self):
         return reverse("blog:post_detail", kwargs={"slug": self.slug})

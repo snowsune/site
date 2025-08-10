@@ -48,6 +48,9 @@ DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
+# Site URL for webhooks and external links
+SITE_URL = os.getenv("SITE_URL", "https://snowsune.net")
+
 # For django-tracking
 
 # Application definition
