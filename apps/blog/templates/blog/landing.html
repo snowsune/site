@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Blog - Snowsune{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/blog.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="blog-landing-container">
+    <div class="hero-section">
+        <h1>Snowsune Blog</h1>
+        {% if user.is_authenticated and user.is_staff %}
+        <div class="admin-actions">
+            <a href="{% url 'blog:post_create' %}" class="btn btn-primary">Create New Post</a>
+            <a href="{% url 'blog:dashboard' %}" class="btn btn-secondary">View Dashboard</a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if latest_posts %}
+    <section class="blog-posts">
+        <h2>Latest Posts</h2>
+        <div class="posts-grid">
+            {% for post in latest_posts %}
+            <article class="post-card">
+                {% if post.featured_image %}
+                <div class="post-image">
+                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                </div>
+                {% endif %}
+
+                <div class="post-content">
+                    <h3 class="post-title">
+                        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                    </h3>
+
+                    <div class="post-meta">
+                        <span class="post-date">{{ post.display_date|date:"M j, Y" }}</span>
+                        {% if post.tags.all %}
+                        <div class="post-tags">
+                            {% for tag in post.tags.all %}
+                            <span class="tag">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if post.excerpt %}
+                    <p class="post-excerpt">{{ post.excerpt|truncatewords:30 }}</p>
+                    {% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+
+        <div class="view-all-posts">
+            <a href="{% url 'blog:blog_list' %}" class="btn btn-outline">View All Posts</a>
+        </div>
+    </section>
+    {% else %}
+    <section class="no-posts">
+        <h2>No Posts Yet</h2>
+        <p>Check back soon for updates!</p>
+        {% if user.is_authenticated and user.is_staff %}
+        <div class="admin-actions">
+            <a href="{% url 'blog:post_create' %}" class="btn btn-primary">Create First Post</a>
+        </div>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    {% if popular_tags %}
+    <section class="popular-topics">
+        <h2>Popular Topics</h2>
+        <div class="tag-cloud">
+            {% for tag in popular_tags %}
+            <a href="{% url 'blog:blog_list' %}?tag={{ tag.slug }}" class="tag-link">{{ tag.name }}</a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

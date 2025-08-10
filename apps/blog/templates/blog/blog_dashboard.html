@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Blog Dashboard - Snowsune{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/blog.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Blog Dashboard</h1>
+        <p>Manage your blog posts and track your writing</p>
+        <a href="{% url 'blog:post_create' %}" class="btn btn-primary">Create New Post</a>
+    </div>
+
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_posts }}</div>
+            <div class="stat-label">Total Posts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ draft_posts.count }}</div>
+            <div class="stat-label">Drafts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ published_posts.count }}</div>
+            <div class="stat-label">Published</div>
+        </div>
+    </div>
+
+    <div class="dashboard-content">
+        <!-- Draft Posts -->
+        {% if draft_posts %}
+        <section class="dashboard-section">
+            <h2>Draft Posts</h2>
+            <div class="posts-table">
+                <div class="table-header">
+                    <div class="col-title">Title</div>
+                    <div class="col-date">Last Modified</div>
+                    <div class="col-actions">Actions</div>
+                </div>
+                {% for post in draft_posts %}
+                <div class="table-row">
+                    <div class="col-title">
+                        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                        {% if post.tags.all %}
+                        <div class="post-tags">
+                            {% for tag in post.tags.all %}
+                            <span class="tag small">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-date">{{ post.updated_at|date:"M j, Y g:i A" }}</div>
+                    <div class="col-actions">
+                        <a href="{% url 'blog:post_edit' post.slug %}" class="btn btn-sm btn-secondary">Edit</a>
+                        <a href="{% url 'blog:post_delete' post.slug %}" class="btn btn-sm btn-danger"
+                            onclick="return confirm('Are you sure you want to delete this post?')">Delete</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Published Posts -->
+        {% if published_posts %}
+        <section class="dashboard-section">
+            <h2>Published Posts</h2>
+            <div class="posts-table">
+                <div class="table-header">
+                    <div class="col-title">Title</div>
+                    <div class="col-date">Published</div>
+                    <div class="col-actions">Actions</div>
+                </div>
+                {% for post in published_posts %}
+                <div class="table-row">
+                    <div class="col-title">
+                        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                        {% if post.tags.all %}
+                        <div class="post-tags">
+                            {% for tag in post.tags.all %}
+                            <span class="tag small">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-date">{{ post.published_at|date:"M j, Y g:i A" }}</div>
+                    <div class="col-actions">
+                        <a href="{{ post.get_absolute_url }}" class="btn btn-sm btn-outline">View</a>
+                        <a href="{% url 'blog:post_edit' post.slug %}" class="btn btn-sm btn-secondary">Edit</a>
+                        <a href="{% url 'blog:post_delete' post.slug %}" class="btn btn-sm btn-danger"
+                            onclick="return confirm('Are you sure you want to delete this post?')">Delete</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- No Posts Message -->
+        {% if not draft_posts and not published_posts %}
+        <div class="no-posts-message">
+            <h3>No posts yet</h3>
+            <p>You haven't created any blog posts yet. Start writing your first post!</p>
+            <a href="{% url 'blog:post_create' %}" class="btn btn-primary">Create Your First Post</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="dashboard-actions">
+        <h3>Quick Actions</h3>
+        <div class="action-buttons">
+            <a href="{% url 'blog:post_create' %}" class="btn btn-primary">New Post</a>
+            <a href="{% url 'blog:blog_list' %}" class="btn btn-outline">View All Posts</a>
+            <a href="{% url 'blog:rss_feed' %}" class="btn btn-outline">RSS Feed</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

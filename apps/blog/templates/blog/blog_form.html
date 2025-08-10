@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{% if form.instance.pk %}Edit Post{% else %}New Post{% endif %} - Snowsune Blog
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/blog.css' %}">
+<link rel="stylesheet" href="{% static 'css/markdown-editor.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/blog-editor.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="blog-form-container">
+    <div class="form-header">
+        <h1>{% if form.instance.pk %}Edit Post{% else %}Create New Post{% endif %}</h1>
+        <p>Write your blog post using Markdown.</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="blog-post-form">
+        {% csrf_token %}
+
+        <!-- Content Field (main area) -->
+        <div class="form-group">
+            <label for="{{ form.content.id_for_label }}">Content *</label>
+            <div class="markdown-editor-container">
+                <div class="editor-toolbar">
+                    <button type="button" class="toolbar-btn" data-insert="# ">H1</button>
+                    <button type="button" class="toolbar-btn" data-insert="## ">H2</button>
+                    <button type="button" class="toolbar-btn" data-insert="### ">H3</button>
+                    <button type="button" class="toolbar-btn" data-insert="**bold**">Bold</button>
+                    <button type="button" class="toolbar-btn" data-insert="*italic*">Italic</button>
+                    <button type="button" class="toolbar-btn" data-insert="[link](url)">Link</button>
+                    <button type="button" class="toolbar-btn" data-insert="![alt](image_url)">Image</button>
+                    <button type="button" class="toolbar-btn" data-insert="```\ncode\n```">Code</button>
+                    <button type="button" class="toolbar-btn" data-insert="- ">List</button>
+                    <button type="button" class="toolbar-btn" data-insert="1. ">Numbered List</button>
+                </div>
+                {{ form.content }}
+                <div class="image-upload-zone" id="imageUploadZone">
+                    <div class="upload-prompt">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop images here or paste from clipboard</p>
+                    </div>
+                </div>
+            </div>
+            {% if form.content.errors %}
+            <div class="error-message">{{ form.content.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {% if form.instance.pk %}Update Post{% else %}Create Post{% endif %}
+            </button>
+            <a href="{% url 'blog:blog_list' %}" class="btn btn-outline">Cancel</a>
+            {% if form.instance.pk %}
+            <a href="{{ form.instance.get_absolute_url }}" class="btn btn-secondary">View Post</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="blog-form-sidebar">
+    <h3>Post Settings</h3>
+
+    <form method="post" enctype="multipart/form-data" class="blog-post-form">
+        {% csrf_token %}
+
+        <!-- Title Field -->
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">Title *</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+            <div class="error-message">{{ form.title.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Slug Field (only for new posts) -->
+        {% if form.slug %}
+        <div class="form-group">
+            <label for="{{ form.slug.id_for_label }}">URL Slug</label>
+            {{ form.slug }}
+            <small class="form-help">Leave blank to auto-generate from title</small>
+            {% if form.slug.errors %}
+            <div class="error-message">{{ form.slug.errors.0 }}</div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Status -->
+        <div class="form-group">
+            <label for="{{ form.status.id_for_label }}">Status *</label>
+            {{ form.status }}
+            {% if form.status.errors %}
+            <div class="error-message">{{ form.status.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Tags -->
+        <div class="form-group">
+            <label for="{{ form.tags.id_for_label }}">Tags</label>
+            {{ form.tags }}
+            <small class="form-help">Select existing tags or create new ones</small>
+            {% if form.tags.errors %}
+            <div class="error-message">{{ form.tags.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Featured Image -->
+        <div class="form-group">
+            <label for="{{ form.featured_image.id_for_label }}">Featured Image</label>
+            {{ form.featured_image }}
+            {% if form.instance.featured_image %}
+            <div class="current-image">
+                <img src="{{ form.instance.featured_image.url }}" alt="Current featured image">
+                <small>Current image</small>
+            </div>
+            {% endif %}
+            {% if form.featured_image.errors %}
+            <div class="error-message">{{ form.featured_image.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Meta Description -->
+        <div class="form-group">
+            <label for="{{ form.meta_description.id_for_label }}">Meta Description</label>
+            {{ form.meta_description }}
+            <small class="form-help">Brief description for search engines (optional)</small>
+            {% if form.meta_description.errors %}
+            <div class="error-message">{{ form.meta_description.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Original Posting Date -->
+        <div class="form-group">
+            <label for="{{ form.original_posting_date.id_for_label }}">Original Posting Date</label>
+            {{ form.original_posting_date }}
+            <small class="form-help">For imported posts (optional)</small>
+            {% if form.original_posting_date.errors %}
+            <div class="error-message">{{ form.original_posting_date.errors.0 }}</div>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

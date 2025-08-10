@@ -212,6 +212,8 @@ a:visited {
   flex: 1;
   max-width: 15vw;
   background: var(--sidebar-bg); /* Light grey background for sidebar */
+  overflow: hidden; /* Prevent content from overflowing */
+  word-wrap: break-word; /* Break long words */
 }
 
 /*

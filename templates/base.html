@@ -50,6 +50,9 @@
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}" />
 
+  <!-- Extra CSS block for page-specific styles -->
+  {% block extra_css %}{% endblock %}
+
   <!-- Other -->
   <link rel="stylesheet" href="https://furriesofnewengland.org/css/onionring.css" />
   <!-- Required for FONE <3 -->
@@ -68,7 +71,7 @@
           <a href="{% url 'tools' %}">Apps/Tools</a>
           <a href="{% url 'character-list' %}">Characters</a>
           <a href="#">Gallery</a>
-          <a href="{% url 'blog' %}">Blog</a>
+          <a href="{% url 'blog:blog_landing' %}">Blog</a>
           <a href="{% url 'comics' %}">Comics</a>
         </div>
         <div class="nav-mobile-links" id="nav-mobile-links">
@@ -76,7 +79,7 @@
           <a href="{% url 'tools' %}">Apps/Tools</a>
           <a href="{% url 'character-list' %}">Characters</a>
           <a href="#">Gallery</a>
-          <a href="{% url 'blog' %}">Blog</a>
+          <a href="{% url 'blog:blog_landing' %}">Blog</a>
           <a href="{% url 'comics' %}">Comics</a>
         </div>
       </nav>
@@ -111,7 +114,7 @@
         <li><a href="{% url 'home' %}">About</a></li>
         <!-- TODO: Change me to a proper about page later -->
         <li><a href="{% url 'tools' %}">Tools</a></li>
-        <li><a href="{% url 'blog' %}">Blog</a></li>
+        <li><a href="{% url 'blog:blog_landing' %}">Blog</a></li>
       </ul>
       {% block sidebar %} {% endblock %}
     </div>
