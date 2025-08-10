@@ -7,11 +7,41 @@
 <p>A couple things up front.. I am NOT good at web design!</p>
 <p>I'm also pretty disorganized in general!</p>
 
-A lot of things are in motion here but I still hope to have resources and
-tools that make my site worth visiting!
+<p>A lot of things are in motion here but I still hope to have resources and
+    tools that make my site worth visiting!</p>
 
-consider joining my <a href="{{ discord_invite }}">discord</a> by the way! Thats the best
-place to get up-to-date information!
+<p>Consider joining my <a href="{{ discord_invite }}">discord</a> by the way! That's the best
+    place to get up-to-date information!</p>
+
+{% if latest_post %}
+<section class="latest-blog-post">
+    <h2>Latest Blog Post</h2>
+    <article class="blog-preview">
+        {% if latest_post.featured_image %}
+        <div class="blog-preview-image">
+            <img src="{{ latest_post.featured_image.url }}" alt="{{ latest_post.title }}" loading="lazy">
+        </div>
+        {% endif %}
+        <div class="blog-preview-content">
+            <h3><a href="{{ latest_post.get_absolute_url }}">{{ latest_post.title }}</a></h3>
+            <div class="blog-meta">
+                <span class="blog-date">{{ latest_post.display_date|date:"F j, Y" }}</span>
+                {% if latest_post.tags.exists %}
+                <span class="blog-tags">
+                    {% for tag in latest_post.tags.all %}
+                    <span class="tag">{{ tag.name }}</span>
+                    {% endfor %}
+                </span>
+                {% endif %}
+            </div>
+            {% if latest_post.excerpt %}
+            <p class="blog-excerpt">{{ latest_post.excerpt }}</p>
+            {% endif %}
+            <a href="{{ latest_post.get_absolute_url }}" class="read-more">Read More →</a>
+        </div>
+    </article>
+</section>
+{% endif %}
 {% endblock %}
 
 {% block sidebar %}
@@ -27,4 +57,11 @@ place to get up-to-date information!
     <li><a href="https://size-diff.snowsune.net/">Size-Diff</a></li>
     <li><a href="{% url 'commorganizer' %}">Commission Organizer</a></li>
 </ul>
+
+{% if latest_post %}
+<h2>Recent Posts</h2>
+<ul>
+    <li><a href="{{ latest_post.get_absolute_url }}">{{ latest_post.title }}</a></li>
+</ul>
+{% endif %}
 {% endblock %}
