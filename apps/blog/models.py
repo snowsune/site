@@ -121,21 +121,44 @@ class BlogPost(models.Model):
             # Import here to avoid circular imports
             from apps.commorganizer.utils import send_discord_webhook
 
-            # Create notification message
+            # Create notification message with Discord markdown
             message = f"📝 **New Blog Post Published!**\n\n"
             message += f"**{self.title}**\n"
-            message += f"by {self.author.username}\n\n"
+            message += f"*by {self.author.username}*\n\n"
 
+            # Add more content - Discord has 2000 character limit, so we can be generous
             if self.excerpt:
-                # Truncate excerpt if too long for Discord
-                excerpt = (
-                    self.excerpt[:150] + "..."
-                    if len(self.excerpt) > 150
-                    else self.excerpt
-                )
-                message += f"{excerpt}\n\n"
+                # Use more of the excerpt - Discord supports markdown
+                excerpt = self.excerpt
+                if len(excerpt) > 800:  # Leave room for other content
+                    excerpt = excerpt[:800] + "..."
+                message += f"**Excerpt:**\n{excerpt}\n\n"
 
-            message += f"Read more: {settings.SITE_URL or 'http://localhost:8000'}{self.get_absolute_url()}"
+            # Add tags if available
+            if self.tags.exists():
+                tag_names = [tag.name for tag in self.tags.all()]
+                message += f"**Tags:** {', '.join(tag_names)}\n\n"
+
+            # Add the full URL
+            full_url = f"{settings.SITE_URL}{self.get_absolute_url()}"
+            message += f"**Read the full post:** {full_url}"
+
+            # Check message length and truncate if needed
+            if len(message) > 1900:  # Leave some buffer
+                # Truncate excerpt to fit
+                if self.excerpt:
+                    available_chars = 1900 - len(message) + len(self.excerpt)
+                    if available_chars > 100:  # Only if we have meaningful space
+                        excerpt = self.excerpt[: available_chars - 50] + "..."
+                        # Rebuild message with truncated excerpt
+                        message = f"📝 **New Blog Post Published!**\n\n"
+                        message += f"**{self.title}**\n"
+                        message += f"*by {self.author.username}*\n\n"
+                        message += f"**Excerpt:**\n{excerpt}\n\n"
+                        if self.tags.exists():
+                            tag_names = [tag.name for tag in self.tags.all()]
+                            message += f"**Tags:** {', '.join(tag_names)}\n\n"
+                        message += f"**Read the full post:** {full_url}"
 
             # Send webhook
             send_discord_webhook(webhook_url, message)
