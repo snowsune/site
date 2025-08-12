@@ -209,34 +209,54 @@ def submit_comment(request, post_id):
 
 @login_required
 def moderate_comment(request, comment_id, action):
-    """Moderate a comment (approve, reject, mark as spam)"""
     comment = get_object_or_404(Comment, id=comment_id)
 
     # Check if user has permission to moderate
     if not (request.user.is_staff or request.user == comment.post.author):
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "You don't have permission to moderate comments.",
+                }
+            )
         show_error_notification(
             request, "You don't have permission to moderate comments."
         )
         return redirect(comment.post.get_absolute_url())
 
+    # Prepare response data
+    response_data = {"success": True}
+
     if action == "approve":
         comment.status = "approved"
+        response_data["message"] = "Comment approved."
         show_success_notification(request, "Comment approved.")
     elif action == "reject":
         comment.status = "rejected"
+        response_data["message"] = "Comment rejected."
         show_success_notification(request, "Comment rejected.")
     elif action == "spam":
         comment.status = "spam"
+        response_data["message"] = "Comment marked as spam."
         show_success_notification(request, "Comment marked as spam.")
     else:
+        response_data = {"success": False, "message": "Invalid moderation action."}
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse(response_data)
         show_error_notification(request, "Invalid moderation action.")
         return redirect(comment.post.get_absolute_url())
 
-    comment.moderated_by = request.user
+    # Set moderation metadata
     comment.moderated_at = timezone.now()
+    comment.moderated_by = request.user
     comment.save()
 
-    return redirect(comment.post.get_absolute_url())
+    # Return JSON for AJAX requests, redirect for regular requests
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse(response_data)
+    else:
+        return redirect(comment.post.get_absolute_url())
 
 
 class BlogCreateView(LoginRequiredMixin, CreateView):

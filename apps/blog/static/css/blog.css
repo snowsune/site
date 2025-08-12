@@ -1706,3 +1706,56 @@ body .main-layout .content {
     background-color: #f8d7da;
     border-color: #f5c6cb;
 } 
+
+/* Dashboard moderation actions */
+.moderation-action {
+    transition: all 0.2s ease;
+}
+
+.moderation-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.moderation-action.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.moderation-action.btn-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Comment row transitions */
+.comment-row {
+    transition: all 0.3s ease;
+}
+
+.comment-row.removing {
+    opacity: 0;
+    transform: translateX(-100%);
+}
+
+/* Empty state styling */
+.moderation-section:empty::after {
+    content: 'No comments in this category';
+    display: block;
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-style: italic;
+}
+
+.moderation-section[style*="display: none"] {
+    display: none !important;
+} 

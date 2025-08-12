@@ -129,7 +129,7 @@
                     <div class="col-actions">Actions</div>
                 </div>
                 {% for comment in unapproved_comments %}
-                <div class="table-row comment-row" data-comment-id="{{ comment.id }}">
+                <div class="table-row comment-row pending" data-comment-id="{{ comment.id }}">
                     <div class="col-post">
                         <a href="{{ comment.post.get_absolute_url }}">{{ comment.post.title }}</a>
                     </div>
@@ -150,20 +150,24 @@
                         </div>
                         {% endif %}
                     </div>
-                    <div class="col-date">{{ comment.created_at|date:"M j, Y g:i A" }}</div>
+                    <div class="col-date">{{ comment.created_at|date:"M j, Y" }}</div>
                     <div class="col-actions">
-                        <a href="{{ comment.post.get_absolute_url }}#comment-{{ comment.id }}" 
-                           class="btn btn-sm btn-outline" 
-                           data-action="view">View</a>
-                        <a href="{% url 'blog:moderate_comment' comment.id 'approve' %}" 
-                           class="btn btn-sm btn-success" 
-                           data-action="approve">Approve</a>
-                        <a href="{% url 'blog:moderate_comment' comment.id 'reject' %}" 
-                           class="btn btn-sm btn-warning" 
-                           data-action="reject">Reject</a>
-                        <a href="{% url 'blog:moderate_comment' comment.id 'spam' %}" 
-                           class="btn btn-sm btn-danger" 
-                           data-action="spam">Spam</a>
+                        <a href="{{ comment.post.get_absolute_url }}#comment-{{ comment.id }}"
+                            class="btn btn-sm btn-outline" target="_blank" title="View comment in context">
+                            View
+                        </a>
+                        <button class="btn btn-sm btn-success moderation-action" data-action="approve"
+                            data-comment-id="{{ comment.id }}" data-comment-type="pending">
+                            Approve
+                        </button>
+                        <button class="btn btn-sm btn-warning moderation-action" data-action="reject"
+                            data-comment-id="{{ comment.id }}" data-comment-type="pending">
+                            Reject
+                        </button>
+                        <button class="btn btn-sm btn-danger moderation-action" data-action="spam"
+                            data-comment-id="{{ comment.id }}" data-comment-type="pending">
+                            Spam
+                        </button>
                     </div>
                 </div>
                 {% endfor %}
@@ -175,7 +179,7 @@
         {% if rejected_comments or spam_comments %}
         <section class="dashboard-section" data-section="moderation-history">
             <h2>Recent Moderation History</h2>
-            
+
             {% if rejected_comments %}
             <div class="moderation-section" data-moderation-type="rejected">
                 <h3>Rejected Comments</h3>
@@ -194,6 +198,20 @@
                         <div class="col-author">{{ comment.get_display_name }}</div>
                         <div class="col-content">{{ comment.content|truncatewords:15 }}</div>
                         <div class="col-date">{{ comment.moderated_at|date:"M j, Y" }}</div>
+                        <div class="col-actions">
+                            <a href="{{ comment.post.get_absolute_url }}#comment-{{ comment.id }}"
+                                class="btn btn-sm btn-outline" target="_blank" title="View comment in context">
+                                View
+                            </a>
+                            <button class="btn btn-sm btn-success moderation-action" data-action="approve"
+                                data-comment-id="{{ comment.id }}" data-comment-type="rejected">
+                                Approve
+                            </button>
+                            <button class="btn btn-sm btn-danger moderation-action" data-action="spam"
+                                data-comment-id="{{ comment.id }}" data-comment-type="rejected">
+                                Mark as Spam
+                            </button>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
@@ -218,6 +236,20 @@
                         <div class="col-author">{{ comment.get_display_name }}</div>
                         <div class="col-content">{{ comment.content|truncatewords:15 }}</div>
                         <div class="col-date">{{ comment.moderated_at|date:"M j, Y" }}</div>
+                        <div class="col-actions">
+                            <a href="{{ comment.post.get_absolute_url }}#comment-{{ comment.id }}"
+                                class="btn btn-sm btn-outline" target="_blank" title="View comment in context">
+                                View
+                            </a>
+                            <button class="btn btn-sm btn-success moderation-action" data-action="approve"
+                                data-comment-id="{{ comment.id }}" data-comment-type="spam">
+                                Approve
+                            </button>
+                            <button class="btn btn-sm btn-warning moderation-action" data-action="reject"
+                                data-comment-id="{{ comment.id }}" data-comment-type="spam">
+                                Reject
+                            </button>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
@@ -244,7 +276,8 @@
             <a href="{% url 'blog:blog_list' %}" class="btn btn-outline">View All Posts</a>
             <a href="{% url 'blog:rss_feed' %}" class="btn btn-outline">RSS Feed</a>
             {% if pending_comment_count > 0 %}
-            <a href="{% url 'admin:blog_comment_changelist' %}?status__exact=pending" class="btn btn-warning">Manage Comments ({{ pending_comment_count }})</a>
+            <a href="{% url 'admin:blog_comment_changelist' %}?status__exact=pending" class="btn btn-warning">Manage
+                Comments ({{ pending_comment_count }})</a>
             {% endif %}
         </div>
     </div>
