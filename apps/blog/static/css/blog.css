@@ -1057,7 +1057,7 @@ body .main-layout .content {
 
 .btn-primary {
     background: var(--link-default);
-    color: white;
+    color: rgb(3, 27, 32);
     border-color: var(--link-default);
 }
 
@@ -1514,6 +1514,16 @@ body .main-layout .content {
 
 .stat-card-warning .stat-number {
     color: var(--warning-color, #ffc107);
+}
+
+/* Success Stat Card */
+.stat-card-success {
+    border-color: var(--success-color, #28a745);
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.stat-card-success .stat-number {
+    color: var(--success-color, #28a745);
 }
 
 /* Moderation Section */

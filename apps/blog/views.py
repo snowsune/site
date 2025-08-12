@@ -129,9 +129,13 @@ def submit_comment(request, post_id):
     if form.is_valid():
         comment = form.save()
 
-        messages.success(
-            request, "Your comment has been submitted and is awaiting moderation."
-        )
+        if request.user.is_authenticated:
+            messages.success(request, "Your comment has been posted successfully!")
+        else:
+            messages.success(
+                request, "Your comment has been submitted and is awaiting moderation."
+            )
+
         return redirect(post.get_absolute_url())
     else:
         # Store form errors in messages
@@ -252,6 +256,12 @@ def blog_dashboard(request):
         .order_by("-created_at")[:5]
     )
 
+    # Get total comment counts for better context
+    total_comments = Comment.objects.filter(post__author=request.user).count()
+    approved_comments = Comment.objects.filter(
+        post__author=request.user, status="approved"
+    ).count()
+
     context = {
         "draft_posts": draft_posts,
         "published_posts": published_posts,
@@ -260,6 +270,8 @@ def blog_dashboard(request):
         "rejected_comments": rejected_comments,
         "spam_comments": spam_comments,
         "pending_comment_count": unapproved_comments.count(),
+        "total_comment_count": total_comments,
+        "approved_comment_count": approved_comments,
     }
     return render(request, "blog/blog_dashboard.html", context)
 

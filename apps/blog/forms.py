@@ -312,9 +312,11 @@ class CommentForm(forms.ModelForm):
         # Set the user if logged in
         if self.user and self.user.is_authenticated:
             instance.user = self.user
-
-        # Set default status (pending moderation)
-        instance.status = "pending"
+            # Auto-approve comments from registered users
+            instance.status = "approved"
+        else:
+            # Anonymous users start with pending status
+            instance.status = "pending"
 
         if commit:
             instance.save()

@@ -28,10 +28,20 @@
             <div class="stat-number">{{ published_posts.count }}</div>
             <div class="stat-label">Published</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_comment_count }}</div>
+            <div class="stat-label">Total Comments</div>
+        </div>
         {% if pending_comment_count > 0 %}
         <div class="stat-card stat-card-warning">
             <div class="stat-number">{{ pending_comment_count }}</div>
             <div class="stat-label">Pending Comments</div>
+        </div>
+        {% endif %}
+        {% if approved_comment_count > 0 %}
+        <div class="stat-card stat-card-success">
+            <div class="stat-number">{{ approved_comment_count }}</div>
+            <div class="stat-label">Approved Comments</div>
         </div>
         {% endif %}
     </div>

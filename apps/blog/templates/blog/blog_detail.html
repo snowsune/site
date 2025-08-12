@@ -155,7 +155,11 @@
             
             {% if not user.is_authenticated %}
             <div class="comment-form-info">
-                <small>💡 Your details will be saved in your browser and shared across the site for future use.</small>
+                <small>💡 Your details will be saved in your browser and shared across the site for future use. Comments from anonymous users require moderation.</small>
+            </div>
+            {% else %}
+            <div class="comment-form-info">
+                <small>✅ Your comment will be posted immediately since you're logged in.</small>
             </div>
             {% endif %}
         </div>
