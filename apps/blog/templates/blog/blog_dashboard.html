@@ -108,9 +108,9 @@
 
         <!-- Comments Requiring Moderation -->
         {% if unapproved_comments %}
-        <section class="dashboard-section">
+        <section class="dashboard-section" data-section="comments-moderation">
             <h2>Comments Awaiting Moderation <span class="badge badge-warning">{{ pending_comment_count }}</span></h2>
-            <div class="comments-table">
+            <div class="comments-table" data-comments-table>
                 <div class="table-header">
                     <div class="col-post">Post</div>
                     <div class="col-author">Author</div>
@@ -119,7 +119,7 @@
                     <div class="col-actions">Actions</div>
                 </div>
                 {% for comment in unapproved_comments %}
-                <div class="table-row comment-row">
+                <div class="table-row comment-row" data-comment-id="{{ comment.id }}">
                     <div class="col-post">
                         <a href="{{ comment.post.get_absolute_url }}">{{ comment.post.title }}</a>
                     </div>
@@ -142,10 +142,18 @@
                     </div>
                     <div class="col-date">{{ comment.created_at|date:"M j, Y g:i A" }}</div>
                     <div class="col-actions">
-                        <a href="{{ comment.post.get_absolute_url }}#comment-{{ comment.id }}" class="btn btn-sm btn-outline">View</a>
-                        <a href="{% url 'blog:moderate_comment' comment.id 'approve' %}" class="btn btn-sm btn-success">Approve</a>
-                        <a href="{% url 'blog:moderate_comment' comment.id 'reject' %}" class="btn btn-sm btn-warning">Reject</a>
-                        <a href="{% url 'blog:moderate_comment' comment.id 'spam' %}" class="btn btn-sm btn-danger">Spam</a>
+                        <a href="{{ comment.post.get_absolute_url }}#comment-{{ comment.id }}" 
+                           class="btn btn-sm btn-outline" 
+                           data-action="view">View</a>
+                        <a href="{% url 'blog:moderate_comment' comment.id 'approve' %}" 
+                           class="btn btn-sm btn-success" 
+                           data-action="approve">Approve</a>
+                        <a href="{% url 'blog:moderate_comment' comment.id 'reject' %}" 
+                           class="btn btn-sm btn-warning" 
+                           data-action="reject">Reject</a>
+                        <a href="{% url 'blog:moderate_comment' comment.id 'spam' %}" 
+                           class="btn btn-sm btn-danger" 
+                           data-action="spam">Spam</a>
                     </div>
                 </div>
                 {% endfor %}
@@ -155,13 +163,13 @@
 
         <!-- Recent Rejected/Spam Comments -->
         {% if rejected_comments or spam_comments %}
-        <section class="dashboard-section">
+        <section class="dashboard-section" data-section="moderation-history">
             <h2>Recent Moderation History</h2>
             
             {% if rejected_comments %}
-            <div class="moderation-section">
+            <div class="moderation-section" data-moderation-type="rejected">
                 <h3>Rejected Comments</h3>
-                <div class="comments-table">
+                <div class="comments-table" data-comments-table>
                     <div class="table-header">
                         <div class="col-post">Post</div>
                         <div class="col-author">Author</div>
@@ -169,7 +177,7 @@
                         <div class="col-date">Rejected</div>
                     </div>
                     {% for comment in rejected_comments %}
-                    <div class="table-row comment-row rejected">
+                    <div class="table-row comment-row rejected" data-comment-id="{{ comment.id }}">
                         <div class="col-post">
                             <a href="{{ comment.post.get_absolute_url }}">{{ comment.post.title }}</a>
                         </div>
@@ -183,9 +191,9 @@
             {% endif %}
 
             {% if spam_comments %}
-            <div class="moderation-section">
+            <div class="moderation-section" data-moderation-type="spam">
                 <h3>Spam Comments</h3>
-                <div class="comments-table">
+                <div class="comments-table" data-comments-table>
                     <div class="table-header">
                         <div class="col-post">Post</div>
                         <div class="col-author">Author</div>
@@ -193,7 +201,7 @@
                         <div class="col-date">Marked as Spam</div>
                     </div>
                     {% for comment in spam_comments %}
-                    <div class="table-row comment-row spam">
+                    <div class="table-row comment-row spam" data-comment-id="{{ comment.id }}">
                         <div class="col-post">
                             <a href="{{ comment.post.get_absolute_url }}">{{ comment.post.title }}</a>
                         </div>
@@ -231,4 +239,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/blog-dashboard.js' %}"></script>
 {% endblock %}

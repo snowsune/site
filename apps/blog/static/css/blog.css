@@ -1357,6 +1357,17 @@ body .main-layout .content {
     padding: 0.25em 0.75em;
 }
 
+.reply-form-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.reply-form-actions .btn {
+    margin-top: 0;
+}
+
 /* Comment Replies */
 .comment-replies {
     margin-top: 1rem;
@@ -1418,6 +1429,48 @@ body .main-layout .content {
 
 .comment-reply-info small {
     font-size: 0.85em;
+}
+
+/* Data attribute enhancements */
+[data-comment-id] {
+    transition: all 0.2s ease;
+}
+
+[data-comment-id]:hover {
+    transform: translateX(2px);
+}
+
+[data-action] {
+    transition: all 0.2s ease;
+}
+
+[data-action]:hover {
+    transform: translateY(-1px);
+}
+
+/* Comment form enhancements */
+[data-comment-form] {
+    transition: all 0.3s ease;
+}
+
+[data-reply-form] {
+    transition: all 0.3s ease;
+    transform-origin: top;
+}
+
+[data-reply-form][style*="display: block"] {
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Badges */

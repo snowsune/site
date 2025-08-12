@@ -105,9 +105,9 @@
         <!-- Comment Form -->
         <div class="comment-form-container">
             <h4>Leave a Comment</h4>
-            <form method="post" action="{% url 'blog:submit_comment' post.id %}" class="comment-form">
+            <form method="post" action="{% url 'blog:submit_comment' post.id %}" class="comment-form" data-comment-form>
                 {% csrf_token %}
-
+                
                 {% if not user.is_authenticated %}
                 <div class="form-group">
                     <label for="{{ comment_form.author_name.id_for_label }}">Name *</label>
@@ -152,7 +152,7 @@
 
                 <button type="submit" class="btn btn-primary">Submit Comment</button>
             </form>
-
+            
             {% if not user.is_authenticated %}
             <div class="comment-form-info">
                 <small>💡 Your details will be saved in your browser and shared across the site for future use.</small>
@@ -162,51 +162,58 @@
 
         <!-- Display Comments -->
         {% if comments %}
-        <div class="comments-list">
+        <div class="comments-list" data-comments-container>
             {% for comment in comments %}
-            <div class="comment" id="comment-{{ comment.id }}">
-                <div class="comment-header">
+            <article class="comment" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
+                <header class="comment-header">
                     <span class="comment-author">{{ comment.get_display_name }}</span>
-                    <span class="comment-date">{{ comment.created_at|date:"M j, Y \a\t g:i A" }}</span>
-                </div>
+                    <time class="comment-date" datetime="{{ comment.created_at|date:'c' }}">
+                        {{ comment.created_at|date:"M j, Y \a\t g:i A" }}
+                    </time>
+                </header>
+                
                 <div class="comment-content">
                     {{ comment.content|linebreaks }}
                 </div>
-
-                <!-- Reply Button -->
-                <div class="comment-actions">
-                    <button class="btn btn-sm btn-outline reply-btn" data-comment-id="{{ comment.id }}">
+                
+                <footer class="comment-actions">
+                    <button class="btn btn-sm btn-outline reply-btn" 
+                            data-comment-id="{{ comment.id }}" 
+                            data-action="reply">
                         Reply
                     </button>
-
+                    
                     <!-- Moderation Actions (for staff/author) -->
                     {% if user.is_staff or user == post.author %}
                     <div class="moderation-actions">
-                        <a href="{% url 'blog:moderate_comment' comment.id 'approve' %}"
-                            class="btn btn-sm btn-success">Approve</a>
-                        <a href="{% url 'blog:moderate_comment' comment.id 'reject' %}"
-                            class="btn btn-sm btn-warning">Reject</a>
-                        <a href="{% url 'blog:moderate_comment' comment.id 'spam' %}"
-                            class="btn btn-sm btn-danger">Spam</a>
+                        <a href="{% url 'blog:moderate_comment' comment.id 'approve' %}" 
+                           class="btn btn-sm btn-success" 
+                           data-action="approve">Approve</a>
+                        <a href="{% url 'blog:moderate_comment' comment.id 'reject' %}" 
+                           class="btn btn-sm btn-warning" 
+                           data-action="reject">Reject</a>
+                        <a href="{% url 'blog:moderate_comment' comment.id 'spam' %}" 
+                           class="btn btn-sm btn-danger" 
+                           data-action="spam">Spam</a>
                     </div>
                     {% endif %}
-                </div>
+                </footer>
 
                 <!-- Reply Form (hidden by default) -->
-                <div class="reply-form" id="reply-form-{{ comment.id }}" style="display: none;">
+                <div class="reply-form" id="reply-form-{{ comment.id }}" style="display: none;" data-reply-form>
                     <form method="post" action="{% url 'blog:submit_comment' post.id %}" class="comment-form">
                         {% csrf_token %}
                         <input type="hidden" name="parent" value="{{ comment.id }}">
-
+                        
                         {% if not user.is_authenticated %}
                         <div class="form-group">
-                            <label for="reply-author-name">Name *</label>
-                            <input type="text" name="author_name" id="reply-author-name" class="form-control" required>
+                            <label for="reply-author-name-{{ comment.id }}">Name *</label>
+                            <input type="text" name="author_name" id="reply-author-name-{{ comment.id }}" class="form-control" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="reply-author-email">Email</label>
-                            <input type="email" name="author_email" id="reply-author-email" class="form-control">
+                            <label for="reply-author-email-{{ comment.id }}">Email</label>
+                            <input type="email" name="author_email" id="reply-author-email-{{ comment.id }}" class="form-control">
                         </div>
                         {% else %}
                         <!-- Hidden fields for logged-in users -->
@@ -218,48 +225,56 @@
                         {% endif %}
 
                         <div class="form-group">
-                            <label for="reply-content">Reply *</label>
-                            <textarea name="content" id="reply-content" class="form-control" rows="3"
-                                required></textarea>
+                            <label for="reply-content-{{ comment.id }}">Reply *</label>
+                            <textarea name="content" id="reply-content-{{ comment.id }}" class="form-control" rows="3" required></textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
-                        <button type="button" class="btn btn-outline btn-sm cancel-reply"
-                            data-comment-id="{{ comment.id }}">Cancel</button>
+                        <div class="reply-form-actions">
+                            <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
+                            <button type="button" class="btn btn-outline btn-sm cancel-reply" 
+                                    data-comment-id="{{ comment.id }}" 
+                                    data-action="cancel-reply">Cancel</button>
+                        </div>
                     </form>
                 </div>
 
                 <!-- Display Replies -->
                 {% if comment.replies_list %}
-                <div class="comment-replies">
+                <div class="comment-replies" data-replies-container>
                     {% for reply in comment.replies_list %}
-                    <div class="comment reply" id="comment-{{ reply.id }}">
-                        <div class="comment-header">
+                    <article class="comment reply" id="comment-{{ reply.id }}" data-comment-id="{{ reply.id }}">
+                        <header class="comment-header">
                             <span class="comment-author">{{ reply.get_display_name }}</span>
-                            <span class="comment-date">{{ reply.created_at|date:"M j, Y \a\t g:i A" }}</span>
-                        </div>
+                            <time class="comment-date" datetime="{{ reply.created_at|date:'c' }}">
+                                {{ reply.created_at|date:"M j, Y \a\t g:i A" }}
+                            </time>
+                        </header>
+                        
                         <div class="comment-content">
                             {{ reply.content|linebreaks }}
                         </div>
-
+                        
                         <!-- Moderation Actions for Replies -->
                         {% if user.is_staff or user == post.author %}
-                        <div class="comment-actions">
+                        <footer class="comment-actions">
                             <div class="moderation-actions">
-                                <a href="{% url 'blog:moderate_comment' reply.id 'approve' %}"
-                                    class="btn btn-sm btn-success">Approve</a>
-                                <a href="{% url 'blog:moderate_comment' reply.id 'reject' %}"
-                                    class="btn btn-sm btn-warning">Reject</a>
-                                <a href="{% url 'blog:moderate_comment' reply.id 'spam' %}"
-                                    class="btn btn-sm btn-danger">Spam</a>
+                                <a href="{% url 'blog:moderate_comment' reply.id 'approve' %}" 
+                                   class="btn btn-sm btn-success" 
+                                   data-action="approve">Approve</a>
+                                <a href="{% url 'blog:moderate_comment' reply.id 'reject' %}" 
+                                   class="btn btn-sm btn-warning" 
+                                   data-action="reject">Reject</a>
+                                <a href="{% url 'blog:moderate_comment' reply.id 'spam' %}" 
+                                   class="btn btn-sm btn-danger" 
+                                   data-action="spam">Spam</a>
                             </div>
-                        </div>
+                        </footer>
                         {% endif %}
-                    </div>
+                    </article>
                     {% endfor %}
                 </div>
                 {% endif %}
-            </div>
+            </article>
             {% endfor %}
         </div>
         {% else %}
@@ -292,85 +307,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Handle reply buttons
-        const replyButtons = document.querySelectorAll('.reply-btn');
-        const cancelButtons = document.querySelectorAll('.cancel-reply');
-
-        replyButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const commentId = this.getAttribute('data-comment-id');
-                const replyForm = document.getElementById(`reply-form-${commentId}`);
-
-                // Hide all other reply forms first
-                document.querySelectorAll('.reply-form').forEach(form => {
-                    form.style.display = 'none';
-                });
-
-                // Show this reply form
-                replyForm.style.display = 'block';
-
-                // Auto-fill fields for anonymous users from cookies
-                if (!document.body.classList.contains('user-authenticated')) {
-                    const nameField = replyForm.querySelector('#reply-author-name');
-                    const emailField = replyForm.querySelector('#reply-author-email');
-
-                    if (nameField) {
-                        nameField.value = getCookie('commorg_name') || '';
-                    }
-                    if (emailField) {
-                        emailField.value = getCookie('commorg_email') || '';
-                    }
-                }
-
-                // Scroll to the reply form
-                replyForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            });
-        });
-
-        cancelButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const commentId = this.getAttribute('data-comment-id');
-                const replyForm = document.getElementById(`reply-form-${commentId}`);
-                replyForm.style.display = 'none';
-            });
-        });
-
-        // Set up cookie saving for comment forms
-        setupCommentCookies();
-
-        // Helper function to get cookie value
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-            return '';
-        }
-
-        // Set up cookie saving for comment forms (similar to commorganizer)
-        function setupCommentCookies() {
-            document.addEventListener('submit', function (e) {
-                if (e.target && e.target.classList.contains('comment-form')) {
-                    // Only save cookies for anonymous users
-                    if (!document.body.classList.contains('user-authenticated')) {
-                        const nameField = e.target.querySelector('input[name="author_name"]');
-                        const emailField = e.target.querySelector('input[name="author_email"]');
-                        const websiteField = e.target.querySelector('input[name="author_website"]');
-
-                        if (nameField && nameField.value) {
-                            document.cookie = 'commorg_name=' + encodeURIComponent(nameField.value) + ';path=/;max-age=31536000';
-                        }
-                        if (emailField && emailField.value) {
-                            document.cookie = 'commorg_email=' + encodeURIComponent(emailField.value) + ';path=/;max-age=31536000';
-                        }
-                        if (websiteField && websiteField.value) {
-                            document.cookie = 'commorg_website=' + encodeURIComponent(websiteField.value) + ';path=/;max-age=31536000';
-                        }
-                    }
-                }
-            });
-        }
-    });
-</script>
+<script src="{% static 'js/blog-comments.js' %}"></script>
 {% endblock %}
