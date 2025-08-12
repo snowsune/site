@@ -255,16 +255,32 @@ class CommentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
         self.post = kwargs.pop("post", None)
+        self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
 
         # If user is logged in, pre-fill and hide some fields
         if self.user and self.user.is_authenticated:
             self.fields["author_name"].initial = self.user.username
-            self.fields["author_name"].widget.attrs["readonly"] = True
             self.fields["author_email"].initial = self.user.email
-            self.fields["author_email"].widget.attrs["readonly"] = True
             self.fields["author_email"].required = False
             self.fields["author_website"].required = False
+
+            # Hide website field for logged-in users
+            self.fields["author_name"].widget = forms.HiddenInput()
+            self.fields["author_email"].widget = forms.HiddenInput()
+            self.fields["author_website"].widget = forms.HiddenInput()
+        else:
+            # For anonymous users, try to get values from cookies (Commorg because it overlaps with the commissionission organizeer app)
+            if self.request:
+                self.fields["author_name"].initial = self.request.COOKIES.get(
+                    "commorg_name", ""
+                )
+                self.fields["author_email"].initial = self.request.COOKIES.get(
+                    "commorg_email", ""
+                )
+                self.fields["author_website"].initial = self.request.COOKIES.get(
+                    "commorg_website", ""
+                )
 
         # Set the post if provided
         if self.post:

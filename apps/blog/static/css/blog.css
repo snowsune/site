@@ -1216,6 +1216,7 @@ body .main-layout .content {
     font-size: 1.25rem;
 }
 
+/* Comment Form */
 .comment-form .form-group {
     margin-bottom: 1rem;
 }
@@ -1244,6 +1245,35 @@ body .main-layout .content {
 
 .comment-form .btn {
     margin-top: 0.5rem;
+}
+
+/* Comment form info message */
+.comment-form-info {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--tile-background);
+    border-radius: 4px;
+    border: 1px solid var(--text-color);
+    opacity: 0.8;
+}
+
+.comment-form-info small {
+    color: var(--text-color);
+    font-style: italic;
+}
+
+/* User authentication status in comment forms */
+.comment-form .form-group label strong {
+    color: var(--link-default);
+    font-weight: bold;
+}
+
+.comment-form .form-group label:has(strong) {
+    background: var(--tile-background);
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--text-color);
+    margin-bottom: 1rem;
 }
 
 /* Comments List */

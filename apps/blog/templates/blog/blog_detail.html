@@ -108,6 +108,7 @@
             <form method="post" action="{% url 'blog:submit_comment' post.id %}" class="comment-form">
                 {% csrf_token %}
 
+                {% if not user.is_authenticated %}
                 <div class="form-group">
                     <label for="{{ comment_form.author_name.id_for_label }}">Name *</label>
                     {{ comment_form.author_name }}
@@ -131,6 +132,15 @@
                     <div class="error-message">{{ comment_form.author_website.errors.0 }}</div>
                     {% endif %}
                 </div>
+                {% else %}
+                <!-- Hidden fields for logged-in users -->
+                {{ comment_form.author_name }}
+                {{ comment_form.author_email }}
+                {{ comment_form.author_website }}
+                <div class="form-group">
+                    <label>Commenting as: <strong>{{ user.username }}</strong></label>
+                </div>
+                {% endif %}
 
                 <div class="form-group">
                     <label for="{{ comment_form.content.id_for_label }}">Comment *</label>
@@ -142,6 +152,12 @@
 
                 <button type="submit" class="btn btn-primary">Submit Comment</button>
             </form>
+
+            {% if not user.is_authenticated %}
+            <div class="comment-form-info">
+                <small>💡 Your details will be saved in your browser and shared across the site for future use.</small>
+            </div>
+            {% endif %}
         </div>
 
         <!-- Display Comments -->
@@ -182,6 +198,7 @@
                         {% csrf_token %}
                         <input type="hidden" name="parent" value="{{ comment.id }}">
 
+                        {% if not user.is_authenticated %}
                         <div class="form-group">
                             <label for="reply-author-name">Name *</label>
                             <input type="text" name="author_name" id="reply-author-name" class="form-control" required>
@@ -191,6 +208,14 @@
                             <label for="reply-author-email">Email</label>
                             <input type="email" name="author_email" id="reply-author-email" class="form-control">
                         </div>
+                        {% else %}
+                        <!-- Hidden fields for logged-in users -->
+                        <input type="hidden" name="author_name" value="{{ user.username }}">
+                        <input type="hidden" name="author_email" value="{{ user.email }}">
+                        <div class="form-group">
+                            <label>Replying as: <strong>{{ user.username }}</strong></label>
+                        </div>
+                        {% endif %}
 
                         <div class="form-group">
                             <label for="reply-content">Reply *</label>
@@ -286,6 +311,19 @@
                 // Show this reply form
                 replyForm.style.display = 'block';
 
+                // Auto-fill fields for anonymous users from cookies
+                if (!document.body.classList.contains('user-authenticated')) {
+                    const nameField = replyForm.querySelector('#reply-author-name');
+                    const emailField = replyForm.querySelector('#reply-author-email');
+
+                    if (nameField) {
+                        nameField.value = getCookie('commorg_name') || '';
+                    }
+                    if (emailField) {
+                        emailField.value = getCookie('commorg_email') || '';
+                    }
+                }
+
                 // Scroll to the reply form
                 replyForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             });
@@ -298,6 +336,41 @@
                 replyForm.style.display = 'none';
             });
         });
+
+        // Set up cookie saving for comment forms
+        setupCommentCookies();
+
+        // Helper function to get cookie value
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return '';
+        }
+
+        // Set up cookie saving for comment forms (similar to commorganizer)
+        function setupCommentCookies() {
+            document.addEventListener('submit', function (e) {
+                if (e.target && e.target.classList.contains('comment-form')) {
+                    // Only save cookies for anonymous users
+                    if (!document.body.classList.contains('user-authenticated')) {
+                        const nameField = e.target.querySelector('input[name="author_name"]');
+                        const emailField = e.target.querySelector('input[name="author_email"]');
+                        const websiteField = e.target.querySelector('input[name="author_website"]');
+
+                        if (nameField && nameField.value) {
+                            document.cookie = 'commorg_name=' + encodeURIComponent(nameField.value) + ';path=/;max-age=31536000';
+                        }
+                        if (emailField && emailField.value) {
+                            document.cookie = 'commorg_email=' + encodeURIComponent(emailField.value) + ';path=/;max-age=31536000';
+                        }
+                        if (websiteField && websiteField.value) {
+                            document.cookie = 'commorg_website=' + encodeURIComponent(websiteField.value) + ';path=/;max-age=31536000';
+                        }
+                    }
+                }
+            });
+        }
     });
 </script>
 {% endblock %}

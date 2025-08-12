@@ -81,7 +81,9 @@ class BlogDetailView(DetailView):
         comment_tree = self.build_comment_tree(comments)
 
         context["comments"] = comment_tree
-        context["comment_form"] = CommentForm(user=self.request.user, post=self.object)
+        context["comment_form"] = CommentForm(
+            user=self.request.user, post=self.object, request=self.request
+        )
         context["related_posts"] = (
             BlogPost.objects.filter(status="published", tags__in=self.object.tags.all())
             .exclude(id=self.object.id)
@@ -122,13 +124,15 @@ def submit_comment(request, post_id):
         messages.error(request, "Comments are only allowed on published posts.")
         return redirect(post.get_absolute_url())
 
-    form = CommentForm(request.POST, user=request.user, post=post)
+    form = CommentForm(request.POST, user=request.user, post=post, request=request)
 
     if form.is_valid():
         comment = form.save()
+
         messages.success(
             request, "Your comment has been submitted and is awaiting moderation."
         )
+        return redirect(post.get_absolute_url())
     else:
         # Store form errors in messages
         for field, errors in form.errors.items():

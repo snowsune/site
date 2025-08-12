@@ -58,7 +58,7 @@
   <!-- Required for FONE <3 -->
 </head>
 
-<body>
+<body class="{% if user.is_authenticated %}user-authenticated{% else %}user-anonymous{% endif %}">
   <header class="header tile">
     <div class="header-left">
       <div class="logo">
