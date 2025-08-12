@@ -264,6 +264,8 @@ class CommentForm(forms.ModelForm):
             self.fields["author_email"].initial = self.user.email
             self.fields["author_email"].required = False
             self.fields["author_website"].required = False
+            # Make author_name not required for authenticated users since we set it automatically
+            self.fields["author_name"].required = False
 
             # Hide website field for logged-in users
             self.fields["author_name"].widget = forms.HiddenInput()
@@ -295,6 +297,10 @@ class CommentForm(forms.ModelForm):
         return content
 
     def clean_author_name(self):
+        # Skip validation for authenticated users since we set the name automatically
+        if self.user and self.user.is_authenticated:
+            return self.user.username
+
         name = self.cleaned_data.get("author_name", "").strip()
         if len(name) < 2:
             raise forms.ValidationError("Name must be at least 2 characters long.")
