@@ -23,6 +23,11 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from .models import BlogPost, Tag, BlogImage, Comment
 from .forms import BlogPostForm, BlogPostCreateForm, TagForm, CommentForm
+from apps.notifications.utils import (
+    show_success_notification,
+    show_error_notification,
+    show_info_notification,
+)
 
 
 class BlogListView(ListView):
@@ -116,12 +121,20 @@ class BlogDetailView(DetailView):
 
 @require_POST
 def submit_comment(request, post_id):
-    """Handle comment submission"""
     post = get_object_or_404(BlogPost, id=post_id)
 
     # Check if comments are allowed (you could add a field to BlogPost for this)
     if post.status != "published":
-        messages.error(request, "Comments are only allowed on published posts.")
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "Comments are only allowed on published posts.",
+                }
+            )
+        show_error_notification(
+            request, "Comments are only allowed on published posts."
+        )
         return redirect(post.get_absolute_url())
 
     form = CommentForm(request.POST, user=request.user, post=post, request=request)
@@ -129,40 +142,69 @@ def submit_comment(request, post_id):
     if form.is_valid():
         comment = form.save()
 
+        # Prepare response data
+        response_data = {
+            "success": True,
+            "user_authenticated": request.user.is_authenticated,
+            "comment_id": comment.id,
+        }
+
         if request.user.is_authenticated:
-            messages.success(request, "Your comment has been posted successfully!")
+            response_data["message"] = "Your comment has been posted successfully!"
+            show_success_notification(
+                request, "Your comment has been posted successfully!"
+            )
         else:
-            messages.success(
+            response_data["message"] = (
+                "Your comment has been submitted and is awaiting moderation."
+            )
+            show_success_notification(
                 request, "Your comment has been submitted and is awaiting moderation."
             )
 
-        return redirect(post.get_absolute_url())
+        # Return JSON for AJAX requests, redirect for regular requests
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse(response_data)
+        else:
+            return redirect(post.get_absolute_url())
     else:
         # Store form errors in messages with better context
         if form.errors:
-            messages.error(
-                request,
-                "There were issues with your comment submission. Please review the errors below.",
-            )
+            error_message = "There were issues with your comment submission. Please review the errors below."
+
+            # Prepare error response data
+            response_data = {
+                "success": False,
+                "message": error_message,
+                "errors": form.errors,
+            }
 
             # Add specific field errors
             for field, errors in form.errors.items():
                 field_name = field.replace("_", " ").title()
                 for error in errors:
                     if field == "content":
-                        messages.error(request, f"Comment: {error}")
+                        show_error_notification(request, f"Comment: {error}")
                     elif field == "author_name":
-                        messages.error(request, f"Name: {error}")
+                        show_error_notification(request, f"Name: {error}")
                     elif field == "author_email":
-                        messages.error(request, f"Email: {error}")
+                        show_error_notification(request, f"Email: {error}")
                     elif field == "author_website":
-                        messages.error(request, f"Website: {error}")
+                        show_error_notification(request, f"Website: {error}")
                     else:
-                        messages.error(request, f"{field_name}: {error}")
+                        show_error_notification(request, f"{field_name}: {error}")
         else:
-            messages.error(request, "An unexpected error occurred. Please try again.")
+            error_message = "An unexpected error occurred. Please try again."
+            response_data = {"success": False, "message": error_message}
+            show_error_notification(
+                request, "An unexpected error occurred. Please try again."
+            )
 
-    return redirect(post.get_absolute_url())
+        # Return JSON for AJAX requests, redirect for regular requests
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse(response_data)
+        else:
+            return redirect(post.get_absolute_url())
 
 
 @login_required
@@ -172,20 +214,22 @@ def moderate_comment(request, comment_id, action):
 
     # Check if user has permission to moderate
     if not (request.user.is_staff or request.user == comment.post.author):
-        messages.error(request, "You don't have permission to moderate comments.")
+        show_error_notification(
+            request, "You don't have permission to moderate comments."
+        )
         return redirect(comment.post.get_absolute_url())
 
     if action == "approve":
         comment.status = "approved"
-        messages.success(request, "Comment approved.")
+        show_success_notification(request, "Comment approved.")
     elif action == "reject":
         comment.status = "rejected"
-        messages.success(request, "Comment rejected.")
+        show_success_notification(request, "Comment rejected.")
     elif action == "spam":
         comment.status = "spam"
-        messages.success(request, "Comment marked as spam.")
+        show_success_notification(request, "Comment marked as spam.")
     else:
-        messages.error(request, "Invalid moderation action.")
+        show_error_notification(request, "Invalid moderation action.")
         return redirect(comment.post.get_absolute_url())
 
     comment.moderated_by = request.user
@@ -205,7 +249,7 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
         form.instance.author = self.request.user
         response = super().form_valid(form)
 
-        messages.success(self.request, "Blog post created successfully!")
+        show_success_notification(self.request, "Blog post created successfully!")
         return response
 
     def get_form_kwargs(self):
@@ -225,7 +269,7 @@ class BlogUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, "Blog post updated successfully!")
+        show_success_notification(self.request, "Blog post updated successfully!")
         return response
 
     def get_form_kwargs(self):
@@ -244,7 +288,7 @@ class BlogDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == post.author or self.request.user.is_staff
 
     def delete(self, request, *args, **kwargs):
-        messages.success(request, "Blog post deleted successfully!")
+        show_success_notification(request, "Blog post deleted successfully!")
         return super().delete(request, *args, **kwargs)
 
 

@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     "apps.characters",
     "apps.pages",
     "apps.commorganizer",  # Commission Organizer app
+    "apps.notifications",  # Centralized notification system
 ]
 
 MIDDLEWARE = [
@@ -108,6 +109,7 @@ TEMPLATES = [
                 "snowsune.context_processors.expiry_links",
                 "snowsune.context_processors.visit_stats",
                 "snowsune.context_processors.discord_invite_link",  # TODO: Make generic!
+                "apps.notifications.context_processors.notifications_processor",
             ],
         },
     },

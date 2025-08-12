@@ -1521,6 +1521,18 @@ body .main-layout .content {
     font-size: 0.8em;
 }
 
+/* Remove error state when user starts typing */
+.form-control:focus.error {
+    border-color: var(--primary-color, #007bff);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Auto-remove error messages when input changes */
+.form-control.error:focus + .error-message,
+.form-control.error:valid + .error-message {
+    display: none;
+}
+
 /* Comment form status indicators */
 .comment-form-status {
     margin-top: 1rem;
@@ -1660,4 +1672,37 @@ body .main-layout .content {
         font-size: 0.75rem;
         padding: 0.25em 0.5em;
     }
+} 
+
+/* Alert styling */
+.alert {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    font-size: 0.875em;
+}
+
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+}
+
+.alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
 } 

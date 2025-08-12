@@ -107,7 +107,10 @@ function saveCommentCookies(form) {
 function setupFormFeedback() {
     document.addEventListener('submit', function (e) {
         if (e.target && e.target.classList.contains('comment-form')) {
-            const submitBtn = e.target.querySelector('button[type="submit"]');
+            e.preventDefault(); // Prevent default form submission
+
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
 
             // Show loading state
@@ -116,22 +119,137 @@ function setupFormFeedback() {
             submitBtn.classList.add('btn-loading');
 
             // Add visual feedback to the form
-            e.target.classList.add('form-submitting');
+            form.classList.add('form-submitting');
 
-            // Re-enable button after a delay (in case of errors)
-            setTimeout(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-                submitBtn.classList.remove('btn-loading');
-                e.target.classList.remove('form-submitting');
-            }, 10000); // 10 second timeout
+            // Show immediate feedback notification
+            if (window.notifications) {
+                if (document.body.classList.contains('user-authenticated')) {
+                    window.notifications.info('Submitting your comment...', 3000);
+                } else {
+                    window.notifications.info('Submitting comment for moderation...', 3000);
+                }
+            }
+
+            // Submit form via AJAX
+            submitFormAjax(form, submitBtn, originalText);
+        }
+    });
+
+    // Set up error state removal on input
+    setupErrorStateRemoval();
+}
+
+function setupErrorStateRemoval() {
+    document.addEventListener('input', function (e) {
+        if (e.target.classList.contains('form-control') && e.target.classList.contains('error')) {
+            // Remove error state
+            e.target.classList.remove('error');
+
+            // Remove error message if it exists
+            const errorMessage = e.target.parentNode.querySelector('.error-message');
+            if (errorMessage) {
+                errorMessage.remove();
+            }
+        }
+    });
+
+    document.addEventListener('focus', function (e) {
+        if (e.target.classList.contains('form-control') && e.target.classList.contains('error')) {
+            // Remove error state on focus
+            e.target.classList.remove('error');
+
+            // Remove error message if it exists
+            const errorMessage = e.target.parentNode.querySelector('.error-message');
+            if (errorMessage) {
+                errorMessage.remove();
+            }
         }
     });
 }
 
+function submitFormAjax(form, submitBtn, originalText) {
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            // Reset form state
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            submitBtn.classList.remove('btn-loading');
+            form.classList.remove('form-submitting');
+
+            if (data.success) {
+                // Show success notification
+                if (window.notifications) {
+                    if (data.user_authenticated) {
+                        window.notifications.success(data.message, 5000);
+                    } else {
+                        window.notifications.info(data.message, 8000);
+                    }
+                }
+
+                // Clear form
+                form.reset();
+
+                // Reload page after a short delay to show the new comment
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+
+            } else {
+                // Show error notification
+                if (window.notifications) {
+                    window.notifications.error(data.message || 'An error occurred', 10000);
+                }
+
+                // Show field errors if any
+                if (data.errors) {
+                    Object.keys(data.errors).forEach(field => {
+                        const fieldElement = form.querySelector(`[name="${field}"]`);
+                        if (fieldElement) {
+                            fieldElement.classList.add('error');
+                            // Add error message below field
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'error-message';
+                            errorDiv.textContent = data.errors[field].join(', ');
+                            fieldElement.parentNode.appendChild(errorDiv);
+                        }
+                    });
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Form submission error:', error);
+
+            // Reset form state
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            submitBtn.classList.remove('btn-loading');
+            form.classList.remove('form-submitting');
+
+            // Show error notification
+            if (window.notifications) {
+                window.notifications.error('Network error. Please try again.', 10000);
+            }
+
+            // Fallback to regular form submission
+            setTimeout(() => {
+                form.submit();
+            }, 1000);
+        });
+}
+
 function setCookie(name, value) {
     try {
-        document.cookie = `${name}=${encodeURIComponent(value)};path=/;max-age=31536000`;
+        // Don't encode the value - cookies can handle special characters directly
+        document.cookie = `${name}=${value};path=/;max-age=31536000`;
     } catch (error) {
         console.warn(`Failed to set cookie ${name}:`, error);
     }

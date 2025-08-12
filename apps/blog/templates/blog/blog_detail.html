@@ -118,6 +118,14 @@
             <form method="post" action="{% url 'blog:submit_comment' post.id %}" class="comment-form" data-comment-form>
                 {% csrf_token %}
 
+                <!-- Fallback for when JavaScript is disabled -->
+                <noscript>
+                    <div class="alert alert-warning">
+                        <strong>JavaScript Required:</strong> This form requires JavaScript for the best experience.
+                        It will still work without JavaScript, but you may experience page reloads.
+                    </div>
+                </noscript>
+
                 {% if not user.is_authenticated %}
                 <div class="form-group">
                     <label for="{{ comment_form.author_name.id_for_label }}">Name *</label>

@@ -519,8 +519,8 @@ a:visited {
   }
 }
 
-/* Django Messages Styling */
-.messages-container {
+/* Centralized Notification System Styling */
+.notifications-container {
   position: fixed;
   top: 20px;
   right: 20px;
@@ -529,33 +529,46 @@ a:visited {
   width: 100%;
 }
 
-.message {
+.notification {
   margin-bottom: 10px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   animation: slideInRight 0.3s ease-out;
   overflow: hidden;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.3s ease;
 }
 
-.message-content {
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification.hiding {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.notification-content {
   display: flex;
   align-items: center;
   padding: 12px 16px;
   gap: 12px;
 }
 
-.message-icon {
+.notification-icon {
   font-size: 1.2em;
   flex-shrink: 0;
 }
 
-.message-text {
+.notification-text {
   flex: 1;
   font-size: 0.95em;
   line-height: 1.4;
 }
 
-.message-close {
+.notification-close {
   background: none;
   border: none;
   font-size: 1.5em;
@@ -571,32 +584,32 @@ a:visited {
   flex-shrink: 0;
 }
 
-.message-close:hover {
+.notification-close:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Message Types */
-.message-success {
+/* Notification Types */
+.notification-success {
   background: linear-gradient(135deg, #28a745, #20c997);
   color: white;
 }
 
-.message-error {
+.notification-error {
   background: linear-gradient(135deg, #dc3545, #e83e8c);
   color: white;
 }
 
-.message-warning {
+.notification-warning {
   background: linear-gradient(135deg, #ffc107, #fd7e14);
   color: #212529;
 }
 
-.message-info {
+.notification-info {
   background: linear-gradient(135deg, #17a2b8, #6f42c1);
   color: white;
 }
 
-/* Message Animations */
+/* Notification Animations */
 @keyframes slideInRight {
   from {
     transform: translateX(100%);
@@ -619,24 +632,24 @@ a:visited {
   }
 }
 
-/* Responsive Messages */
+/* Responsive Notifications */
 @media (max-width: 768px) {
-  .messages-container {
+  .notifications-container {
     left: 20px;
     right: 20px;
     max-width: none;
   }
   
-  .message {
+  .notification {
     margin-bottom: 8px;
   }
   
-  .message-content {
+  .notification-content {
     padding: 10px 14px;
     gap: 10px;
   }
   
-  .message-text {
+  .notification-text {
     font-size: 0.9em;
   }
 }
