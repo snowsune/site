@@ -138,10 +138,29 @@ def submit_comment(request, post_id):
 
         return redirect(post.get_absolute_url())
     else:
-        # Store form errors in messages
-        for field, errors in form.errors.items():
-            for error in errors:
-                messages.error(request, f"{field}: {error}")
+        # Store form errors in messages with better context
+        if form.errors:
+            messages.error(
+                request,
+                "There were issues with your comment submission. Please review the errors below.",
+            )
+
+            # Add specific field errors
+            for field, errors in form.errors.items():
+                field_name = field.replace("_", " ").title()
+                for error in errors:
+                    if field == "content":
+                        messages.error(request, f"Comment: {error}")
+                    elif field == "author_name":
+                        messages.error(request, f"Name: {error}")
+                    elif field == "author_email":
+                        messages.error(request, f"Email: {error}")
+                    elif field == "author_website":
+                        messages.error(request, f"Website: {error}")
+                    else:
+                        messages.error(request, f"{field_name}: {error}")
+        else:
+            messages.error(request, "An unexpected error occurred. Please try again.")
 
     return redirect(post.get_absolute_url())
 

@@ -518,3 +518,125 @@ a:visited {
     gap: 0.5em;
   }
 }
+
+/* Django Messages Styling */
+.messages-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  max-width: 400px;
+  width: 100%;
+}
+
+.message {
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideInRight 0.3s ease-out;
+  overflow: hidden;
+}
+
+.message-content {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.message-icon {
+  font-size: 1.2em;
+  flex-shrink: 0;
+}
+
+.message-text {
+  flex: 1;
+  font-size: 0.95em;
+  line-height: 1.4;
+}
+
+.message-close {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.message-close:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Message Types */
+.message-success {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+}
+
+.message-error {
+  background: linear-gradient(135deg, #dc3545, #e83e8c);
+  color: white;
+}
+
+.message-warning {
+  background: linear-gradient(135deg, #ffc107, #fd7e14);
+  color: #212529;
+}
+
+.message-info {
+  background: linear-gradient(135deg, #17a2b8, #6f42c1);
+  color: white;
+}
+
+/* Message Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Responsive Messages */
+@media (max-width: 768px) {
+  .messages-container {
+    left: 20px;
+    right: 20px;
+    max-width: none;
+  }
+  
+  .message {
+    margin-bottom: 8px;
+  }
+  
+  .message-content {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+  
+  .message-text {
+    font-size: 0.9em;
+  }
+}

@@ -1462,6 +1462,95 @@ body .main-layout .content {
     animation: slideDown 0.3s ease;
 }
 
+/* Form submission states */
+.form-submitting {
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+.form-submitting .form-control {
+    background-color: var(--tile-background);
+}
+
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Form validation feedback */
+.form-control.error {
+    border-color: var(--danger-color, #dc3545);
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.form-control.success {
+    border-color: var(--success-color, #28a745);
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.error-message {
+    color: var(--danger-color, #dc3545);
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.error-message::before {
+    content: '⚠️';
+    font-size: 0.8em;
+}
+
+/* Comment form status indicators */
+.comment-form-status {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.comment-form-status.info {
+    background-color: rgba(23, 162, 184, 0.1);
+    border-color: var(--info-color, #17a2b8);
+    color: var(--info-color, #17a2b8);
+}
+
+.comment-form-status.success {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-color: var(--success-color, #28a745);
+    color: var(--success-color, #28a745);
+}
+
+.comment-form-status.warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-color: var(--warning-color, #ffc107);
+    color: var(--warning-color, #ffc107);
+}
+
 @keyframes slideDown {
     from {
         opacity: 0;

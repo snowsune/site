@@ -105,9 +105,19 @@
         <!-- Comment Form -->
         <div class="comment-form-container">
             <h4>Leave a Comment</h4>
+
+            <!-- Comment Status Indicator -->
+            <div class="comment-form-status {% if user.is_authenticated %}success{% else %}info{% endif %}">
+                {% if user.is_authenticated %}
+                🚀 <strong>Instant Posting:</strong> Your comment will appear immediately after submission.
+                {% else %}
+                ⏳ <strong>Moderation Required:</strong> Your comment will be reviewed by site staff before appearing.
+                {% endif %}
+            </div>
+
             <form method="post" action="{% url 'blog:submit_comment' post.id %}" class="comment-form" data-comment-form>
                 {% csrf_token %}
-                
+
                 {% if not user.is_authenticated %}
                 <div class="form-group">
                     <label for="{{ comment_form.author_name.id_for_label }}">Name *</label>
@@ -152,14 +162,21 @@
 
                 <button type="submit" class="btn btn-primary">Submit Comment</button>
             </form>
-            
+
             {% if not user.is_authenticated %}
             <div class="comment-form-info">
-                <small>💡 Your details will be saved in your browser and shared across the site for future use. Comments from anonymous users require moderation.</small>
+                <small>
+                    💡 <strong>Anonymous Commenting:</strong> Your details will be saved in your browser and shared
+                    across the site for future use.
+                    Comments from anonymous users require moderation and will appear after approval by site staff.
+                </small>
             </div>
             {% else %}
             <div class="comment-form-info">
-                <small>✅ Your comment will be posted immediately since you're logged in.</small>
+                <small>
+                    ✅ <strong>Registered User:</strong> Your comment will be posted immediately since you're logged in.
+                    No moderation required - your comment appears instantly!
+                </small>
             </div>
             {% endif %}
         </div>
@@ -175,30 +192,26 @@
                         {{ comment.created_at|date:"M j, Y \a\t g:i A" }}
                     </time>
                 </header>
-                
+
                 <div class="comment-content">
                     {{ comment.content|linebreaks }}
                 </div>
-                
+
                 <footer class="comment-actions">
-                    <button class="btn btn-sm btn-outline reply-btn" 
-                            data-comment-id="{{ comment.id }}" 
-                            data-action="reply">
+                    <button class="btn btn-sm btn-outline reply-btn" data-comment-id="{{ comment.id }}"
+                        data-action="reply">
                         Reply
                     </button>
-                    
+
                     <!-- Moderation Actions (for staff/author) -->
                     {% if user.is_staff or user == post.author %}
                     <div class="moderation-actions">
-                        <a href="{% url 'blog:moderate_comment' comment.id 'approve' %}" 
-                           class="btn btn-sm btn-success" 
-                           data-action="approve">Approve</a>
-                        <a href="{% url 'blog:moderate_comment' comment.id 'reject' %}" 
-                           class="btn btn-sm btn-warning" 
-                           data-action="reject">Reject</a>
-                        <a href="{% url 'blog:moderate_comment' comment.id 'spam' %}" 
-                           class="btn btn-sm btn-danger" 
-                           data-action="spam">Spam</a>
+                        <a href="{% url 'blog:moderate_comment' comment.id 'approve' %}" class="btn btn-sm btn-success"
+                            data-action="approve">Approve</a>
+                        <a href="{% url 'blog:moderate_comment' comment.id 'reject' %}" class="btn btn-sm btn-warning"
+                            data-action="reject">Reject</a>
+                        <a href="{% url 'blog:moderate_comment' comment.id 'spam' %}" class="btn btn-sm btn-danger"
+                            data-action="spam">Spam</a>
                     </div>
                     {% endif %}
                 </footer>
@@ -208,16 +221,18 @@
                     <form method="post" action="{% url 'blog:submit_comment' post.id %}" class="comment-form">
                         {% csrf_token %}
                         <input type="hidden" name="parent" value="{{ comment.id }}">
-                        
+
                         {% if not user.is_authenticated %}
                         <div class="form-group">
                             <label for="reply-author-name-{{ comment.id }}">Name *</label>
-                            <input type="text" name="author_name" id="reply-author-name-{{ comment.id }}" class="form-control" required>
+                            <input type="text" name="author_name" id="reply-author-name-{{ comment.id }}"
+                                class="form-control" required>
                         </div>
 
                         <div class="form-group">
                             <label for="reply-author-email-{{ comment.id }}">Email</label>
-                            <input type="email" name="author_email" id="reply-author-email-{{ comment.id }}" class="form-control">
+                            <input type="email" name="author_email" id="reply-author-email-{{ comment.id }}"
+                                class="form-control">
                         </div>
                         {% else %}
                         <!-- Hidden fields for logged-in users -->
@@ -230,14 +245,14 @@
 
                         <div class="form-group">
                             <label for="reply-content-{{ comment.id }}">Reply *</label>
-                            <textarea name="content" id="reply-content-{{ comment.id }}" class="form-control" rows="3" required></textarea>
+                            <textarea name="content" id="reply-content-{{ comment.id }}" class="form-control" rows="3"
+                                required></textarea>
                         </div>
 
                         <div class="reply-form-actions">
                             <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
-                            <button type="button" class="btn btn-outline btn-sm cancel-reply" 
-                                    data-comment-id="{{ comment.id }}" 
-                                    data-action="cancel-reply">Cancel</button>
+                            <button type="button" class="btn btn-outline btn-sm cancel-reply"
+                                data-comment-id="{{ comment.id }}" data-action="cancel-reply">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -253,24 +268,21 @@
                                 {{ reply.created_at|date:"M j, Y \a\t g:i A" }}
                             </time>
                         </header>
-                        
+
                         <div class="comment-content">
                             {{ reply.content|linebreaks }}
                         </div>
-                        
+
                         <!-- Moderation Actions for Replies -->
                         {% if user.is_staff or user == post.author %}
                         <footer class="comment-actions">
                             <div class="moderation-actions">
-                                <a href="{% url 'blog:moderate_comment' reply.id 'approve' %}" 
-                                   class="btn btn-sm btn-success" 
-                                   data-action="approve">Approve</a>
-                                <a href="{% url 'blog:moderate_comment' reply.id 'reject' %}" 
-                                   class="btn btn-sm btn-warning" 
-                                   data-action="reject">Reject</a>
-                                <a href="{% url 'blog:moderate_comment' reply.id 'spam' %}" 
-                                   class="btn btn-sm btn-danger" 
-                                   data-action="spam">Spam</a>
+                                <a href="{% url 'blog:moderate_comment' reply.id 'approve' %}"
+                                    class="btn btn-sm btn-success" data-action="approve">Approve</a>
+                                <a href="{% url 'blog:moderate_comment' reply.id 'reject' %}"
+                                    class="btn btn-sm btn-warning" data-action="reject">Reject</a>
+                                <a href="{% url 'blog:moderate_comment' reply.id 'spam' %}"
+                                    class="btn btn-sm btn-danger" data-action="spam">Spam</a>
                             </div>
                         </footer>
                         {% endif %}

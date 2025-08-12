@@ -100,6 +100,28 @@
 
   <!-- The stuff in the center of the page basically -->
   <div class="main-layout">
+    <!-- Django Messages Display -->
+    {% if messages %}
+    <div class="messages-container">
+      {% for message in messages %}
+      <div class="message message-{{ message.tags }}" role="alert">
+        <div class="message-content">
+          <span class="message-icon">
+            {% if message.tags == 'success' %}✅
+            {% elif message.tags == 'error' %}❌
+            {% elif message.tags == 'warning' %}⚠️
+            {% elif message.tags == 'info' %}ℹ️
+            {% else %}💬
+            {% endif %}
+          </span>
+          <span class="message-text">{{ message }}</span>
+          <button class="message-close" onclick="this.parentElement.parentElement.remove()" aria-label="Close message">×</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    
     <!-- Main content -->
     <div class="content tile">
       {% block content %}
@@ -174,6 +196,32 @@
           link.addEventListener('click', () => mobileLinks.classList.remove('open'));
         });
       }
+      
+      // Auto-hide Django messages
+      const messages = document.querySelectorAll('.message');
+      messages.forEach(message => {
+        // Auto-hide success messages after 5 seconds
+        if (message.classList.contains('message-success')) {
+          setTimeout(() => {
+            message.style.animation = 'slideOutRight 0.3s ease-in forwards';
+            setTimeout(() => message.remove(), 300);
+          }, 5000);
+        }
+        // Auto-hide info messages after 8 seconds
+        else if (message.classList.contains('message-info')) {
+          setTimeout(() => {
+            message.style.animation = 'slideOutRight 0.3s ease-in forwards';
+            setTimeout(() => message.remove(), 300);
+          }, 8000);
+        }
+        // Keep error and warning messages visible longer (15 seconds)
+        else {
+          setTimeout(() => {
+            message.style.animation = 'slideOutRight 0.3s ease-in forwards';
+            setTimeout(() => message.remove(), 300);
+          }, 15000);
+        }
+      });
     });
   </script>
   {% block extra_js %}{% endblock %}
