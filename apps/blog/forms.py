@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from .models import BlogPost, Tag
+from .models import Comment
 
 User = get_user_model()
 
@@ -212,3 +213,94 @@ class TagForm(forms.ModelForm):
                 }
             ),
         }
+
+
+class CommentForm(forms.ModelForm):
+    """Form for submitting blog post comments"""
+
+    class Meta:
+        model = Comment
+        fields = ["author_name", "author_email", "author_website", "content", "parent"]
+        widgets = {
+            "author_name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Your name *",
+                    "required": True,
+                }
+            ),
+            "author_email": forms.EmailInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Your email (optional)",
+                }
+            ),
+            "author_website": forms.URLInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Your website (optional)",
+                }
+            ),
+            "content": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder": "Write your comment here... *",
+                    "required": True,
+                }
+            ),
+            "parent": forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        self.post = kwargs.pop("post", None)
+        super().__init__(*args, **kwargs)
+
+        # If user is logged in, pre-fill and hide some fields
+        if self.user and self.user.is_authenticated:
+            self.fields["author_name"].initial = self.user.username
+            self.fields["author_name"].widget.attrs["readonly"] = True
+            self.fields["author_email"].initial = self.user.email
+            self.fields["author_email"].widget.attrs["readonly"] = True
+            self.fields["author_email"].required = False
+            self.fields["author_website"].required = False
+
+        # Set the post if provided
+        if self.post:
+            self.fields["parent"].initial = ""
+
+    def clean_content(self):
+        content = self.cleaned_data.get("content", "").strip()
+        if len(content) < 10:
+            raise forms.ValidationError("Comment must be at least 10 characters long.")
+        if len(content) > 2000:
+            raise forms.ValidationError("Comment must be less than 2000 characters.")
+        return content
+
+    def clean_author_name(self):
+        name = self.cleaned_data.get("author_name", "").strip()
+        if len(name) < 2:
+            raise forms.ValidationError("Name must be at least 2 characters long.")
+        if len(name) > 100:
+            raise forms.ValidationError("Name must be less than 100 characters.")
+        return name
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        # Set the post if provided
+        if self.post:
+            instance.post = self.post
+
+        # Set the user if logged in
+        if self.user and self.user.is_authenticated:
+            instance.user = self.user
+
+        # Set default status (pending moderation)
+        instance.status = "pending"
+
+        if commit:
+            instance.save()
+
+        return instance

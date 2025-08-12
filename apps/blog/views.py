@@ -19,8 +19,10 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Rss201rev2Feed
-from .models import BlogPost, Tag, BlogImage
-from .forms import BlogPostForm, BlogPostCreateForm, TagForm
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from .models import BlogPost, Tag, BlogImage, Comment
+from .forms import BlogPostForm, BlogPostCreateForm, TagForm, CommentForm
 
 
 class BlogListView(ListView):
@@ -69,12 +71,101 @@ class BlogDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Get approved comments for this post
+        comments = self.object.comments.filter(status="approved").select_related(
+            "user", "parent"
+        )
+
+        # Organize comments into a tree structure
+        comment_tree = self.build_comment_tree(comments)
+
+        context["comments"] = comment_tree
+        context["comment_form"] = CommentForm(user=self.request.user, post=self.object)
         context["related_posts"] = (
             BlogPost.objects.filter(status="published", tags__in=self.object.tags.all())
             .exclude(id=self.object.id)
             .distinct()[:3]
         )
         return context
+
+    def build_comment_tree(self, comments):
+        """Build a tree structure for threaded comments"""
+        comment_dict = {}
+        root_comments = []
+
+        # First pass: create a dictionary of all comments
+        for comment in comments:
+            comment_dict[comment.id] = comment
+            comment.replies_list = []
+
+        # Second pass: build the tree
+        for comment in comments:
+            if comment.parent:
+                # This is a reply
+                if comment.parent.id in comment_dict:
+                    comment_dict[comment.parent.id].replies_list.append(comment)
+            else:
+                # This is a root comment
+                root_comments.append(comment)
+
+        return root_comments
+
+
+@require_POST
+def submit_comment(request, post_id):
+    """Handle comment submission"""
+    post = get_object_or_404(BlogPost, id=post_id)
+
+    # Check if comments are allowed (you could add a field to BlogPost for this)
+    if post.status != "published":
+        messages.error(request, "Comments are only allowed on published posts.")
+        return redirect(post.get_absolute_url())
+
+    form = CommentForm(request.POST, user=request.user, post=post)
+
+    if form.is_valid():
+        comment = form.save()
+        messages.success(
+            request, "Your comment has been submitted and is awaiting moderation."
+        )
+    else:
+        # Store form errors in messages
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(request, f"{field}: {error}")
+
+    return redirect(post.get_absolute_url())
+
+
+@login_required
+def moderate_comment(request, comment_id, action):
+    """Moderate a comment (approve, reject, mark as spam)"""
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    # Check if user has permission to moderate
+    if not (request.user.is_staff or request.user == comment.post.author):
+        messages.error(request, "You don't have permission to moderate comments.")
+        return redirect(comment.post.get_absolute_url())
+
+    if action == "approve":
+        comment.status = "approved"
+        messages.success(request, "Comment approved.")
+    elif action == "reject":
+        comment.status = "rejected"
+        messages.success(request, "Comment rejected.")
+    elif action == "spam":
+        comment.status = "spam"
+        messages.success(request, "Comment marked as spam.")
+    else:
+        messages.error(request, "Invalid moderation action.")
+        return redirect(comment.post.get_absolute_url())
+
+    comment.moderated_by = request.user
+    comment.moderated_at = timezone.now()
+    comment.save()
+
+    return redirect(comment.post.get_absolute_url())
 
 
 class BlogCreateView(LoginRequiredMixin, CreateView):
@@ -137,10 +228,34 @@ def blog_dashboard(request):
     draft_posts = user_posts.filter(status="draft")
     published_posts = user_posts.filter(status="published")
 
+    # Get unapproved comments for posts authored by this user
+    unapproved_comments = (
+        Comment.objects.filter(post__author=request.user, status="pending")
+        .select_related("post", "user")
+        .order_by("-created_at")
+    )
+
+    # Get rejected and spam comments for transparency
+    rejected_comments = (
+        Comment.objects.filter(post__author=request.user, status="rejected")
+        .select_related("post", "user")
+        .order_by("-created_at")[:5]
+    )
+
+    spam_comments = (
+        Comment.objects.filter(post__author=request.user, status="spam")
+        .select_related("post", "user")
+        .order_by("-created_at")[:5]
+    )
+
     context = {
         "draft_posts": draft_posts,
         "published_posts": published_posts,
         "total_posts": user_posts.count(),
+        "unapproved_comments": unapproved_comments,
+        "rejected_comments": rejected_comments,
+        "spam_comments": spam_comments,
+        "pending_comment_count": unapproved_comments.count(),
     }
     return render(request, "blog/blog_dashboard.html", context)
 
@@ -178,7 +293,7 @@ def upload_image(request):
 class BlogRSSFeed(Feed):
     title = "Snowsune Blog"
     link = "/blog/"
-    description = "Latest blog posts from Snowsune"
+    description = "Snowsune.net RSS blog feed."
     feed_type = Rss201rev2Feed
 
     def items(self):

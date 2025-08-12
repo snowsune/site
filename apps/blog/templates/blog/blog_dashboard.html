@@ -28,6 +28,12 @@
             <div class="stat-number">{{ published_posts.count }}</div>
             <div class="stat-label">Published</div>
         </div>
+        {% if pending_comment_count > 0 %}
+        <div class="stat-card stat-card-warning">
+            <div class="stat-number">{{ pending_comment_count }}</div>
+            <div class="stat-label">Pending Comments</div>
+        </div>
+        {% endif %}
     </div>
 
     <div class="dashboard-content">
@@ -100,6 +106,108 @@
         </section>
         {% endif %}
 
+        <!-- Comments Requiring Moderation -->
+        {% if unapproved_comments %}
+        <section class="dashboard-section">
+            <h2>Comments Awaiting Moderation <span class="badge badge-warning">{{ pending_comment_count }}</span></h2>
+            <div class="comments-table">
+                <div class="table-header">
+                    <div class="col-post">Post</div>
+                    <div class="col-author">Author</div>
+                    <div class="col-content">Comment</div>
+                    <div class="col-date">Submitted</div>
+                    <div class="col-actions">Actions</div>
+                </div>
+                {% for comment in unapproved_comments %}
+                <div class="table-row comment-row">
+                    <div class="col-post">
+                        <a href="{{ comment.post.get_absolute_url }}">{{ comment.post.title }}</a>
+                    </div>
+                    <div class="col-author">
+                        <strong>{{ comment.get_display_name }}</strong>
+                        {% if comment.author_email %}
+                        <br><small>{{ comment.author_email }}</small>
+                        {% endif %}
+                        {% if comment.user %}
+                        <br><span class="badge badge-info">Registered User</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-content">
+                        <div class="comment-preview">{{ comment.content|truncatewords:20 }}</div>
+                        {% if comment.parent %}
+                        <div class="comment-reply-info">
+                            <small>Reply to: {{ comment.parent.get_display_name }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-date">{{ comment.created_at|date:"M j, Y g:i A" }}</div>
+                    <div class="col-actions">
+                        <a href="{{ comment.post.get_absolute_url }}#comment-{{ comment.id }}" class="btn btn-sm btn-outline">View</a>
+                        <a href="{% url 'blog:moderate_comment' comment.id 'approve' %}" class="btn btn-sm btn-success">Approve</a>
+                        <a href="{% url 'blog:moderate_comment' comment.id 'reject' %}" class="btn btn-sm btn-warning">Reject</a>
+                        <a href="{% url 'blog:moderate_comment' comment.id 'spam' %}" class="btn btn-sm btn-danger">Spam</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Recent Rejected/Spam Comments -->
+        {% if rejected_comments or spam_comments %}
+        <section class="dashboard-section">
+            <h2>Recent Moderation History</h2>
+            
+            {% if rejected_comments %}
+            <div class="moderation-section">
+                <h3>Rejected Comments</h3>
+                <div class="comments-table">
+                    <div class="table-header">
+                        <div class="col-post">Post</div>
+                        <div class="col-author">Author</div>
+                        <div class="col-content">Comment</div>
+                        <div class="col-date">Rejected</div>
+                    </div>
+                    {% for comment in rejected_comments %}
+                    <div class="table-row comment-row rejected">
+                        <div class="col-post">
+                            <a href="{{ comment.post.get_absolute_url }}">{{ comment.post.title }}</a>
+                        </div>
+                        <div class="col-author">{{ comment.get_display_name }}</div>
+                        <div class="col-content">{{ comment.content|truncatewords:15 }}</div>
+                        <div class="col-date">{{ comment.moderated_at|date:"M j, Y" }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if spam_comments %}
+            <div class="moderation-section">
+                <h3>Spam Comments</h3>
+                <div class="comments-table">
+                    <div class="table-header">
+                        <div class="col-post">Post</div>
+                        <div class="col-author">Author</div>
+                        <div class="col-content">Comment</div>
+                        <div class="col-date">Marked as Spam</div>
+                    </div>
+                    {% for comment in spam_comments %}
+                    <div class="table-row comment-row spam">
+                        <div class="col-post">
+                            <a href="{{ comment.post.get_absolute_url }}">{{ comment.post.title }}</a>
+                        </div>
+                        <div class="col-author">{{ comment.get_display_name }}</div>
+                        <div class="col-content">{{ comment.content|truncatewords:15 }}</div>
+                        <div class="col-date">{{ comment.moderated_at|date:"M j, Y" }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+
         <!-- No Posts Message -->
         {% if not draft_posts and not published_posts %}
         <div class="no-posts-message">
@@ -117,6 +225,9 @@
             <a href="{% url 'blog:post_create' %}" class="btn btn-primary">New Post</a>
             <a href="{% url 'blog:blog_list' %}" class="btn btn-outline">View All Posts</a>
             <a href="{% url 'blog:rss_feed' %}" class="btn btn-outline">RSS Feed</a>
+            {% if pending_comment_count > 0 %}
+            <a href="{% url 'admin:blog_comment_changelist' %}?status__exact=pending" class="btn btn-warning">Manage Comments ({{ pending_comment_count }})</a>
+            {% endif %}
         </div>
     </div>
 </div>

@@ -203,3 +203,77 @@ class BlogImage(models.Model):
     def markdown_link(self):
         """Return the markdown image link for this image"""
         return f"![{self.filename}]({self.image.url})"
+
+
+class Comment(models.Model):
+    """Model for blog post comments"""
+
+    STATUS_CHOICES = [
+        ("pending", "Pending Moderation"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+        ("spam", "Spam"),
+    ]
+
+    post = models.ForeignKey(
+        BlogPost, on_delete=models.CASCADE, related_name="comments"
+    )
+    author_name = models.CharField(max_length=100)
+    author_email = models.EmailField(blank=True)
+    author_website = models.URLField(blank=True)
+    content = models.TextField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    moderated_at = models.DateTimeField(null=True, blank=True)
+    moderated_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="moderated_comments",
+    )
+
+    # For registered users
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="blog_comments",
+    )
+
+    # Parent comment for replies (threading)
+    parent = models.ForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="replies"
+    )
+
+    class Meta:
+        ordering = ["created_at"]
+        indexes = [
+            models.Index(fields=["post", "status", "created_at"]),
+            models.Index(fields=["status", "created_at"]),
+        ]
+
+    def __str__(self):
+        return f"Comment by {self.author_name} on {self.post.title}"
+
+    @property
+    def is_approved(self):
+        return self.status == "approved"
+
+    @property
+    def is_pending(self):
+        return self.status == "pending"
+
+    @property
+    def has_replies(self):
+        return self.replies.exists()
+
+    def get_display_name(self):
+        """Get the display name for the comment author"""
+        if self.user:
+            return self.user.username
+        return self.author_name

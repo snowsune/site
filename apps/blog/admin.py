@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .models import BlogPost, Tag, BlogImage
+from .models import BlogPost, Tag, BlogImage, Comment
+from django.utils import timezone
 
 
 @admin.register(Tag)
@@ -28,6 +29,7 @@ class BlogPostAdmin(admin.ModelAdmin):
         "created_at",
         "tag_list",
         "webhook_status",
+        "comment_count",
     ]
     list_filter = ["status", "created_at", "published_at", "author", "tags"]
     search_fields = ["title", "content", "author__username"]
@@ -84,6 +86,18 @@ class BlogPostAdmin(admin.ModelAdmin):
 
     webhook_status.short_description = "Webhook"
 
+    def comment_count(self, obj):
+        approved_count = obj.comments.filter(status="approved").count()
+        total_count = obj.comments.count()
+        if total_count == 0:
+            return "0"
+        elif approved_count == total_count:
+            return f"{approved_count}"
+        else:
+            return f"{approved_count}/{total_count}"
+
+    comment_count.short_description = "Comments"
+
     def save_model(self, request, obj, form, change):
         if not change:  # New post
             obj.author = request.user
@@ -117,3 +131,106 @@ class BlogImageAdmin(admin.ModelAdmin):
         return format_html("<code>{}</code>", obj.markdown_link)
 
     markdown_link.short_description = "Markdown Link"
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = [
+        "author_display",
+        "post_title",
+        "content_preview",
+        "status",
+        "created_at",
+        "is_reply",
+    ]
+    list_filter = ["status", "created_at", "post", "parent"]
+    search_fields = ["author_name", "content", "post__title"]
+    readonly_fields = ["created_at", "updated_at"]
+    actions = ["approve_comments", "reject_comments", "mark_as_spam"]
+
+    fieldsets = (
+        (
+            "Comment",
+            {
+                "fields": (
+                    "post",
+                    "parent",
+                    "content",
+                    "status",
+                )
+            },
+        ),
+        (
+            "Author",
+            {
+                "fields": (
+                    "user",
+                    "author_name",
+                    "author_email",
+                    "author_website",
+                )
+            },
+        ),
+        (
+            "Moderation",
+            {
+                "fields": (
+                    "moderated_by",
+                    "moderated_at",
+                )
+            },
+        ),
+        (
+            "Timestamps",
+            {
+                "fields": ("created_at", "updated_at"),
+                "classes": ("collapse",),
+            },
+        ),
+    )
+
+    def author_display(self, obj):
+        if obj.user:
+            return f"{obj.author_name} (@{obj.user.username})"
+        return obj.author_name
+
+    author_display.short_description = "Author"
+
+    def post_title(self, obj):
+        return obj.post.title
+
+    post_title.short_description = "Post"
+
+    def content_preview(self, obj):
+        return obj.content[:100] + "..." if len(obj.content) > 100 else obj.content
+
+    content_preview.short_description = "Content"
+
+    def is_reply(self, obj):
+        return "Yes" if obj.parent else "No"
+
+    is_reply.short_description = "Reply"
+
+    def approve_comments(self, request, queryset):
+        updated = queryset.update(
+            status="approved", moderated_by=request.user, moderated_at=timezone.now()
+        )
+        self.message_user(request, f"{updated} comments were approved.")
+
+    approve_comments.short_description = "Approve selected comments"
+
+    def reject_comments(self, request, obj):
+        updated = queryset.update(
+            status="rejected", moderated_by=request.user, moderated_at=timezone.now()
+        )
+        self.message_user(request, f"{updated} comments were rejected.")
+
+    reject_comments.short_description = "Reject selected comments"
+
+    def mark_as_spam(self, request, queryset):
+        updated = queryset.update(
+            status="spam", moderated_by=request.user, moderated_at=timezone.now()
+        )
+        self.message_user(request, f"{updated} comments were marked as spam.")
+
+    mark_as_spam.short_description = "Mark selected comments as spam"
