@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("blog", "0002_remove_blogpost_webhook_enabled_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
