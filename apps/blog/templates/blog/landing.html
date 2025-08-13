@@ -10,7 +10,6 @@
 {% block content %}
 <div class="blog-landing-container">
     <div class="hero-section">
-        <h1>Snowsune Blog</h1>
         {% if user.is_authenticated and user.is_staff %}
         <div class="admin-actions">
             <a href="{% url 'blog:post_create' %}" class="btn btn-primary">Create New Post</a>

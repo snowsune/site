@@ -3,6 +3,12 @@
 
 {% block title %}{{ post.title }} - Snowsune Blog{% endblock %}
 
+{% block og_image %}{% if post.featured_image %}{{ post.featured_image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block twitter_image %}{% if post.featured_image %}{{ post.featured_image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block meta_description %}{% if post.meta_description %}{{ post.meta_description }}{% else %}{{ post.excerpt|truncatewords:30 }}{% endif %}{% endblock %}
+{% block og_description %}{% if post.meta_description %}{{ post.meta_description }}{% else %}{{ post.excerpt|truncatewords:30 }}{% endif %}{% endblock %}
+{% block twitter_description %}{% if post.meta_description %}{{ post.meta_description }}{% else %}{{ post.excerpt|truncatewords:30 }}{% endif %}{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/blog.css' %}">
 {% endblock %}
@@ -35,12 +41,12 @@
             {% endif %}
         </header>
 
-        <!-- Featured Image -->
-        {% if post.featured_image %}
+        <!-- I decided not to feature these images up here haha i'll just remember to post images internally -->
+        <!-- {% if post.featured_image %}
         <div class="post-featured-image">
             <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
         </div>
-        {% endif %}
+        {% endif %} -->
 
         <!-- Post Content -->
         <div class="post-content markdown-content">
