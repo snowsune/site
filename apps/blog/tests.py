@@ -152,6 +152,101 @@ class BlogModelsTest(TestCase):
         self.assertEqual(reply.parent, parent_comment)
         self.assertTrue(parent_comment.has_replies)
 
+    @patch("apps.commorganizer.utils.send_discord_webhook")
+    def test_comment_webhook_on_creation(self, mock_webhook):
+        """Test that webhook is sent when a comment is created"""
+        # Create a site setting for the moderator webhook
+        from snowsune.models import SiteSetting
+
+        SiteSetting.objects.create(
+            key="moderator_webhook", value="https://example.com/webhook"
+        )
+
+        # Create a comment - this should trigger the webhook
+        comment = Comment.objects.create(
+            post=self.post,
+            author_name="Test Commenter",
+            content="This is a test comment that should trigger a webhook",
+            status="pending",
+        )
+
+        # Verify the webhook was called
+        mock_webhook.assert_called_once()
+
+        # Verify the webhook message contains expected content
+        call_args = mock_webhook.call_args
+        webhook_url = call_args[0][0]
+        message = call_args[0][1]
+
+        self.assertEqual(webhook_url, "https://example.com/webhook")
+        self.assertIn("New post on [Test Post]", message)
+        self.assertIn("by Test Commenter:", message)
+        self.assertIn(
+            ">>> This is a test comment that should trigger a webhook", message
+        )
+        self.assertIn("-# Moderate [here]", message)
+
+    @patch("apps.commorganizer.utils.send_discord_webhook")
+    def test_comment_webhook_no_setting(self, mock_webhook):
+        """Test that no webhook is sent when moderator_webhook setting is not configured"""
+        # Create a comment without the webhook setting
+        comment = Comment.objects.create(
+            post=self.post,
+            author_name="Test Commenter",
+            content="This comment should not trigger a webhook",
+            status="pending",
+        )
+
+        # Verify no webhook was called
+        mock_webhook.assert_not_called()
+
+    @patch("apps.commorganizer.utils.send_discord_webhook")
+    def test_comment_webhook_empty_setting(self, mock_webhook):
+        """Test that no webhook is sent when moderator_webhook setting is empty"""
+        # Create a site setting with empty value
+        from snowsune.models import SiteSetting
+
+        SiteSetting.objects.create(key="moderator_webhook", value="")
+
+        # Create a comment
+        comment = Comment.objects.create(
+            post=self.post,
+            author_name="Test Commenter",
+            content="This comment should not trigger a webhook",
+            status="pending",
+        )
+
+        # Verify no webhook was called
+        mock_webhook.assert_not_called()
+
+    @patch("apps.commorganizer.utils.send_discord_webhook")
+    def test_comment_webhook_only_on_new_comment(self, mock_webhook):
+        """Test that webhook is only sent for new comments, not updates"""
+        # Create a site setting for the moderator webhook
+        from snowsune.models import SiteSetting
+
+        SiteSetting.objects.create(
+            key="moderator_webhook", value="https://example.com/webhook"
+        )
+
+        # Create a comment - this should trigger the webhook
+        comment = Comment.objects.create(
+            post=self.post,
+            author_name="Test Commenter",
+            content="This is a test comment",
+            status="pending",
+        )
+
+        # Verify the webhook was called once
+        mock_webhook.assert_called_once()
+
+        # Update the comment - this should NOT trigger another webhook
+        comment.status = "approved"
+        comment.save()
+
+        # Verify the webhook was still only called once
+        mock_webhook.assert_called_once()
+
 
 class BlogFormsTest(TestCase):
     """Test cases for Blog forms"""

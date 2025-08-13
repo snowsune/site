@@ -277,3 +277,44 @@ class Comment(models.Model):
         if self.user:
             return self.user.username
         return self.author_name
+
+    def save(self, *args, **kwargs):
+        # Check if this is a new comment
+        is_new_comment = self.pk is None
+
+        super().save(*args, **kwargs)
+
+        # Send webhook notification for new comments
+        if is_new_comment:
+            self.send_moderator_webhook()
+
+    def send_moderator_webhook(self):
+        """Send webhook notification to moderator webhook for new comments"""
+        try:
+            # Get webhook URL from site settings
+            webhook_setting = SiteSetting.objects.filter(
+                key="moderator_webhook"
+            ).first()
+            if not webhook_setting or not webhook_setting.value:
+                return  # No webhook configured
+
+            webhook_url = webhook_setting.value.strip()
+            if not webhook_url:
+                return
+
+            # Import here to avoid circular imports
+            from apps.commorganizer.utils import send_discord_webhook
+
+            # Create notification message
+            message = f"New post on [{self.post.title}]({settings.SITE_URL}{self.post.get_absolute_url()}) by {self.get_display_name()}:\n"
+            message += f">>> {self.content}\n\n"
+            message += f"-# Moderate [here]({settings.SITE_URL}/blog/dashboard/)"
+
+            # Send webhook
+            send_discord_webhook(webhook_url, message)
+
+        except Exception as e:
+            # Log error but don't break the save process
+            print(
+                f"Failed to send moderator webhook for comment on {self.post.title}: {e}"
+            )
