@@ -17,6 +17,17 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test_target:
+          - "apps.blog.tests"
+          - "apps.users.tests"
+          - "apps.commorganizer.tests"
+          - "apps.pages.tests"
+          - "apps.comics.tests"
+          - "apps.characters.tests"
+          - "snowsune.tests"
+          - ""  # Empty string runs all tests (default Django behavior)
 
     steps:
       - name: Checkout repository
@@ -33,9 +44,20 @@ jobs:
           pip install pipenv
           pipenv install --dev  # Install dev dependencies from Pipfile
 
-      - name: Run tests
+      - name: Run tests for ${{ matrix.test_target || 'all apps' }}
         run: |
-          pipenv run python manage.py test
+          if [ -n "${{ matrix.test_target }}" ]; then
+            echo "Running tests for ${{ matrix.test_target }}"
+            pipenv run python manage.py test ${{ matrix.test_target }} --verbosity=2
+          else
+            echo "Running tests for all apps"
+            pipenv run python manage.py test --verbosity=2
+          fi
+
+      - name: Test Summary
+        run: |
+          echo "✅ Test matrix completed for ${{ matrix.test_target || 'all apps' }}"
+          echo "📊 Matrix strategy ensures all apps are tested individually and together"
 
   formatblack:
     name: Black Formatter

@@ -1,0 +1,1761 @@
+/* Blog Styles - Simple and Retro */
+.blog-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+
+.blog-header {
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+.blog-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5em;
+}
+
+.blog-header p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Blog Controls */
+.blog-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1em;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    padding: 0.5em;
+    border: 1px solid var(--text-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    min-width: 200px;
+    background: var(--tile-background);
+    color: var(--text-color);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--link-default);
+}
+
+.search-btn {
+    padding: 0.5em 1em;
+    background: var(--link-default);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-left: 0.5em;
+}
+
+.search-btn:hover {
+    background: var(--link-hover);
+}
+
+.tag-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-wrap: wrap;
+}
+
+.filter-label {
+    font-weight: bold;
+}
+
+.tag-link {
+    padding: 0.25em 0.5em;
+    background: var(--tile-background);
+    border: 1px solid var(--text-color);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 0.875rem;
+}
+
+.tag-link:hover,
+.tag-link.active {
+    background: var(--link-default);
+    color: rgb(22, 17, 74);
+    border-color: var(--link-default);
+}
+
+/* Blog Posts */
+.blog-posts {
+    margin-bottom: 1em;
+}
+
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1em;
+}
+
+.post-card {
+    background: var(--tile-background);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+}
+
+.post-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.post-content {
+    padding: 1em;
+}
+
+.post-meta {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 0.5em;
+    font-size: 0.875rem;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.post-title {
+    margin: 0 0 0.5em 0;
+    font-size: 1.25rem;
+}
+
+.post-title a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.post-title a:hover {
+    color: var(--link-default);
+}
+
+.post-excerpt {
+    margin: 0 0 0.5em 0;
+    line-height: 1.5;
+}
+
+.post-tags {
+    display: flex;
+    gap: 0.5em;
+    flex-wrap: wrap;
+}
+
+.tag {
+    padding: 0.25em 0.5em;
+    background: var(--link-default);
+    color: rgb(22, 17, 74);
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.tag.small {
+    font-size: 0.625rem;
+    padding: 0.125em 0.375em;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5em;
+    margin: 1em 0;
+}
+
+.page-link {
+    padding: 0.5em 0.75em;
+    background: var(--tile-background);
+    border: 1px solid var(--text-color);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.page-link:hover {
+    background: var(--link-default);
+    color: white;
+    border-color: var(--link-default);
+}
+
+.current-page {
+    padding: 0.5em 0.75em;
+    background: var(--link-default);
+    color: white;
+    border-radius: 4px;
+}
+
+/* Blog Sidebar */
+.blog-sidebar {
+    margin-top: 1em;
+}
+
+.sidebar-widget {
+    margin-bottom: 1em;
+}
+
+.sidebar-widget h3 {
+    margin: 0 0 0.5em 0;
+    font-size: 1.125rem;
+}
+
+.recent-posts {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recent-posts li {
+    margin-bottom: 0.5em;
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid var(--text-color);
+    opacity: 0.7;
+}
+
+.recent-posts li:last-child {
+    border-bottom: none;
+}
+
+.recent-posts a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.recent-posts a:hover {
+    color: var(--link-default);
+}
+
+.recent-posts small {
+    display: block;
+    font-size: 0.75rem;
+    opacity: 0.6;
+}
+
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+.tag-cloud .tag-link {
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
+}
+
+/* Blog Form Sidebar - Fix overflow issues */
+.blog-form-sidebar {
+    background: var(--tile-background);
+    border-radius: 8px;
+    padding: 1em;
+    border: 1px solid var(--text-color);
+    overflow: hidden; /* Prevent content from overflowing */
+    word-wrap: break-word; /* Break long words */
+}
+
+.blog-form-sidebar h3 {
+    margin: 0 0 0.75em 0;
+    font-size: 1.125rem;
+    border-bottom: 1px solid var(--text-color);
+    padding-bottom: 0.5em;
+}
+
+/* Form styling */
+.blog-form-sidebar .form-group {
+    margin-bottom: 0.75em;
+}
+
+.blog-form-sidebar .form-group label {
+    display: block;
+    margin-bottom: 0.25em;
+    font-weight: bold;
+    font-size: 0.875rem;
+}
+
+.blog-form-sidebar .form-control {
+    width: 100%;
+    padding: 0.5em;
+    border: 1px solid var(--text-color);
+    border-radius: 4px;
+    background: var(--background-color);
+    color: var(--text-color);
+    font-size: 0.875rem;
+    box-sizing: border-box; /* Include padding and border in width calculation */
+    max-width: 100%; /* Ensure form controls don't exceed container width */
+}
+
+.blog-form-sidebar .form-control:focus {
+    outline: none;
+    border-color: var(--link-default);
+}
+
+.blog-form-sidebar .form-help {
+    display: block;
+    margin-top: 0.25em;
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.blog-form-sidebar .error-message {
+    color: #dc3545;
+    font-size: 0.75rem;
+    margin-top: 0.25em;
+}
+
+/* Select2 styling for tags - Fix overflow */
+.select2-container--default {
+    width: 100% !important; /* Force full width */
+    max-width: 100%; /* Prevent overflow */
+}
+
+.select2-container--default .select2-selection--multiple {
+    background: var(--background-color);
+    border: 1px solid var(--text-color);
+    border-radius: 4px;
+    min-height: 120px;
+    max-width: 100%; /* Prevent overflow */
+    overflow: hidden; /* Hide overflow */
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background: var(--link-default);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.25em 0.5em;
+    margin: 0.25em;
+    max-width: calc(100% - 0.5em); /* Prevent choices from overflowing */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: white;
+    margin-right: 0.5em;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: #ffcccc;
+}
+
+.select2-dropdown {
+    background: var(--tile-background);
+    border: 1px solid var(--text-color);
+    border-radius: 4px;
+    max-width: 100%; /* Prevent dropdown from overflowing */
+}
+
+.select2-container--default .select2-results__option {
+    color: var(--text-color);
+    padding: 0.5em;
+    word-wrap: break-word; /* Break long text */
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background: var(--link-default);
+    color: white;
+}
+
+/* Ensure current image doesn't overflow */
+.blog-form-sidebar .current-image {
+    margin-top: 0.5em;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.blog-form-sidebar .current-image img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+    border: 1px solid var(--text-color);
+    width: auto;
+    height: auto;
+}
+
+/* Button containment in sidebar */
+.blog-form-sidebar .btn,
+.blog-form-sidebar .btn-block {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.blog-form-sidebar .form-actions {
+    margin-top: 1em;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.blog-form-sidebar .form-actions .btn {
+    margin-bottom: 0.5em;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.blog-form-sidebar .form-actions .btn:last-child {
+    margin-bottom: 0;
+}
+
+/* Ensure all form elements in sidebar are contained */
+.blog-form-sidebar * {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Overall blog form layout containment */
+.blog-form-container,
+.blog-post-form,
+.form-actions {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Force all buttons to respect container boundaries */
+.blog-form-container .btn,
+.blog-post-form .btn,
+.blog-form-sidebar .btn {
+    max-width: 100% !important;
+    width: auto !important;
+    box-sizing: border-box !important;
+}
+
+.blog-form-container .btn-block,
+.blog-post-form .btn-block,
+.blog-form-sidebar .btn-block {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Very specific button containment with highest specificity */
+div.blog-form-container div.form-actions button.btn,
+div.blog-form-container div.form-actions a.btn,
+div.blog-form-sidebar div.form-actions button.btn,
+div.blog-form-sidebar div.form-actions a.btn {
+    max-width: 100% !important;
+    width: auto !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+div.blog-form-container div.form-actions button.btn.btn-primary,
+div.blog-form-container div.form-actions a.btn.btn-primary,
+div.blog-form-container div.form-actions a.btn.btn-secondary,
+div.blog-form-container div.form-actions a.btn.btn-outline {
+    max-width: 100% !important;
+    width: auto !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* Override any potential min-width issues */
+.blog-form-container button,
+.blog-form-container a.btn,
+.blog-form-sidebar button,
+.blog-form-sidebar a.btn {
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
+/* Nuclear option - override everything for buttons */
+.blog-form-container .form-actions button,
+.blog-form-container .form-actions a.btn,
+.blog-form-sidebar .form-actions button,
+.blog-form-sidebar .form-actions a.btn,
+.blog-form-container .form-actions .btn,
+.blog-form-container .form-actions .btn-primary,
+.blog-form-container .form-actions .btn-secondary,
+.blog-form-container .form-actions .btn-outline {
+    max-width: 100% !important;
+    width: auto !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+}
+
+/* Force form actions container to respect boundaries */
+.blog-form-container .form-actions,
+.blog-post-form .form-actions {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Debug styles - add borders to see what's happening */
+.blog-form-container .form-actions {
+    border: 2px solid red !important;
+}
+
+.blog-form-container .form-actions .btn {
+    border: 2px solid blue !important;
+}
+
+/* Force entire blog form layout to respect boundaries */
+.blog-form-container,
+.blog-post-form,
+.blog-form-sidebar {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Force all child elements to respect boundaries */
+.blog-form-container *,
+.blog-post-form *,
+.blog-form-sidebar * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Override any potential width issues */
+.blog-form-container .form-actions,
+.blog-post-form .form-actions {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5em !important;
+}
+
+/* Force buttons to be contained */
+.blog-form-container .form-actions .btn,
+.blog-post-form .form-actions .btn {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: auto !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* Override responsive button styles for blog forms */
+@media (max-width: 768px) {
+    .blog-form-container .btn,
+    .blog-post-form .btn,
+    .blog-form-sidebar .btn {
+        width: auto !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+    
+    .blog-form-container .form-actions .btn,
+    .blog-post-form .form-actions .btn,
+    .blog-form-sidebar .form-actions .btn {
+        flex: 1 1 auto !important;
+        width: auto !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+}
+
+/* Always ensure sidebar buttons are contained */
+.blog-form-sidebar .btn,
+.blog-form-sidebar button,
+.blog-form-sidebar a.btn {
+    width: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+}
+
+/* Override any potential width inheritance */
+.blog-form-sidebar .form-actions .btn {
+    width: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+}
+
+/* Force overall page layout to respect sidebar */
+body .main-layout .content {
+    max-width: calc(100vw - 17vw - 2em) !important; /* Account for sidebar width and margins */
+    overflow: hidden !important;
+}
+
+/* Ensure blog form content doesn't exceed available space */
+.blog-form-container .markdown-editor-container {
+    max-width: 100% !important;
+    overflow: hidden !important;
+}
+
+.blog-form-container .editor-toolbar {
+    max-width: 100% !important;
+    overflow: hidden !important;
+}
+
+/* Blog Post Detail */
+.blog-post-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.blog-post {
+    margin-bottom: 1em;
+}
+
+.post-header {
+    margin-bottom: 1em;
+}
+
+.post-header .post-meta {
+    margin-bottom: 0.5em;
+}
+
+.post-title {
+    margin: 0 0 0.5em 0;
+    font-size: 2rem;
+}
+
+.post-description {
+    margin: 0 0 1em 0;
+    font-size: 1.125rem;
+    opacity: 0.8;
+}
+
+.post-featured-image {
+    margin: 1em 0;
+}
+
+.post-featured-image img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.post-content {
+    line-height: 1.6;
+    margin-bottom: 1em;
+}
+
+.post-footer {
+    margin-top: 1em;
+    padding-top: 1em;
+    border-top: 1px solid var(--text-color);
+    opacity: 0.7;
+}
+
+.post-actions {
+    display: flex;
+    gap: 0.5em;
+    margin-bottom: 1em;
+    flex-wrap: wrap;
+}
+
+.post-info {
+    font-size: 0.875rem;
+}
+
+.post-info p {
+    margin: 0.25em 0;
+}
+
+.post-info p:last-child {
+    margin-bottom: 0;
+}
+
+/* Related Posts */
+.related-posts {
+    margin: 1em 0;
+}
+
+.related-posts h3 {
+    margin: 0 0 0.5em 0;
+}
+
+.related-posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1em;
+}
+
+.related-post-card {
+    background: var(--tile-background);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.related-post-card:hover {
+    transform: translateY(-2px);
+}
+
+.related-post-image img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.related-post-content {
+    padding: 1em;
+}
+
+.related-post-content h4 {
+    margin: 0 0 0.5em 0;
+}
+
+.related-post-content h4 a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.related-post-content h4 a:hover {
+    color: var(--link-default);
+}
+
+.related-post-excerpt {
+    margin: 0 0 0.5em 0;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+/* Blog Form */
+.blog-form-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.form-header {
+    margin-bottom: 1em;
+}
+
+.form-header h1 {
+    margin: 0 0 0.5em 0;
+}
+
+.form-header p {
+    margin: 0;
+}
+
+.blog-post-form {
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 1em;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.25em;
+    font-weight: bold;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5em;
+    border: 1px solid var(--text-color);
+    border-radius: 4px;
+    background: var(--tile-background);
+    color: var(--text-color);
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--link-default);
+}
+
+.form-help {
+    display: block;
+    margin-top: 0.25em;
+    font-size: 0.875rem;
+    opacity: 0.7;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25em;
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.5em;
+    margin-top: 1em;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Ensure all buttons in blog forms are properly contained */
+.blog-form-container .btn,
+.blog-post-form .btn {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.blog-form-container .btn-block,
+.blog-post-form .btn-block {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Dashboard */
+.dashboard-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+.dashboard-header h1 {
+    margin: 0 0 0.5em 0;
+    font-size: 2rem;
+}
+
+.dashboard-header p {
+    margin: 0 0 1em 0;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1em;
+    margin-bottom: 1em;
+}
+
+.stat-card {
+    background: var(--tile-background);
+    padding: 1em;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid var(--text-color);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--link-default);
+    margin-bottom: 0.5em;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
+
+.dashboard-section {
+    background: var(--tile-background);
+    border-radius: 8px;
+    padding: 1em;
+    margin-bottom: 1em;
+    border: 1px solid var(--text-color);
+}
+
+.dashboard-section h2 {
+    margin: 0 0 0.75em 0;
+    font-size: 1.25rem;
+}
+
+.posts-table {
+    border: 1px solid var(--text-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    background: var(--background-color);
+    padding: 0.75em;
+    font-weight: bold;
+    border-bottom: 1px solid var(--text-color);
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    padding: 0.75em;
+    border-bottom: 1px solid var(--text-color);
+    align-items: center;
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.table-row:hover {
+    background: var(--background-color);
+}
+
+.col-actions {
+    display: flex;
+    gap: 0.5em;
+}
+
+.dashboard-actions {
+    margin-top: 1em;
+    text-align: center;
+}
+
+.dashboard-actions h3 {
+    margin: 0 0 0.75em 0;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5em;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.no-posts-message {
+    text-align: center;
+    padding: 2em;
+}
+
+.no-posts-message h3 {
+    margin: 0 0 0.5em 0;
+}
+
+/* Blog Landing */
+.blog-landing-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.hero-section {
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+.hero-section h1 {
+    margin: 0 0 0.5em 0;
+    font-size: 2rem;
+}
+
+.admin-actions {
+    margin-top: 1em;
+}
+
+.blog-posts {
+    margin-bottom: 1em;
+}
+
+.blog-posts h2 {
+    margin: 0 0 0.5em 0;
+}
+
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1em;
+    margin-bottom: 1em;
+}
+
+.post-card {
+    background: var(--tile-background);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+}
+
+.view-all-posts {
+    text-align: center;
+}
+
+.popular-topics h2 {
+    margin: 0 0 0.5em 0;
+}
+
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+.no-posts {
+    text-align: center;
+    padding: 2em;
+}
+
+.no-posts h2 {
+    margin: 0 0 0.5em 0;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.5em 1em;
+    background: var(--tile-background);
+    color: var(--text-color);
+    text-decoration: none;
+    border: 1px solid var(--text-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    background: var(--link-default);
+    color: white;
+    border-color: var(--link-default);
+}
+
+.btn-primary {
+    background: var(--link-default);
+    color: rgb(3, 27, 32);
+    border-color: var(--link-default);
+}
+
+.btn-primary:hover {
+    background: var(--link-hover);
+    border-color: var(--link-hover);
+}
+
+.btn-secondary {
+    background: var(--tile-background);
+    color: var(--text-color);
+    border-color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background: var(--text-color);
+    color: var(--tile-background);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--text-color);
+    border-color: var(--text-color);
+}
+
+.btn-outline:hover {
+    background: var(--text-color);
+    color: var(--tile-background);
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    border-color: #bd2130;
+}
+
+.btn-sm {
+    padding: 0.25em 0.5em;
+    font-size: 0.875rem;
+}
+
+.btn-block {
+    display: block;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .blog-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-input {
+        min-width: auto;
+    }
+    
+    .posts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+    
+    /* Override the above rule for sidebar buttons */
+    .blog-form-sidebar .btn,
+    .blog-form-sidebar button,
+    .blog-form-sidebar a.btn {
+        width: auto !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+    
+    .table-header,
+    .table-row {
+        grid-template-columns: 1fr;
+        gap: 0.5em;
+    }
+    
+    .col-actions {
+        justify-content: center;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+} 
+
+/* Form Layout */
+.form-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.form-main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.form-sidebar {
+    width: 300px;
+    flex-shrink: 0;
+}
+
+/* Responsive design for form layout */
+@media (max-width: 768px) {
+    .form-layout {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .form-sidebar {
+        width: 100%;
+    }
+} 
+
+/* Comments Section */
+.comments-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--text-color);
+}
+
+.comments-section h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.comment-form-container {
+    background: var(--tile-background);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--text-color);
+}
+
+.comment-form-container h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+}
+
+/* Comment Form */
+.comment-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.comment-form .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.comment-form .form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--text-color);
+    border-radius: 4px;
+    background: var(--background-color);
+    color: var(--text-color);
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.comment-form .form-control:focus {
+    outline: none;
+    border-color: var(--link-default);
+}
+
+.comment-form .btn {
+    margin-top: 0.5rem;
+}
+
+/* Comment form info message */
+.comment-form-info {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--tile-background);
+    border-radius: 4px;
+    border: 1px solid var(--text-color);
+    opacity: 0.8;
+}
+
+.comment-form-info small {
+    color: var(--text-color);
+    font-style: italic;
+}
+
+/* User authentication status in comment forms */
+.comment-form .form-group label strong {
+    color: var(--link-default);
+    font-weight: bold;
+}
+
+.comment-form .form-group label:has(strong) {
+    background: var(--tile-background);
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--text-color);
+    margin-bottom: 1rem;
+}
+
+/* Comments List */
+.comments-list {
+    margin-top: 2rem;
+}
+
+.comment {
+    background: var(--tile-background);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--text-color);
+}
+
+.comment.reply {
+    margin-left: 2rem;
+    margin-top: 1rem;
+    border-left: 3px solid var(--link-default);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: var(--link-default);
+}
+
+.comment-date {
+    opacity: 0.7;
+    font-size: 0.8rem;
+}
+
+.comment-content {
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.comment-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.moderation-actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.moderation-actions .btn {
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
+}
+
+/* Reply Form */
+.reply-form {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--background-color);
+    border-radius: 4px;
+    border: 1px solid var(--text-color);
+}
+
+.reply-form .form-group {
+    margin-bottom: 0.75rem;
+}
+
+.reply-form .form-control {
+    font-size: 0.9rem;
+}
+
+.reply-form .btn {
+    font-size: 0.875rem;
+    padding: 0.25em 0.75em;
+}
+
+.reply-form-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.reply-form-actions .btn {
+    margin-top: 0;
+}
+
+/* Comment Replies */
+.comment-replies {
+    margin-top: 1rem;
+}
+
+.no-comments {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+/* Responsive Comments */
+@media (max-width: 768px) {
+    .comment.reply {
+        margin-left: 1rem;
+    }
+    
+    .comment-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .moderation-actions {
+        flex-wrap: wrap;
+    }
+}
+
+/* Dashboard Comments Section */
+.comments-table {
+    margin-top: 1rem;
+}
+
+.comment-row {
+    border-left: 4px solid var(--text-color);
+}
+
+.comment-row.rejected {
+    border-left-color: var(--warning-color, #ffc107);
+    opacity: 0.8;
+}
+
+.comment-row.spam {
+    border-left-color: var(--danger-color, #dc3545);
+    opacity: 0.7;
+}
+
+.comment-preview {
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+}
+
+.comment-reply-info {
+    font-style: italic;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.comment-reply-info small {
+    font-size: 0.85em;
+}
+
+/* Data attribute enhancements */
+[data-comment-id] {
+    transition: all 0.2s ease;
+}
+
+[data-comment-id]:hover {
+    transform: translateX(2px);
+}
+
+[data-action] {
+    transition: all 0.2s ease;
+}
+
+[data-action]:hover {
+    transform: translateY(-1px);
+}
+
+/* Comment form enhancements */
+[data-comment-form] {
+    transition: all 0.3s ease;
+}
+
+[data-reply-form] {
+    transition: all 0.3s ease;
+    transform-origin: top;
+}
+
+[data-reply-form][style*="display: block"] {
+    animation: slideDown 0.3s ease;
+}
+
+/* Form submission states */
+.form-submitting {
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+.form-submitting .form-control {
+    background-color: var(--tile-background);
+}
+
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Form validation feedback */
+.form-control.error {
+    border-color: var(--danger-color, #dc3545);
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.form-control.success {
+    border-color: var(--success-color, #28a745);
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.error-message {
+    color: var(--danger-color, #dc3545);
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.error-message::before {
+    content: '⚠️';
+    font-size: 0.8em;
+}
+
+/* Remove error state when user starts typing */
+.form-control:focus.error {
+    border-color: var(--primary-color, #007bff);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Auto-remove error messages when input changes */
+.form-control.error:focus + .error-message,
+.form-control.error:valid + .error-message {
+    display: none;
+}
+
+/* Comment form status indicators */
+.comment-form-status {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.comment-form-status.info {
+    background-color: rgba(23, 162, 184, 0.1);
+    border-color: var(--info-color, #17a2b8);
+    color: var(--info-color, #17a2b8);
+}
+
+.comment-form-status.success {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-color: var(--success-color, #28a745);
+    color: var(--success-color, #28a745);
+}
+
+.comment-form-status.warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-color: var(--warning-color, #ffc107);
+    color: var(--warning-color, #ffc107);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 0.25em 0.6em;
+    font-size: 0.75em;
+    font-weight: bold;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.375rem;
+}
+
+.badge-warning {
+    background-color: var(--warning-color, #ffc107);
+    color: var(--text-color);
+}
+
+.badge-info {
+    background-color: var(--info-color, #17a2b8);
+    color: white;
+}
+
+.badge-success {
+    background-color: var(--success-color, #28a745);
+    color: white;
+}
+
+.badge-danger {
+    background-color: var(--danger-color, #dc3545);
+    color: white;
+}
+
+/* Warning Stat Card */
+.stat-card-warning {
+    border-color: var(--warning-color, #ffc107);
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.stat-card-warning .stat-number {
+    color: var(--warning-color, #ffc107);
+}
+
+/* Success Stat Card */
+.stat-card-success {
+    border-color: var(--success-color, #28a745);
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.stat-card-success .stat-number {
+    color: var(--success-color, #28a745);
+}
+
+/* Moderation Section */
+.moderation-section {
+    margin-bottom: 2rem;
+}
+
+.moderation-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+/* Responsive Dashboard Comments */
+@media (max-width: 768px) {
+    .comments-table .table-header {
+        display: none;
+    }
+    
+    .comments-table .table-row {
+        display: block;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border: 1px solid var(--text-color);
+        border-radius: 4px;
+    }
+    
+    .comments-table .col-post,
+    .comments-table .col-author,
+    .comments-table .col-content,
+    .comments-table .col-date,
+    .comments-table .col-actions {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .comments-table .col-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+    
+    .comments-table .col-actions .btn {
+        font-size: 0.75rem;
+        padding: 0.25em 0.5em;
+    }
+} 
+
+/* Alert styling */
+.alert {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    font-size: 0.875em;
+}
+
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+}
+
+.alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+} 
+
+/* Dashboard moderation actions */
+.moderation-action {
+    transition: all 0.2s ease;
+}
+
+.moderation-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.moderation-action.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.moderation-action.btn-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Comment row transitions */
+.comment-row {
+    transition: all 0.3s ease;
+}
+
+.comment-row.removing {
+    opacity: 0;
+    transform: translateX(-100%);
+}
+
+/* Empty state styling */
+.moderation-section:empty::after {
+    content: 'No comments in this category';
+    display: block;
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-style: italic;
+}
+
+.moderation-section[style*="display: none"] {
+    display: none !important;
+} 
