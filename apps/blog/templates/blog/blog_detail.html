@@ -170,23 +170,6 @@
 
                 <button type="submit" class="btn btn-primary">Submit Comment</button>
             </form>
-
-            {% if not user.is_authenticated %}
-            <div class="comment-form-info">
-                <small>
-                    💡 <strong>Anonymous Commenting:</strong> Your details will be saved in your browser and shared
-                    across the site for future use.
-                    Comments from anonymous users require moderation and will appear after approval by site staff.
-                </small>
-            </div>
-            {% else %}
-            <div class="comment-form-info">
-                <small>
-                    ✅ <strong>Registered User:</strong> Your comment will be posted immediately since you're logged in.
-                    No moderation required - your comment appears instantly!
-                </small>
-            </div>
-            {% endif %}
         </div>
 
         <!-- Display Comments -->
