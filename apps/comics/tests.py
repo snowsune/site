@@ -1,6 +1,7 @@
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import ComicPage, ComicComment
 
 User = get_user_model()
@@ -41,8 +42,16 @@ class ComicViewsTest(TestCase):
         self.user = User.objects.create_user(
             username="testuser", password="testpass123"
         )
+
+        # Create a mock image file for testing
+        self.mock_image = SimpleUploadedFile(
+            name="test_image.jpg",
+            content=b"fake image content",
+            content_type="image/jpeg",
+        )
+
         self.page = ComicPage.objects.create(
-            page_number=1, title="Test Page", is_nsfw=False
+            page_number=1, title="Test Page", is_nsfw=False, image=self.mock_image
         )
 
     def test_comic_home_view(self):
@@ -56,10 +65,13 @@ class ComicViewsTest(TestCase):
         self.assertTemplateUsed(response, "comics/page_detail.html")
         self.assertEqual(response.context["page"], self.page)
 
-    def test_nsfw_warning_view(self):
+    def test_nsfw_page_loads(self):
+        """Test that NSFW pages load properly (NSFW handling is now in the template)"""
         nsfw_page = ComicPage.objects.create(
-            page_number=2, title="NSFW Page", is_nsfw=True
+            page_number=2, title="NSFW Page", is_nsfw=True, image=self.mock_image
         )
         response = self.client.get(reverse("comics:page_detail", args=[2]))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "comics/nsfw_warning.html")
+        self.assertTemplateUsed(response, "comics/page_detail.html")
+        self.assertEqual(response.context["page"], nsfw_page)
+        self.assertTrue(response.context["page"].is_nsfw)
