@@ -8,9 +8,9 @@
 
 {% block og_image %}{% if page.image %}{{ page.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
 {% block twitter_image %}{% if page.image %}{{ page.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
-{% block meta_description %}{{ page.description|truncatewords:30 }}{% endblock %}
-{% block og_description %}{{ page.description|truncatewords:30 }}{% endblock %}
-{% block twitter_description %}{{ page.description|truncatewords:30 }}{% endblock %}
+{% block meta_description %}{{ page.description_html|striptags|truncatewords:30 }}{% endblock %}
+{% block og_description %}{{ page.description_html|striptags|truncatewords:30 }}{% endblock %}
+{% block twitter_description %}{{ page.description_html|striptags|truncatewords:30 }}{% endblock %}
 
 {% block og_title %}{{ page.title }} - Page {{ page.page_number }} - snowsune.net{% endblock %}
 {% block twitter_title %}{{ page.title }} - Page {{ page.page_number }} - snowsune.net{% endblock %}
@@ -42,7 +42,7 @@
   "@context": "https://schema.org",
   "@type": "CreativeWork",
   "name": "{{ page.title }}",
-  "description": "{{ page.description|truncatewords:30 }}",
+  "description": "{{ page.description_html|striptags|truncatewords:30 }}",
   "image": "{% if page.image %}{{ page.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}",
   "url": "{{ request.build_absolute_uri }}",
   "creator": {
