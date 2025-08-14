@@ -9,10 +9,6 @@ def page_detail(request, page_number):
     """Display a specific comic page with navigation"""
     page = get_object_or_404(ComicPage, page_number=page_number)
 
-    # Check if user wants to see NSFW content
-    if page.is_nsfw and not request.session.get("show_nsfw", False):
-        return render(request, "comics/nsfw_warning.html", {"page": page})
-
     context = {
         "page": page,
         "next_page": page.get_next_page(),
@@ -20,16 +16,6 @@ def page_detail(request, page_number):
         "comments": page.comments.filter(status="approved").order_by("created_at"),
     }
     return render(request, "comics/page_detail.html", context)
-
-
-def nsfw_confirm(request, page_number):
-    """Confirm user wants to see NSFW content"""
-    if request.method == "POST":
-        request.session["show_nsfw"] = True
-        return redirect("comics:page_detail", page_number=page_number)
-
-    page = get_object_or_404(ComicPage, page_number=page_number)
-    return render(request, "comics/nsfw_warning.html", {"page": page})
 
 
 def comic_home(request):

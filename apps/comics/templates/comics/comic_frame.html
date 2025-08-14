@@ -56,11 +56,12 @@
             {% if current_page.is_nsfw %}
             <div class="nsfw-blur-overlay" id="nsfw-blur-{{ current_page.page_number }}">
                 <div class="nsfw-warning-content">
-                    <h3>⚠️ NSFW Content</h3>
-                    <p>This comic contains adult content.</p>
+                    <h3>⚠️ Watch out!</h3>
+                    <p>Sometimes my comic contains adult content!</p>
                     <button class="nsfw-acknowledge-btn" onclick="acknowledgeNSFW({{ current_page.page_number }})">
-                        I acknowledge and want to see this content
+                        Show me this lewd page anyway!
                     </button>
+                    <p>...or if thats not your thing, click to the next comic!</p>
                 </div>
             </div>
             {% endif %}
@@ -86,10 +87,10 @@
             {% if current_page %}
             <a href="{% url 'comics:page_detail' current_page.page_number %}" class="action-btn view-full">View Full
                 Page</a>
-            {% if current_page.has_previous %}
+            <!-- {% if current_page.has_previous %}
             <a href="{% url 'comics:page_detail' current_page.get_previous_page.page_number %}" class="action-btn">←
                 Previous</a>
-            {% endif %}
+            {% endif %} -->
             {% if current_page.has_next %}
             <a href="{% url 'comics:page_detail' current_page.get_next_page.page_number %}" class="action-btn">Next
                 →</a>
