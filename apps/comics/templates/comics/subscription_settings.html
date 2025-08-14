@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Subscription Settings - {{ subscription.webcomic.name }}{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{% static 'comics/css/comics.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="subscription-settings-page">
+    <div class="page-header">
+        <div class="breadcrumb">
+            <a href="{% url 'comics:my_subscriptions' %}">My Subscriptions</a>
+            <span class="separator">›</span>
+            <span>Settings</span>
+        </div>
+        <h1>Subscription Settings</h1>
+        <p>Customize your notification preferences for {{ subscription.webcomic.name }}</p>
+    </div>
+
+    <div class="settings-container">
+        <div class="webcomic-info-card">
+            <div class="webcomic-header">
+                {% if subscription.webcomic.icon %}
+                <img src="{{ subscription.webcomic.icon.url }}" alt="{{ subscription.webcomic.name }}"
+                    class="webcomic-icon">
+                {% else %}
+                <div class="webcomic-icon-placeholder">{{ subscription.webcomic.name|first|upper }}</div>
+                {% endif %}
+                <div class="webcomic-details">
+                    <h2>{{ subscription.webcomic.name }}</h2>
+                    {% if subscription.webcomic.author %}
+                    <p class="author">by {{ subscription.webcomic.author }}</p>
+                    {% endif %}
+                    <p class="subscription-date">Subscribed since {{ subscription.subscribed_at|date:"M j, Y" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" class="settings-form">
+            {% csrf_token %}
+
+            <div class="settings-section">
+                <h3>Notification Methods</h3>
+                <p class="section-description">Choose how you want to be notified when this webcomic updates.</p>
+
+                <div class="notification-options">
+                    <div class="notification-option">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="email_notifications"
+                                {% if subscription.email_notifications %}checked{% endif %}>
+                            <span class="checkmark"></span>
+                            <div class="option-content">
+                                <h4>📧 Email Notifications</h4>
+                                <p>Receive updates via email</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="notification-option">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="rss_enabled"
+                                {% if subscription.rss_enabled %}checked{% endif %}>
+                            <span class="checkmark"></span>
+                            <div class="option-content">
+                                <h4>📡 RSS Feed</h4>
+                                <p>Include in your personal RSS feed</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="notification-option">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="discord_notifications"
+                                {% if subscription.discord_notifications %}checked{% endif %}>
+                            <span class="checkmark"></span>
+                            <div class="option-content">
+                                <h4>💬 Discord Notifications</h4>
+                                <p>Send updates to Discord (if configured)</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Notification Frequency</h3>
+                <p class="section-description">How often would you like to receive notifications?</p>
+
+                <div class="frequency-options">
+                    <label class="radio-label">
+                        <input type="radio" name="notification_frequency" value="immediate"
+                            {% if subscription.notification_frequency == 'immediate' %}checked{% endif %}>
+                        <span class="radio-mark"></span>
+                        <div class="option-content">
+                            <h4>⚡ Immediate</h4>
+                            <p>Get notified as soon as a new comic is published</p>
+                        </div>
+                    </label>
+
+                    <label class="radio-label">
+                        <input type="radio" name="notification_frequency" value="daily"
+                            {% if subscription.notification_frequency == 'daily' %}checked{% endif %}>
+                        <span class="radio-mark"></span>
+                        <div class="option-content">
+                            <h4>📅 Daily Digest</h4>
+                            <p>Receive a daily summary of all updates</p>
+                        </div>
+                    </label>
+
+                    <label class="radio-label">
+                        <input type="radio" name="notification_frequency" value="weekly"
+                            {% if subscription.notification_frequency == 'weekly' %}checked{% endif %}>
+                        <span class="radio-mark"></span>
+                        <div class="option-content">
+                            <h4>📆 Weekly Digest</h4>
+                            <p>Receive a weekly summary of all updates</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+                <a href="{% url 'comics:my_subscriptions' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+
+        <div class="subscription-info">
+            <h3>Subscription Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value active">Active</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Last Notified:</span>
+                    <span class="info-value">
+                        {% if subscription.last_notified %}
+                        {{ subscription.last_notified|date:"M j, Y g:i A" }}
+                        {% else %}
+                        Never
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Polling Method:</span>
+                    <span class="info-value">{{ subscription.webcomic.get_polling_method_display }}</span>
+                </div>
+                {% if subscription.webcomic.latest_comic_date %}
+                <div class="info-item">
+                    <span class="info-label">Latest Update:</span>
+                    <span class="info-value">{{ subscription.webcomic.latest_comic_date }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

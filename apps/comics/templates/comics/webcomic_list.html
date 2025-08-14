@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Browse Webcomics - Comic Aggregator{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{% static 'comics/css/comics.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="webcomic-browse">
+    <div class="page-header">
+        <h1>Comic Aggregator</h1>
+        <p>Browse and subscribe to webcomics</p>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="search-filter-section">
+        <form method="get" class="search-form">
+            <div class="search-row">
+                <div class="search-input">
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Search webcomics..."
+                        class="form-control">
+                </div>
+                <div class="filter-select">
+                    <select name="method" class="form-control">
+                        <option value="">All Methods</option>
+                        {% for value, label in polling_methods %}
+                        <option value="{{ value }}" {% if value == polling_method %}selected{% endif %}>{{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+                {% if search_query or polling_method %}
+                <a href="{% url 'comics:webcomic_list' %}" class="btn btn-secondary">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section">
+        {% if webcomics %}
+        <div class="results-header">
+            <p>Found {{ webcomics.paginator.count }} webcomic{{ webcomics.paginator.count|pluralize }}</p>
+        </div>
+
+        <div class="webcomic-list">
+            {% for webcomic in webcomics %}
+            <div class="webcomic-item">
+                <div class="webcomic-info">
+                    <div class="webcomic-header">
+                        {% if webcomic.icon %}
+                        <img src="{{ webcomic.icon.url }}" alt="{{ webcomic.name }}" class="webcomic-icon">
+                        {% else %}
+                        <div class="webcomic-icon-placeholder">{{ webcomic.name|first|upper }}</div>
+                        {% endif %}
+                        <div class="webcomic-details">
+                            <h3>{{ webcomic.name }}</h3>
+                            {% if webcomic.author %}
+                            <p class="author">by {{ webcomic.author }}</p>
+                            {% endif %}
+                            {% if webcomic.description %}
+                            <p class="description">{{ webcomic.description|truncatewords:30 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="webcomic-meta">
+                        <span class="polling-method">{{ webcomic.get_polling_method_display }}</span>
+                        {% if webcomic.latest_comic_date %}
+                        <span class="last-update">Updated: {{ webcomic.latest_comic_date }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="webcomic-actions">
+                    <a href="{% url 'comics:webcomic_detail' slug=webcomic.slug %}" class="btn btn-outline">View
+                        Details</a>
+
+                    {% if webcomic.id in user_subscriptions %}
+                    <form method="post" action="{% url 'comics:unsubscribe' webcomic.id %}" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Unsubscribe</button>
+                    </form>
+                    {% else %}
+                    <form method="post" action="{% url 'comics:subscribe' webcomic.id %}" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Subscribe</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if webcomics.has_other_pages %}
+        <div class="pagination">
+            {% if webcomics.has_previous %}
+            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if polling_method %}&method={{ polling_method }}{% endif %}"
+                class="page-link">&laquo; First</a>
+            <a href="?page={{ webcomics.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if polling_method %}&method={{ polling_method }}{% endif %}"
+                class="page-link">&lsaquo; Previous</a>
+            {% endif %}
+
+            <span class="current-page">
+                Page {{ webcomics.number }} of {{ webcomics.paginator.num_pages }}
+            </span>
+
+            {% if webcomics.has_next %}
+            <a href="?page={{ webcomics.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if polling_method %}&method={{ polling_method }}{% endif %}"
+                class="page-link">Next &rsaquo;</a>
+            <a href="?page={{ webcomics.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if polling_method %}&method={{ polling_method }}{% endif %}"
+                class="page-link">Last &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="no-results">
+            <h3>No webcomics found</h3>
+            <p>Try adjusting your search terms or filters.</p>
+            <a href="{% url 'comics:webcomic_list' %}" class="btn btn-primary">View All Webcomics</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,10 +1,59 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Comics - Coming Soon{% endblock %}
+{% block title %}Comics - Snowsune{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{% static 'comics/css/comics.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="comics-home">
-    <h1>Comics</h1>
-    <p>Coming soon! If you're reading this it means that the comics subapp works!</p>
+    <div class="hero-section">
+        <h1>Snowsune.net Comic</h1>
+        <div class="coming-soon-badge">Coming Soon!</div>
+        <p class="lead">I'm still working on my own webcomic with Hunner! Stay tuned!</p>
+    </div>
+
+    <div class="content-section">
+        <h2>About the Comic</h2>
+        <p>I'm working on creating my own webcomic that will be hosted right here on snowsune.net. The story and
+            characters are still being developed, but I'm excited to share it with you soon!</p>
+
+        <div class="placeholder-content">
+            <div class="placeholder-box">
+                <h3>Sketches and WIPs!</h3>
+                <p>See some of the sketches and wiips <a href="https://booru.kitsunehosting.net/pools/126">here!</a>
+                </p>
+            </div>
+            <div class="placeholder-box">
+                <h3>Artist</h3>
+                <p>Go check out <a href="https://hunner.carrd.co/">Hunner's page!</a></p>
+            </div>
+            <div class="placeholder-box">
+                <h3>Schedule</h3>
+                <p>Update schedule and release plans will be announced when ready.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="news-section">
+        <h2>Latest News</h2>
+        <div class="news-item">
+            <span class="news-date">Coming Soon</span>
+            <p>Webcomic development has begun! More details to follow.</p>
+        </div>
+    </div>
 </div>
+
+{% block sidebar %}
+<div class="sidebar-section">
+    <h3>Webcomic Tools</h3>
+    <ul>
+        <li><a href="{% url 'comics:webcomic_list' %}">📚 Comic Aggregator</a></li>
+        <li><a href="{% url 'comics:my_subscriptions' %}">🔔 My Subscriptions</a></li>
+    </ul>
+    <p class="sidebar-note">Browse and subscribe to other webcomics while you wait!</p>
+</div>
+{% endblock %}
 {% endblock %}
