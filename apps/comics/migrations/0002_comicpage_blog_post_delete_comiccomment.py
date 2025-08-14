@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("blog", "0003_comment"),
         ("comics", "0001_initial"),

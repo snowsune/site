@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("comics", "0002_comicpage_blog_post_delete_comiccomment"),
     ]
