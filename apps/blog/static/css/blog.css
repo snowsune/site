@@ -611,11 +611,7 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
     flex: 1 1 auto !important;
 }
 
-/* Force overall page layout to respect sidebar */
-body .main-layout .content {
-    max-width: calc(100vw - 17vw - 2em) !important; /* Account for sidebar width and margins */
-    overflow: hidden !important;
-}
+
 
 /* Ensure blog form content doesn't exceed available space */
 .blog-form-container .markdown-editor-container {
