@@ -202,6 +202,13 @@ a:visited {
   gap: 1em; /* Space between content and sidebar */
 }
 
+/* Mobile-only left padding override */
+@media (max-width: 768px) {
+  .main-layout {
+    margin-left: 3em; /* Add left padding only on mobile */
+  }
+}
+
 /* Content Section */
 .content {
   flex: 3; /* Take up more space compared to the sidebar */
