@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import strip_tags
+import markdown
 from apps.blog.models import BlogPost
 
 User = get_user_model()
@@ -14,6 +16,7 @@ class ComicPage(models.Model):
     title = models.CharField(max_length=200)
     image = models.ImageField(upload_to="comics/pages/")
     description = models.TextField(blank=True)
+    description_html = models.TextField(blank=True)  # Rendered HTML version
     transcript = models.JSONField(default=dict, blank=True)
     is_nsfw = models.BooleanField(default=False)
 
@@ -69,6 +72,17 @@ class ComicPage(models.Model):
     @property
     def has_previous(self):
         return self.get_previous_page() is not None
+
+    def save(self, *args, **kwargs):
+        # Generate HTML content from markdown
+        if self.description:
+            self.description_html = markdown.markdown(
+                self.description, extensions=["extra", "codehilite", "toc"]
+            )
+        else:
+            self.description_html = ""
+
+        super().save(*args, **kwargs)
 
     def create_blog_post(self, author):
         """Create an associated blog post for this comic page"""

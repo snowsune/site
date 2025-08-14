@@ -26,6 +26,7 @@ class ComicPageAdmin(admin.ModelAdmin):
                     "title",
                     "image",
                     "description",
+                    "description_html",
                     "transcript",
                     "is_nsfw",
                 )
@@ -45,7 +46,7 @@ class ComicPageAdmin(admin.ModelAdmin):
         ),
     )
 
-    readonly_fields = ["created_at", "updated_at", "blog_post_link", "has_blog_post"]
+    readonly_fields = ["created_at", "updated_at", "blog_post_link", "has_blog_post", "description_html"]
 
     def blog_post_link(self, obj):
         if obj.blog_post:

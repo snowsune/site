@@ -631,4 +631,70 @@
     color: var(--background-color);
 }
 
+/* Markdown Content Styling */
+.markdown-content {
+    line-height: 1.6;
+    color: var(--text-color);
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+    margin: 1em 0 0.5em 0;
+    color: var(--text-color);
+}
+
+.markdown-content p {
+    margin: 0 0 1em 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    margin: 0 0 1em 1.5em;
+}
+
+.markdown-content li {
+    margin: 0.25em 0;
+}
+
+.markdown-content blockquote {
+    margin: 1em 0;
+    padding: 0.5em 1em;
+    border-left: 4px solid var(--link-default);
+    background: var(--tile-background);
+    font-style: italic;
+}
+
+.markdown-content code {
+    background: var(--tile-background);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+.markdown-content pre {
+    background: var(--tile-background);
+    padding: 1em;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+.markdown-content pre code {
+    background: none;
+    padding: 0;
+}
+
+.markdown-content a {
+    color: var(--link-default);
+    text-decoration: none;
+}
+
+.markdown-content a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
  

@@ -71,8 +71,8 @@
         </div>
 
         {% if show_description and current_page.description %}
-        <div class="comic-description">
-            {{ current_page.description|safe }}
+        <div class="comic-description markdown-content">
+            {{ current_page.description_html|safe }}
         </div>
         {% endif %}
         {% else %}

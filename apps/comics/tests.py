@@ -17,12 +17,16 @@ class ComicPageModelTest(TestCase):
         page = ComicPage.objects.create(
             page_number=1,
             title="Test Page",
-            description="A test comic page",
+            description="A test comic page with **bold** and *italic* text",
             is_nsfw=False,
         )
         self.assertEqual(page.page_number, 1)
         self.assertEqual(page.title, "Test Page")
         self.assertFalse(page.is_nsfw)
+
+        # Check that Markdown is rendered to HTML
+        self.assertIn("<strong>bold</strong>", page.description_html)
+        self.assertIn("<em>italic</em>", page.description_html)
 
     def test_comic_page_navigation(self):
         page1 = ComicPage.objects.create(page_number=1, title="Page 1")
