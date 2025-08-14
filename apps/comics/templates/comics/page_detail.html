@@ -64,69 +64,36 @@
 <div class="comic-page-detail">
     {% comic_frame page_number=page.page_number size='full' show_description=True %}
 
-    <div class="comments-section">
-        <h3>Comments</h3>
-
-        <div class="comment-form">
-            {% if user.is_authenticated %}
-            <form id="comment-form" data-page="{{ page.page_number }}">
-                <textarea name="content" placeholder="Add a comment..." required></textarea>
-                <button type="submit">Post Comment</button>
-            </form>
-            {% else %}
-            <form id="comment-form" data-page="{{ page.page_number }}">
-                <input type="text" name="author_name" placeholder="Your name" required>
-                <textarea name="content" placeholder="Add a comment..." required></textarea>
-                <button type="submit">Post Comment</button>
-            </form>
-            {% endif %}
+    <div class="comic-discussion-section">
+        <h3>Discuss This Comic</h3>
+        {% if page.blog_post %}
+        <p>Join the discussion about this comic page!</p>
+        <a href="{{ page.blog_post.get_absolute_url }}" class="btn btn-primary">
+            View Discussion & Comments →
+        </a>
+        {% if user.is_staff %}
+        <div class="staff-actions">
+            <small>
+                <a href="{% url 'admin:blog_blogpost_change' page.blog_post.id %}">
+                    Edit Blog Post
+                </a> |
+                <a href="{% url 'admin:comics_comicpage_change' page.id %}">
+                    Edit Comic Page
+                </a>
+            </small>
         </div>
-
-        <div id="comments-list">
-            {% for comment in comments %}
-            <div class="comment">
-                <div class="comment-header">
-                    <span class="comment-author">{{ comment.get_display_name }}</span>
-                    <span class="comment-date">{{ comment.created_at|date:"M d, Y" }}</span>
-                </div>
-                <div class="comment-content">{{ comment.content }}</div>
-            </div>
-            {% empty %}
-            <p>No comments yet. Be the first to comment!</p>
-            {% endfor %}
+        {% endif %}
+        {% else %}
+        <p>No discussion thread created yet for this comic page.</p>
+        {% if user.is_staff %}
+        <div class="staff-actions">
+            <p><em>Staff: You can create a discussion thread by editing this comic page in the admin.</em></p>
+            <a href="{% url 'admin:comics_comicpage_change' page.id %}" class="btn btn-secondary">
+                Create Discussion Thread
+            </a>
         </div>
+        {% endif %}
+        {% endif %}
     </div>
 </div>
-
-<script>
-    // Basic AJAX comment submission
-    document.getElementById('comment-form').addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        const form = e.target;
-        const pageNumber = form.dataset.page;
-        const formData = new FormData(form);
-
-        fetch(`/comics/page/${pageNumber}/comment/`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    form.reset();
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error submitting comment');
-            });
-    });
-</script>
 {% endblock %}

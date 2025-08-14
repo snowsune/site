@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
-from apps.blog.models import Comment
+from apps.blog.models import BlogPost
 
 User = get_user_model()
 
@@ -16,6 +16,15 @@ class ComicPage(models.Model):
     description = models.TextField(blank=True)
     transcript = models.JSONField(default=dict, blank=True)
     is_nsfw = models.BooleanField(default=False)
+
+    # Link to associated blog post for comments and discussion
+    blog_post = models.OneToOneField(
+        BlogPost,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="comic_page",
+    )
 
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
@@ -61,13 +70,24 @@ class ComicPage(models.Model):
     def has_previous(self):
         return self.get_previous_page() is not None
 
+    def create_blog_post(self, author):
+        """Create an associated blog post for this comic page"""
+        if self.blog_post:
+            return self.blog_post
 
-class ComicComment(Comment):
-    """Model for comic page comments, extending the blog Comment model"""
+        # Create a new blog post
+        blog_post = BlogPost.objects.create(
+            title=f"Comic Page {self.page_number}: {self.title}",
+            slug=f"comic-page-{self.page_number}-{self.title.lower().replace(' ', '-')}",
+            author=author,
+            content=f"Discuss this comic page: {self.title}\n\n{self.description or ''}",
+            status="draft",  # Start as draft, can be published later
+            featured_image=self.image,
+            meta_description=f"Discussion and comments for comic page {self.page_number}: {self.title}",
+        )
 
-    page = models.ForeignKey(
-        ComicPage, on_delete=models.CASCADE, related_name="comments"
-    )
+        # Link the blog post to this comic page
+        self.blog_post = blog_post
+        self.save()
 
-    def __str__(self):
-        return f"Comment by {self.author_name} on page {self.page.page_number}"
+        return blog_post

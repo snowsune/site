@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
-from .models import ComicPage, ComicComment
+from .models import ComicPage
 
 User = get_user_model()
 
@@ -34,6 +34,23 @@ class ComicPageModelTest(TestCase):
         self.assertEqual(page3.get_previous_page(), page2)
         self.assertIsNone(page1.get_previous_page())
         self.assertIsNone(page3.get_next_page())
+
+    def test_blog_post_creation(self):
+        page = ComicPage.objects.create(
+            page_number=1,
+            title="Test Page",
+            description="A test comic page",
+            is_nsfw=False,
+        )
+
+        # Create blog post
+        blog_post = page.create_blog_post(self.user)
+
+        self.assertIsNotNone(blog_post)
+        self.assertEqual(blog_post.title, f"Comic Page 1: Test Page")
+        self.assertEqual(blog_post.author, self.user)
+        self.assertEqual(blog_post.status, "draft")
+        self.assertEqual(page.blog_post, blog_post)
 
 
 class ComicViewsTest(TestCase):

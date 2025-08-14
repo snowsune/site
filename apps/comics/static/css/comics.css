@@ -559,4 +559,76 @@
     margin-top: 5px;
 }
 
+/* Comic Discussion Section */
+.comic-discussion-section {
+    margin-top: 2em;
+    padding: 1.5em;
+    background: var(--tile-background);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.comic-discussion-section h3 {
+    margin: 0 0 0.5em 0;
+    color: var(--text-color);
+}
+
+.comic-discussion-section p {
+    margin: 0 0 1em 0;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.comic-discussion-section .btn {
+    display: inline-block;
+    padding: 0.75em 1.5em;
+    background: var(--link-default);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.comic-discussion-section .btn:hover {
+    background: var(--link-hover);
+    color: white;
+}
+
+.comic-discussion-section em {
+    font-style: italic;
+    opacity: 0.7;
+    font-size: 0.9em;
+}
+
+.staff-actions {
+    margin-top: 1em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border-color);
+}
+
+.staff-actions small {
+    font-size: 0.85em;
+}
+
+.staff-actions a {
+    color: var(--link-default);
+    text-decoration: none;
+}
+
+.staff-actions a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+.staff-actions .btn-secondary {
+    background: var(--text-color);
+    color: var(--background-color);
+    margin-top: 0.5em;
+}
+
+.staff-actions .btn-secondary:hover {
+    background: var(--text-hover);
+    color: var(--background-color);
+}
+
  
