@@ -306,9 +306,9 @@ class Comment(models.Model):
             from apps.commorganizer.utils import send_discord_webhook
 
             # Create notification message
-            message = f"New post on [{self.post.title}]({settings.SITE_URL}{self.post.get_absolute_url()}) by {self.get_display_name()}:\n"
+            message = f"New post on [{self.post.title}](<{settings.SITE_URL}{self.post.get_absolute_url()}>) by {self.get_display_name()}:\n"
             message += f">>> {self.content}\n\n"
-            message += f"-# Moderate [here]({settings.SITE_URL}/blog/dashboard/)"
+            message += f"-# Moderate [here](<{settings.SITE_URL}/blog/dashboard/>)"
 
             # Send webhook
             send_discord_webhook(webhook_url, message)
