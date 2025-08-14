@@ -1,41 +1,14 @@
 {% extends "base.html" %}
+{% load static %}
+{% load comic_tags %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/comics.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="comic-page">
-    <div class="comic-navigation">
-        {% if previous_page %}
-        <a href="{% url 'comics:page_detail' previous_page.page_number %}" class="nav-btn prev-btn">← Previous</a>
-        {% endif %}
-
-        <span class="page-info">Page {{ page.page_number }}</span>
-
-        {% if next_page %}
-        <a href="{% url 'comics:page_detail' next_page.page_number %}" class="nav-btn next-btn">Next →</a>
-        {% endif %}
-    </div>
-
-    <div class="comic-image">
-        <img src="{{ page.image.url }}" alt="{{ page.title }}" class="comic-img">
-    </div>
-
-    <div class="comic-info">
-        <h1>{{ page.title }}</h1>
-        {% if page.description %}
-        <p class="comic-description">{{ page.description }}</p>
-        {% endif %}
-    </div>
-
-    <div class="comic-navigation bottom">
-        {% if previous_page %}
-        <a href="{% url 'comics:page_detail' previous_page.page_number %}" class="nav-btn prev-btn">← Previous</a>
-        {% endif %}
-
-        <a href="{% url 'comics:comic_home' %}" class="nav-btn home-btn">Home</a>
-
-        {% if next_page %}
-        <a href="{% url 'comics:page_detail' next_page.page_number %}" class="nav-btn next-btn">Next →</a>
-        {% endif %}
-    </div>
+<div class="comic-page-detail">
+    {% comic_frame size='full' show_description=True %}
 
     <div class="comments-section">
         <h3>Comments</h3>

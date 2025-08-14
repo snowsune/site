@@ -1,6 +1,12 @@
 {% extends "base.html" %}
+{% load static %}
+{% load comic_tags %}
 
 {% block title %}Home - Snowsune.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/comics.css' %}">
+{% endblock %}
 
 {% block content %}
 <h1>Welcome to my site!!</h1>
@@ -13,35 +19,50 @@
 <p>Consider joining my <a href="{{ discord_invite }}">discord</a> by the way! That's the best
     place to get up-to-date information!</p>
 
-{% if latest_post %}
-<section class="latest-blog-post">
-    <h2>Latest Blog Post</h2>
-    <article class="blog-preview">
-        {% if latest_post.featured_image %}
-        <div class="blog-preview-image">
-            <img src="{{ latest_post.featured_image.url }}" alt="{{ latest_post.title }}" loading="lazy">
+<!-- Latest Content Section -->
+<div class="latest-content-grid">
+    <!-- Latest Comic Section -->
+    <section class="latest-comic-section">
+        <h2>Latest Comic</h2>
+        <div class="comic-frame-wrapper">
+            {% comic_frame size='small' show_description=True %}
         </div>
-        {% endif %}
-        <div class="blog-preview-content">
-            <h3><a href="{{ latest_post.get_absolute_url }}">{{ latest_post.title }}</a></h3>
-            <div class="blog-meta">
-                <span class="blog-date">{{ latest_post.display_date|date:"F j, Y" }}</span>
-                {% if latest_post.tags.exists %}
-                <span class="blog-tags">
-                    {% for tag in latest_post.tags.all %}
-                    <span class="tag">{{ tag.name }}</span>
-                    {% endfor %}
-                </span>
-                {% endif %}
+        <p class="comic-section-footer">
+            <a href="{% url 'comics:comic_home' %}">View all comics →</a>
+        </p>
+    </section>
+
+    <!-- Latest Blog Post Section -->
+    {% if latest_post %}
+    <section class="latest-blog-post">
+        <h2>Latest Blog Post</h2>
+        <article class="blog-preview">
+            {% if latest_post.featured_image %}
+            <div class="blog-preview-image">
+                <img src="{{ latest_post.featured_image.url }}" alt="{{ latest_post.title }}" loading="lazy">
             </div>
-            {% if latest_post.excerpt %}
-            <p class="blog-excerpt">{{ latest_post.excerpt }}</p>
             {% endif %}
-            <a href="{{ latest_post.get_absolute_url }}" class="read-more">Read More →</a>
-        </div>
-    </article>
-</section>
-{% endif %}
+            <div class="blog-preview-content">
+                <h3><a href="{{ latest_post.get_absolute_url }}">{{ latest_post.title }}</a></h3>
+                <div class="blog-meta">
+                    <span class="blog-date">{{ latest_post.display_date|date:"F j, Y" }}</span>
+                    {% if latest_post.tags.exists %}
+                    <span class="blog-tags">
+                        {% for tag in latest_post.tags.all %}
+                        <span class="tag">{{ tag.name }}</span>
+                        {% endfor %}
+                    </span>
+                    {% endif %}
+                </div>
+                {% if latest_post.excerpt %}
+                <p class="blog-excerpt">{{ latest_post.excerpt }}</p>
+                {% endif %}
+                <a href="{{ latest_post.get_absolute_url }}" class="read-more">Read More →</a>
+            </div>
+        </article>
+    </section>
+    {% endif %}
+</div>
 {% endblock %}
 
 {% block sidebar %}

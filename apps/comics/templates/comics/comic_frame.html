@@ -1,0 +1,164 @@
+{% load static %}
+
+<div class="comic-frame size-{{ size|default:'medium' }}" data-current-page="{{ current_page.page_number|default:1 }}">
+    <div class="comic-navigation-controls">
+        <div class="nav-left">
+            {% if current_page and current_page.has_previous %}
+            <a href="{% url 'comics:page_detail' current_page.get_previous_page.page_number %}" class="nav-btn"
+                title="Previous Page">
+                <img src="{% static 'nav/previous.png' %}" alt="Previous" class="nav-icon">
+            </a>
+            {% else %}
+            <span class="nav-btn disabled" title="Previous Page">
+                <img src="{% static 'nav/previous.png' %}" alt="Previous" class="nav-icon">
+            </span>
+            {% endif %}
+        </div>
+
+        <div class="nav-center">
+            <div class="page-selector">
+                <select id="page-selector" onchange="goToPage(this.value)">
+                    {% for page in available_pages %}
+                    <option value="{{ page.page_number }}"
+                        {% if current_page and current_page.page_number == page.page_number %}selected{% endif %}>
+                        Page {{ page.page_number }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if current_page %}
+            <div class="page-info">
+                {% if current_page.title %}
+                <span class="page-title">{{ current_page.title }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="nav-right">
+            {% if current_page and current_page.has_next %}
+            <a href="{% url 'comics:page_detail' current_page.get_next_page.page_number %}" class="nav-btn"
+                title="Next Page">
+                <img src="{% static 'nav/next.png' %}" alt="Next" class="nav-icon">
+            </a>
+            {% else %}
+            <span class="nav-btn disabled" title="Next Page">
+                <img src="{% static 'nav/next.png' %}" alt="Next" class="nav-icon">
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="comic-display">
+        {% if current_page %}
+        <div class="comic-image-container">
+            {% if current_page.is_nsfw %}
+            <div class="nsfw-blur-overlay" id="nsfw-blur-{{ current_page.page_number }}">
+                <div class="nsfw-warning-content">
+                    <h3>⚠️ NSFW Content</h3>
+                    <p>This comic contains adult content.</p>
+                    <button class="nsfw-acknowledge-btn" onclick="acknowledgeNSFW({{ current_page.page_number }})">
+                        I acknowledge and want to see this content
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+            <img src="{{ current_page.image.url }}" alt="{{ current_page.title }}"
+                class="comic-image {% if current_page.is_nsfw %}nsfw-blurred{% endif %}"
+                id="comic-image-{{ current_page.page_number }}">
+        </div>
+
+        {% if show_description and current_page.description %}
+        <div class="comic-description">
+            {{ current_page.description|safe }}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="comic-placeholder">
+            <p>No comic page selected</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="comic-navigation-bottom">
+        <div class="nav-actions">
+            {% if current_page %}
+            <a href="{% url 'comics:page_detail' current_page.page_number %}" class="action-btn view-full">View Full
+                Page</a>
+            {% if current_page.has_previous %}
+            <a href="{% url 'comics:page_detail' current_page.get_previous_page.page_number %}" class="action-btn">←
+                Previous</a>
+            {% endif %}
+            {% if current_page.has_next %}
+            <a href="{% url 'comics:page_detail' current_page.get_next_page.page_number %}" class="action-btn">Next
+                →</a>
+            {% endif %}
+            {% endif %}
+            <a href="{% url 'comics:comic_home' %}" class="action-btn home-btn">Comic Home</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function goToPage(pageNumber) {
+        if (pageNumber) {
+            window.location.href = `/comics/page/${pageNumber}/`;
+        }
+    }
+
+    function acknowledgeNSFW(pageNumber) {
+        const blurOverlay = document.getElementById(`nsfw-blur-${pageNumber}`);
+        const comicImage = document.getElementById(`comic-image-${pageNumber}`);
+
+        if (blurOverlay && comicImage) {
+            blurOverlay.style.display = 'none';
+            comicImage.classList.remove('nsfw-blurred');
+
+            // Store acknowledgment in sessionStorage
+            sessionStorage.setItem(`nsfw-acknowledged-${pageNumber}`, 'true');
+        }
+    }
+
+    // Check for existing NSFW acknowledgments on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        const comicFrame = document.querySelector('.comic-frame');
+        if (!comicFrame) return;
+
+        const currentPage = comicFrame.dataset.currentPage;
+        if (currentPage && sessionStorage.getItem(`nsfw-acknowledged-${currentPage}`) === 'true') {
+            const blurOverlay = document.getElementById(`nsfw-blur-${currentPage}`);
+            const comicImage = document.getElementById(`comic-image-${currentPage}`);
+
+            if (blurOverlay && comicImage) {
+                blurOverlay.style.display = 'none';
+                comicImage.classList.remove('nsfw-blurred');
+            }
+        }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function (e) {
+        const comicFrame = document.querySelector('.comic-frame');
+        if (!comicFrame) return;
+
+        const currentPage = parseInt(comicFrame.dataset.currentPage);
+
+        switch (e.key) {
+            case 'ArrowLeft':
+                const prevBtn = comicFrame.querySelector('.nav-left .nav-btn:not(.disabled)');
+                if (prevBtn && prevBtn.href) {
+                    e.preventDefault();
+                    window.location.href = prevBtn.href;
+                }
+                break;
+            case 'ArrowRight':
+                const nextBtn = comicFrame.querySelector('.nav-right .nav-btn:not(.disabled)');
+                if (nextBtn && nextBtn.href) {
+                    e.preventDefault();
+                    window.location.href = nextBtn.href;
+                }
+                break;
+        }
+    });
+</script>

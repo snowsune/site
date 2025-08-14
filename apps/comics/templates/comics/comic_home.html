@@ -1,15 +1,23 @@
 {% extends "base.html" %}
+{% load static %}
+{% load comic_tags %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/comics.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="comic-home">
-    <h1>My Webcomic</h1>
-
-    <div class="comic-stats">
-        <p>Total pages: {{ total_pages }}</p>
+    <!-- Featured Comic Frame -->
+    {% if latest_pages %}
+    <div class="featured-comic">
+        <h2>Latest Comic</h2>
+        {% comic_frame size='large' show_description=True %}
     </div>
+    {% endif %}
 
     <div class="latest-pages">
-        <h2>Latest Pages</h2>
+        <h2>All Pages</h2>
         <div class="pages-grid">
             {% for page in latest_pages %}
             <div class="page-card">
