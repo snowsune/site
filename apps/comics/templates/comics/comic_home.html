@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="comic-home">
+    <h1>My Webcomic</h1>
+
+    <div class="comic-stats">
+        <p>Total pages: {{ total_pages }}</p>
+    </div>
+
+    <div class="latest-pages">
+        <h2>Latest Pages</h2>
+        <div class="pages-grid">
+            {% for page in latest_pages %}
+            <div class="page-card">
+                <a href="{% url 'comics:page_detail' page.page_number %}">
+                    <img src="{{ page.image.url }}" alt="{{ page.title }}" class="page-thumbnail">
+                    <div class="page-info">
+                        <h3>Page {{ page.page_number }}</h3>
+                        <p>{{ page.title }}</p>
+                        {% if page.is_nsfw %}
+                        <span class="nsfw-tag">NSFW</span>
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <p>No comic pages published yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="comic-navigation">
+        {% if latest_pages %}
+        <a href="{% url 'comics:page_detail' latest_pages.0.page_number %}" class="btn btn-primary">Read Latest Page</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
