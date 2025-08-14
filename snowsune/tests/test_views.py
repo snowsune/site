@@ -25,7 +25,7 @@ class MainPageTests(TestCase):
 
     def test_comics_page_loads(self):
         """Test that the comics page loads successfully."""
-        response = self.client.get(reverse("comics"))
+        response = self.client.get(reverse("comics:comic_home"))
         self.assertEqual(response.status_code, 200)
 
     def test_gallery_page_loads(self):
