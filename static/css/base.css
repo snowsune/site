@@ -540,6 +540,60 @@ a:visited {
   color: white;
 }
 
+/* Home page specific styling */
+.page-header {
+  text-align: center;
+  margin-bottom: 2em;
+  padding: 2em 0;
+  background: linear-gradient(135deg, var(--tile-background), var(--sidebar-bg));
+  border-radius: 12px;
+  border: 1px solid var(--border-color, #444);
+}
+
+.page-header h1 {
+  font-size: 2.5em;
+  margin: 0 0 0.5em 0;
+  color: var(--text-color);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.page-header .lead {
+  font-size: 1.3em;
+  color: var(--text-color);
+  opacity: 0.9;
+  margin: 0;
+  font-weight: 300;
+}
+
+.intro-section {
+  margin-bottom: 3em;
+  padding: 1.5em;
+  background: var(--tile-background);
+  border-radius: 12px;
+  border: 1px solid var(--border-color, #444);
+  line-height: 1.6;
+}
+
+.intro-section p {
+  margin: 0 0 1em 0;
+  color: var(--text-color);
+}
+
+.intro-section p:last-child {
+  margin-bottom: 0;
+}
+
+.discord-link {
+  color: var(--link-default);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.discord-link:hover {
+  color: var(--link-hover);
+}
+
 /* Responsive design for blog preview */
 @media (max-width: 768px) {
   .blog-preview {
@@ -555,6 +609,27 @@ a:visited {
   .blog-meta {
     flex-direction: column;
     gap: 0.5em;
+  }
+}
+
+/* Responsive design for home page */
+@media (max-width: 768px) {
+  .page-header {
+    padding: 1.5em 1em;
+    margin-bottom: 1.5em;
+  }
+  
+  .page-header h1 {
+    font-size: 2em;
+  }
+  
+  .page-header .lead {
+    font-size: 1.1em;
+  }
+  
+  .intro-section {
+    padding: 1em;
+    margin-bottom: 2em;
   }
 }
 
