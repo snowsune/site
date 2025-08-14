@@ -436,6 +436,17 @@
     }
 }
 
+/* Mobile comic padding adjustments */
+@media (max-width: 800px) {
+    .comic-page-detail {
+        padding: 5px !important; /* Much tighter padding on mobile */
+    }
+    
+    .comic-display {
+        padding: 2px !important; /* Very tight padding for maximum image space */
+    }
+}
+
 /* Comments Section */
 .comments-section {
     margin-top: 40px;
