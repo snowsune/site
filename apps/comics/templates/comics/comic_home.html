@@ -78,11 +78,5 @@
             {% endfor %}
         </div>
     </div>
-
-    <div class="comic-navigation">
-        {% if latest_pages %}
-        <a href="{% url 'comics:page_detail' latest_pages.0.page_number %}" class="btn btn-primary">Read Latest Page</a>
-        {% endif %}
-    </div>
 </div>
 {% endblock %}
