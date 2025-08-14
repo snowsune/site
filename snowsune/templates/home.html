@@ -32,34 +32,42 @@
         </p>
     </section>
 
-    <!-- Latest Blog Post Section -->
-    {% if latest_post %}
-    <section class="latest-blog-post">
-        <h2>Latest Blog Post</h2>
+    <!-- Latest Blog Posts Section -->
+    {% if latest_posts %}
+    <section class="latest-blog-posts">
+        <h2>Latest Blog Posts</h2>
+        {% for post in latest_posts %}
         <article class="blog-preview">
-            {% if latest_post.featured_image %}
+            {% if post.featured_image %}
             <div class="blog-preview-image">
-                <img src="{{ latest_post.featured_image.url }}" alt="{{ latest_post.title }}" loading="lazy">
+                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" loading="lazy">
             </div>
             {% endif %}
             <div class="blog-preview-content">
-                <h3><a href="{{ latest_post.get_absolute_url }}">{{ latest_post.title }}</a></h3>
+                <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
                 <div class="blog-meta">
-                    <span class="blog-date">{{ latest_post.display_date|date:"F j, Y" }}</span>
-                    {% if latest_post.tags.exists %}
+                    <span class="blog-date">{{ post.display_date|date:"F j, Y" }}</span>
+                    {% if post.tags.exists %}
                     <span class="blog-tags">
-                        {% for tag in latest_post.tags.all %}
+                        {% for tag in post.tags.all %}
                         <span class="tag">{{ tag.name }}</span>
                         {% endfor %}
                     </span>
                     {% endif %}
                 </div>
-                {% if latest_post.excerpt %}
-                <p class="blog-excerpt">{{ latest_post.excerpt }}</p>
+                {% if post.excerpt %}
+                <p class="blog-excerpt">{{ post.excerpt }}</p>
                 {% endif %}
-                <a href="{{ latest_post.get_absolute_url }}" class="read-more">Read More →</a>
+                <a href="{{ post.get_absolute_url }}" class="read-more">Read More →</a>
             </div>
         </article>
+        {% if not forloop.last %}
+        <hr class="blog-post-divider">
+        {% endif %}
+        {% endfor %}
+        <p class="blog-section-footer">
+            <a href="{% url 'blog:blog_list' %}">View all blog posts →</a>
+        </p>
     </section>
     {% endif %}
 </div>
@@ -79,10 +87,12 @@
     <li><a href="{% url 'commorganizer' %}">Commission Organizer</a></li>
 </ul>
 
-{% if latest_post %}
+{% if latest_posts %}
 <h2>Recent Posts</h2>
 <ul>
-    <li><a href="{{ latest_post.get_absolute_url }}">{{ latest_post.title }}</a></li>
+    {% for post in latest_posts %}
+    <li><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></li>
+    {% endfor %}
 </ul>
 {% endif %}
 {% endblock %}

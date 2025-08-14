@@ -5,13 +5,15 @@ from apps.blog.models import BlogPost
 
 class HomeView(View):
     def get(self, request, *args, **kwargs):
-        # Get the latest published blog post
-        latest_post = (
+        # Get the three latest published blog posts
+        latest_posts = (
             BlogPost.objects.filter(status="published")
             .order_by("-published_at", "-created_at")
-            .first()
+            .select_related("author")
+            .prefetch_related("tags")
+            [:3]
         )
 
-        context = {"latest_post": latest_post}
+        context = {"latest_posts": latest_posts}
 
         return render(request, "home.html", context)
