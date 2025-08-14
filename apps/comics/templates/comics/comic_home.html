@@ -2,8 +2,49 @@
 {% load static %}
 {% load comic_tags %}
 
+{% block title %}Comics - snowsune.net{% endblock %}
+
+{% block meta_keywords %}comics, webcomics, snowsune, vixi, art{% endblock %}
+
+{% block meta_description %}Read the latest webcomic pages and explore the story!{% endblock %}
+{% block og_description %}Read the latest webcomic pages and explore the story!{% endblock %}
+{% block twitter_description %}Read the latest webcomic pages and explore the story!{% endblock %}
+
+{% block og_title %}Comics - snowsune.net{% endblock %}
+{% block twitter_title %}Comics - snowsune.net{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/comics.css' %}">
+{% endblock %}
+
+{% block header %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+<!-- Twitter Card specific meta tags -->
+<meta name="twitter:site" content="@snowsune">
+<meta name="twitter:creator" content="@vixi">
+
+<!-- Language and accessibility -->
+<meta name="language" content="en">
+<meta name="author" content="Vixi">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWorkSeries",
+  "name": "snowsune.net Comics",
+  "description": "A webcomic series by Vixi on snowsune.net",
+  "url": "{{ request.build_absolute_uri }}",
+  "creator": {
+    "@type": "Person",
+    "name": "Vixi"
+  },
+  "genre": "Webcomic"
+}
+</script>
 {% endblock %}
 
 {% block content %}

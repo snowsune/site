@@ -2,8 +2,62 @@
 {% load static %}
 {% load comic_tags %}
 
+{% block title %}{{ page.title }} - Page {{ page.page_number }} - snowsune.net{% endblock %}
+
+{% block meta_keywords %}comic, webcomic, {{ page.title }}, page {{ page.page_number }}, snowsune{% endblock %}
+
+{% block og_image %}{% if page.image %}{{ page.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block twitter_image %}{% if page.image %}{{ page.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block meta_description %}{{ page.description|truncatewords:30 }}{% endblock %}
+{% block og_description %}{{ page.description|truncatewords:30 }}{% endblock %}
+{% block twitter_description %}{{ page.description|truncatewords:30 }}{% endblock %}
+
+{% block og_title %}{{ page.title }} - Page {{ page.page_number }} - snowsune.net{% endblock %}
+{% block twitter_title %}{{ page.title }} - Page {{ page.page_number }} - snowsune.net{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/comics.css' %}">
+{% endblock %}
+
+{% block header %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="{{ page.published_at|date:'c' }}">
+<meta property="article:modified_time" content="{{ page.updated_at|date:'c' }}">
+<meta property="article:author" content="Vixi">
+<meta property="article:section" content="Comics">
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+<!-- Twitter Card specific meta tags -->
+<meta name="twitter:site" content="@snowsune">
+<meta name="twitter:creator" content="@vixi">
+
+<!-- Language and accessibility -->
+<meta name="language" content="en">
+<meta name="author" content="Vixi">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "name": "{{ page.title }}",
+  "description": "{{ page.description|truncatewords:30 }}",
+  "image": "{% if page.image %}{{ page.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}",
+  "url": "{{ request.build_absolute_uri }}",
+  "creator": {
+    "@type": "Person",
+    "name": "Vixi"
+  },
+  "datePublished": "{{ page.published_at|date:'Y-m-d' }}",
+  "dateModified": "{{ page.updated_at|date:'Y-m-d' }}",
+  "genre": "Webcomic",
+  "isPartOf": {
+    "@type": "CreativeWorkSeries",
+    "name": "snowsune.net Comics"
+  }
+}
+</script>
 {% endblock %}
 
 {% block content %}
