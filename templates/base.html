@@ -25,14 +25,13 @@
 
   <!-- Default Meta Tags -->
   <meta name="description"
-    content="{% block meta_description %}Welcome to Snowsune.net! Vixi's website for projects, characters, tools and more!{% endblock %}" />
-  <meta name="keywords"
-    content="{% block meta_keywords %}Snowsune, Vixi, projects, blog, characters, tools{% endblock %}" />
+    content="{% block meta_description %}Welcome to Snowsune.net! Vixi's website for projects, tools and more!{% endblock %}" />
+  <meta name="keywords" content="{% block meta_keywords %}Snowsune, Vixi, projects, blog, tools{% endblock %}" />
 
   <!-- Open Graph / Discord Embed -->
   <meta property="og:title" content="{% block og_title %}Snowsune.net{% endblock %}" />
   <meta property="og:description"
-    content="{% block og_description %}Vixi's website for projects, characters, tools and more!{% endblock %}" />
+    content="{% block og_description %}Vixi's website for projects, tools and more!{% endblock %}" />
   <meta property="og:image"
     content="{% block og_image %}{% static 'placeholders/placeholder_wide.png' %}{% endblock %}" />
   <meta property="og:url" content="{% block og_url %}https://snowsune.net{% endblock %}" />
@@ -42,7 +41,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="{% block twitter_title %}Snowsune.net{% endblock %}" />
   <meta name="twitter:description"
-    content="{% block twitter_description %}Vixi's website for projects, characters, tools and more!{% endblock %}" />
+    content="{% block twitter_description %}Vixi's website for projects, tools and more!{% endblock %}" />
   <meta name="twitter:image"
     content="{% block twitter_image %}{% static 'placeholders/placeholder_wide.png' %}{% endblock %}" />
 
@@ -52,6 +51,9 @@
 
   <!-- Extra CSS block for page-specific styles -->
   {% block extra_css %}{% endblock %}
+
+  <!-- Extra head content block for page-specific meta tags, scripts, etc. -->
+  {% block extra_head %}{% endblock %}
 
   <!-- Other -->
   <link rel="stylesheet" href="https://furriesofnewengland.org/css/onionring.css" />
@@ -69,18 +71,14 @@
         <div class="nav-links">
           <a href="{% url 'home' %}">Home</a>
           <a href="{% url 'tools' %}">Apps/Tools</a>
-          <a href="{% url 'character-list' %}">Characters</a>
-          <a href="#">Gallery</a>
           <a href="{% url 'blog:blog_landing' %}">Blog</a>
-          <a href="{% url 'comics' %}">Comics</a>
+          <a href="{% url 'comics:comic_home' %}">Comics</a>
         </div>
         <div class="nav-mobile-links" id="nav-mobile-links">
           <a href="{% url 'home' %}">Home</a>
           <a href="{% url 'tools' %}">Apps/Tools</a>
-          <a href="{% url 'character-list' %}">Characters</a>
-          <a href="#">Gallery</a>
           <a href="{% url 'blog:blog_landing' %}">Blog</a>
-          <a href="{% url 'comics' %}">Comics</a>
+          <a href="{% url 'comics:comic_home' %}">Comics</a>
         </div>
       </nav>
     </div>

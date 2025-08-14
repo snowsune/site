@@ -1,47 +1,146 @@
 {% extends "base.html" %}
+{% load static %}
+{% load comic_tags %}
 
-{% block title %}Home - Snowsune.net{% endblock %}
+{% block title %}Snowsune.net - Vixi's Hub for Webcomics, Tools & Projects{% endblock %}
+
+{% block meta_description %}Snowsune.net - Webcomics, Projects, Foxes and more!{% endblock %}
+
+{% block meta_keywords %}Snowsune, Vixi, webcomics, furry art, commission organizer, creative tools, furry community,
+webcomic publishing, art tools, furry website{% endblock %}
+
+{% block og_title %}Snowsune.net - Webcomics, Projects, Foxes and more!{% endblock %}
+
+{% block og_description %}Snowsune.net - Webcomics, Projects, Foxes and more!{% endblock %}
+
+{% block og_image %}{% static 'placeholders/home_preview.png' %}{% endblock %}
+
+{% block twitter_title %}Snowsune.net - Webcomics, Projects, Foxes and more!{% endblock %}
+
+{% block twitter_description %}Snowsune.net - Webcomics, Projects, Foxes and more!{% endblock %}
+
+{% block twitter_image %}{% static 'placeholders/home_preview.png' %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/comics.css' %}">
+{% endblock %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Snowsune.net",
+  "description": "Creative hub for webcomics, furry art tools, and community resources",
+  "url": "https://snowsune.net",
+  "author": {
+    "@type": "Person",
+    "name": "Vixi",
+    "url": "https://snowsune.net"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Snowsune",
+    "url": "https://snowsune.net"
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://snowsune.net/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  },
+  "sameAs": [
+    "{{ discord_invite }}"
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "name": "Snowsune Webcomics",
+  "description": "Collection of webcomics and creative content",
+  "creator": {
+    "@type": "Person",
+    "name": "Vixi"
+  },
+  "url": "{% url 'comics:comic_home' %}",
+  "genre": "Webcomic",
+  "audience": "Furry Community"
+}
+</script>
+{% endblock %}
 
 {% block content %}
-<h1>Welcome to my site!!</h1>
-<p>A couple things up front.. I am NOT good at web design!</p>
-<p>I'm also pretty disorganized in general!</p>
+<header class="page-header">
+    <h1>Welcome to Snowsune.net!</h1>
+    <p class="lead">My own website! Find webcomics, tools, projects, art, personal things, blogs, other furs and more!
+    </p>
+</header>
 
-<p>A lot of things are in motion here but I still hope to have resources and
-    tools that make my site worth visiting!</p>
+<section class="intro-section">
+    <p>Hey there! I'm Vixi, and while I might not be the best at web design, I'm passionate about creating things
+        and sharing with the furry community!</p>
 
-<p>Consider joining my <a href="{{ discord_invite }}">discord</a> by the way! That's the best
-    place to get up-to-date information!</p>
+    <p>This site is constantly evolving with new features, but I always want to be trying to make and provide new useful
+        things! (And receive feeback on those things that dont work out)~</p>
 
-{% if latest_post %}
-<section class="latest-blog-post">
-    <h2>Latest Blog Post</h2>
-    <article class="blog-preview">
-        {% if latest_post.featured_image %}
-        <div class="blog-preview-image">
-            <img src="{{ latest_post.featured_image.url }}" alt="{{ latest_post.title }}" loading="lazy">
-        </div>
-        {% endif %}
-        <div class="blog-preview-content">
-            <h3><a href="{{ latest_post.get_absolute_url }}">{{ latest_post.title }}</a></h3>
-            <div class="blog-meta">
-                <span class="blog-date">{{ latest_post.display_date|date:"F j, Y" }}</span>
-                {% if latest_post.tags.exists %}
-                <span class="blog-tags">
-                    {% for tag in latest_post.tags.all %}
-                    <span class="tag">{{ tag.name }}</span>
-                    {% endfor %}
-                </span>
-                {% endif %}
-            </div>
-            {% if latest_post.excerpt %}
-            <p class="blog-excerpt">{{ latest_post.excerpt }}</p>
-            {% endif %}
-            <a href="{{ latest_post.get_absolute_url }}" class="read-more">Read More →</a>
-        </div>
-    </article>
+    <p><strong>You can always contact me by joining my <a href="{{ discord_invite }}" class="discord-link">Discord
+                community</a> or emailing me at <a href="mailto:vixi@snowsune.net">vixi@snowsune.net</a>!</strong></p>
 </section>
-{% endif %}
+
+<!-- Latest Content Section -->
+<div class="latest-content-grid">
+    <!-- Latest Comic Section -->
+    <section class="latest-comic-section">
+        <h2>Latest Webcomic</h2>
+        <div class="comic-frame-wrapper">
+            {% comic_frame size='small' show_description=True %}
+        </div>
+        <p class="comic-section-footer">
+            <a href="{% url 'comics:comic_home' %}">View all webcomics →</a>
+        </p>
+    </section>
+
+    <!-- Latest Blog Posts Section -->
+    {% if latest_posts %}
+    <section class="latest-blog-posts">
+        <h2>Latest Blog Posts</h2>
+        {% for post in latest_posts %}
+        <article class="blog-preview">
+            {% if post.featured_image %}
+            <div class="blog-preview-image">
+                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" loading="lazy">
+            </div>
+            {% endif %}
+            <div class="blog-preview-content">
+                <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+                <div class="blog-meta">
+                    <span class="blog-date">{{ post.display_date|date:"F j, Y" }}</span>
+                    {% if post.tags.exists %}
+                    <span class="blog-tags">
+                        {% for tag in post.tags.all %}
+                        <span class="tag">{{ tag.name }}</span>
+                        {% endfor %}
+                    </span>
+                    {% endif %}
+                </div>
+                {% if post.excerpt %}
+                <p class="blog-excerpt">{{ post.excerpt }}</p>
+                {% endif %}
+                <a href="{{ post.get_absolute_url }}" class="read-more">Read More →</a>
+            </div>
+        </article>
+        {% if not forloop.last %}
+        <hr class="blog-post-divider">
+        {% endif %}
+        {% endfor %}
+        <p class="blog-section-footer">
+            <a href="{% url 'blog:blog_list' %}">View all blog posts →</a>
+        </p>
+    </section>
+    {% endif %}
+</div>
 {% endblock %}
 
 {% block sidebar %}
@@ -58,10 +157,12 @@
     <li><a href="{% url 'commorganizer' %}">Commission Organizer</a></li>
 </ul>
 
-{% if latest_post %}
+{% if latest_posts %}
 <h2>Recent Posts</h2>
 <ul>
-    <li><a href="{{ latest_post.get_absolute_url }}">{{ latest_post.title }}</a></li>
+    {% for post in latest_posts %}
+    <li><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></li>
+    {% endfor %}
 </ul>
 {% endif %}
 {% endblock %}

@@ -163,6 +163,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "static",  # Normal Static Files
     BASE_DIR / "apps/characters/static",  # Characters have their own static files too
+    BASE_DIR / "apps/comics/static",  # Comics
 ]
 
 # Media Paths (things like profile pictures and such are uploaded here)
