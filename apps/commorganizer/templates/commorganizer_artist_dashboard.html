@@ -54,7 +54,7 @@
 {% endblock %}
 
 {% block content %}
-<div id="artist-dashboard-container" data-commission-name="{{ commission_name|escapejs }}"
+<div id="artist-dashboard-container" data-commission-name="{{ commission_name }}"
     data-latest-comment-id="{% if comments %}{{ comments.0.id }}{% else %}0{% endif %}">
     <h1>Artist Dashboard for {{ commission_name }}</h1>
     <div id="notify-permission-container" style="display:none;">
