@@ -8,6 +8,7 @@ from django.conf.urls.static import static
 from snowsune.views.home import HomeView
 from snowsune.views.projects import ProjectsView
 from snowsune.views.tools import ToolsView
+from snowsune.views.active_users import active_users_view
 from apps.thank_yous.views import thank_you_view
 
 
@@ -21,6 +22,8 @@ urlpatterns = [
     path("thank-you/", thank_you_view, name="thank_you"),
     path("login/", HomeView.as_view(), name="login"),
     path("logout/", HomeView.as_view(), name="logout"),
+    # API endpoints
+    path("api/active-users/", active_users_view, name="active_users_api"),
     # "app" urls
     path("blog/", include("apps.blog.urls")),
     path("comics/", include("apps.comics.urls")),

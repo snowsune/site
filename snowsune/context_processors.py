@@ -3,7 +3,8 @@ import os
 from django.conf import settings
 from django.utils.safestring import mark_safe
 
-from datetime import datetime
+from datetime import datetime, timezone
+from django.utils import timezone as django_timezone
 
 from tracking.models import Visitor
 from .models import SiteSetting
@@ -43,14 +44,23 @@ def visit_stats(request):
     Just because I want to have these stats on every page
     """
 
-    total_visits = Visitor.objects.count()  # Total visits recorded
-    unique_visitors = (
-        Visitor.objects.values("ip_address").distinct().count()
-    )  # Unique IPs
+    # Get today's date in the site's timezone
+    today = django_timezone.now().date()
+
+    # Get today's visits
+    today_visits = Visitor.objects.filter(start_time__date=today).count()
+
+    # Get today's unique visitors (by IP)
+    today_unique_visitors = (
+        Visitor.objects.filter(start_time__date=today)
+        .values("ip_address")
+        .distinct()
+        .count()
+    )
 
     return {
-        "total_visits": total_visits,
-        "unique_visitors": unique_visitors,
+        "today_visits": today_visits,
+        "today_unique_visitors": today_unique_visitors,
     }
 
 
