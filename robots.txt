@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# DuckDuckGo crawler
+User-agent: DuckDuckBot
+Allow: /
+
+# Sitemap location
+Sitemap: https://snowsune.net/sitemap.xml
+
+# Crawl delay (optional, helps with server load)
+Crawl-delay: 1 

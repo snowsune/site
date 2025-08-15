@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
-
+from django.views.generic import TemplateView
+from django.http import HttpResponse
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -16,6 +17,11 @@ urlpatterns = [
     path("", HomeView.as_view(), name="home"),
     path("projects/", ProjectsView.as_view(), name="projects"),
     path("tools/", ToolsView.as_view(), name="tools"),
+    path(
+        "thank-you/",
+        TemplateView.as_view(template_name="thank_you.html"),
+        name="thank_you",
+    ),
     path("login/", HomeView.as_view(), name="login"),
     path("logout/", HomeView.as_view(), name="logout"),
     # "app" urls
@@ -25,6 +31,21 @@ urlpatterns = [
     path("characters/", include("apps.characters.urls")),
     path("users/", include("apps.users.urls")),
     path("", include("apps.pages.urls")),
+    # SEO
+    path(
+        "sitemap.xml",
+        lambda request: HttpResponse(
+            open("static/sitemap.xml").read(), content_type="application/xml"
+        ),
+        name="sitemap",
+    ),
+    path(
+        "robots.txt",
+        lambda request: HttpResponse(
+            open("robots.txt").read(), content_type="text/plain"
+        ),
+        name="robots",
+    ),
 ]
 
 

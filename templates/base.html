@@ -25,17 +25,22 @@
 
   <!-- Default Meta Tags -->
   <meta name="description"
-    content="{% block meta_description %}Welcome to Snowsune.net! Vixi's website for projects, tools and more!{% endblock %}" />
-  <meta name="keywords" content="{% block meta_keywords %}Snowsune, Vixi, projects, blog, tools{% endblock %}" />
+    content="{% block meta_description %}Welcome to Snowsune.net! Vixi's website for projects, tools, comics, and more!{% endblock %}" />
+  <meta name="keywords"
+    content="{% block meta_keywords %}Snowsune, Vixi, Vixi Argorrok, Rhettan, projects, blog, tools, comics, furry, art{% endblock %}" />
+  <meta name="author" content="Vixi" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="{% block canonical_url %}https://snowsune.net{% endblock %}" />
 
   <!-- Open Graph / Discord Embed -->
   <meta property="og:title" content="{% block og_title %}Snowsune.net{% endblock %}" />
   <meta property="og:description"
-    content="{% block og_description %}Vixi's website for projects, tools and more!{% endblock %}" />
+    content="{% block og_description %}Vixi's website for projects, tools, comics, and more!{% endblock %}" />
   <meta property="og:image"
     content="{% block og_image %}{% static 'placeholders/placeholder_wide.png' %}{% endblock %}" />
   <meta property="og:url" content="{% block og_url %}https://snowsune.net{% endblock %}" />
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Snowsune.net" />
 
   <!-- Twitter Card (not because i like twitter, only for compat in apps that accept the summary_large) -->
   <meta name="twitter:card" content="summary_large_image" />
@@ -44,6 +49,12 @@
     content="{% block twitter_description %}Vixi's website for projects, tools and more!{% endblock %}" />
   <meta name="twitter:image"
     content="{% block twitter_image %}{% static 'placeholders/placeholder_wide.png' %}{% endblock %}" />
+
+  <!-- DuckDuckGo specific meta tags -->
+  <meta name="theme-color" content="#2222ff" />
+  <meta name="msapplication-TileColor" content="#2222ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <!-- Favicon -->
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
@@ -119,14 +130,25 @@
   </div>
 
   <footer class="footer tile">
-    <p>
-      &copy; {{ year }} snowsune.net,
-      <a href="https://github.com/snowsune/site/commits/{{ version }}">Version {{ version }}</a>
-      • Total visits: {{ total_visits }} • Unique visitors: {{ unique_visitors }} • Art by
-      <a href="https://mothwingart.carrd.co/">Mothwing</a>
-      and others! • If you think my site is helpful consider
-      <a href="https://ko-fi.com/snowsune">Supporting me!</a>
-    </p>
+    <div class="footer-content">
+      <div class="footer-main">
+        <p>
+          &copy; {{ year }} snowsune.net,
+          <a href="https://github.com/snowsune/site/commits/{{ version }}">Version {{ version }}</a>
+          • Total visits: {{ total_visits }} • Unique visitors: {{ unique_visitors }} • Art by
+          <a href="https://mothwingart.carrd.co/">Mothwing</a>
+          and others! • If you think my site is helpful consider
+          <a href="https://ko-fi.com/snowsune">Supporting me!</a>
+        </p>
+      </div>
+
+      <div class="footer-links">
+        <a href="{% url 'thank_you' %}" class="footer-credit-link">
+          <span class="footer-credit-icon">💝</span>
+          Credits & Thank You
+        </a>
+      </div>
+    </div>
 
     <!-- This adds us to the FONE ring! -->
     <div id="fone-ring">
@@ -170,6 +192,15 @@
         // Optional: close menu when a link is clicked
         mobileLinks.querySelectorAll('a').forEach(link => {
           link.addEventListener('click', () => mobileLinks.classList.remove('open'));
+        });
+
+        // Close menu when clicking something other than the hamburger button or mobile menu
+        // Thank you Kyte!!
+        document.addEventListener('click', function (event) {
+          // Check if click is outside both the hamburger button and mobile menu
+          if (!hamburger.contains(event.target) && !mobileLinks.contains(event.target)) {
+            mobileLinks.classList.remove('open');
+          }
         });
       }
 

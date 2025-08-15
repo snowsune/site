@@ -436,6 +436,17 @@
     }
 }
 
+/* Mobile comic padding adjustments */
+@media (max-width: 800px) {
+    .comic-page-detail {
+        padding: 5px !important; /* Much tighter padding on mobile */
+    }
+    
+    .comic-display {
+        padding: 2px !important; /* Very tight padding for maximum image space */
+    }
+}
+
 /* Comments Section */
 .comments-section {
     margin-top: 40px;
@@ -502,6 +513,32 @@
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.rss-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #ff6600;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.rss-link:hover {
+    background: #e55a00;
+    color: white;
+    text-decoration: none;
 }
 
 .pages-grid {

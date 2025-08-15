@@ -58,7 +58,12 @@
     {% endif %}
 
     <div class="latest-pages">
-        <h2>All Pages</h2>
+        <div class="section-header">
+            <h2>All Pages</h2>
+            <a href="{% url 'comics:comic_feed' %}" class="rss-link" title="RSS Feed">
+                📡 RSS Feed
+            </a>
+        </div>
         <div class="pages-grid">
             {% for page in latest_pages %}
             <div class="page-card">
