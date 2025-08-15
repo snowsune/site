@@ -17,6 +17,11 @@ urlpatterns = [
     path("", HomeView.as_view(), name="home"),
     path("projects/", ProjectsView.as_view(), name="projects"),
     path("tools/", ToolsView.as_view(), name="tools"),
+    path(
+        "thank-you/",
+        TemplateView.as_view(template_name="thank_you.html"),
+        name="thank_you",
+    ),
     path("login/", HomeView.as_view(), name="login"),
     path("logout/", HomeView.as_view(), name="logout"),
     # "app" urls

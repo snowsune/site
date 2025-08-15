@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Thank You - Snowsune.net{% endblock %}
+
+{% block meta_description %}Special thanks to the amazing people who have helped make Snowsune.net
+possible!{% endblock %}
+{% block og_description %}Special thanks to the amazing people who have helped make Snowsune.net possible!{% endblock %}
+{% block twitter_description %}Special thanks to the amazing people who have helped make Snowsune.net
+possible!{% endblock %}
+
+{% block extra_css %}
+<style>
+    .thank-you-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .thank-you-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .thank-you-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--text-color);
+    }
+
+    .thank-you-header p {
+        font-size: 1.2rem;
+        opacity: 0.8;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .people-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .person-card {
+        background: var(--tile-background);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid var(--text-color);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .person-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .person-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        overflow: hidden;
+        border: 3px solid var(--link-default);
+    }
+
+    .person-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .person-name {
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+
+    .person-role {
+        font-size: 0.9rem;
+        color: var(--link-default);
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+
+    .person-bio {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--text-color);
+        opacity: 0.9;
+    }
+
+    .person-links {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .person-links a {
+        padding: 0.25rem 0.5rem;
+        background: var(--link-default);
+        color: var(--invert-text-color);
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        transition: background-color 0.2s;
+    }
+
+    .person-links a:hover {
+        background: var(--link-hover);
+        color: white;
+    }
+
+    .footer-message {
+        text-align: center;
+        padding: 2rem;
+        background: var(--tile-background);
+        border-radius: 12px;
+        border: 1px solid var(--text-color);
+        margin-top: 2rem;
+    }
+
+    .footer-message h3 {
+        margin-bottom: 1rem;
+        color: var(--text-color);
+    }
+
+    .footer-message p {
+        opacity: 0.8;
+        line-height: 1.6;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .people-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .person-card {
+            padding: 1rem;
+        }
+
+        .person-image {
+            width: 100px;
+            height: 100px;
+        }
+
+        .thank-you-header h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="thank-you-container">
+    <div class="thank-you-header">
+        <h1>Thank You! 🙏</h1>
+        <p>This site wouldn't be possible without the amazing people In my life. Here's to the artists, testers and
+            supporters that I call friends!</p>
+    </div>
+
+    <div class="people-grid">
+        <div class="person-card">
+            <div class="person-image">
+                <img src="{% static 'thank_yous/ash-pfp.png' %}" alt="Ash">
+            </div>
+            <div class="person-name">Ash</div>
+            <div class="person-role">Friend</div>
+            <div class="person-bio">
+                Ash with his big foxy ears and big foxy heart. He volenteers irl, plays online, spends time with every
+                friend and is always there to listen or chat, or vibe~
+                Actually a lot of vibing!
+                Ash is one of my best and most trusted friends~ and honestly foxy! Thank you Ash~
+            </div>
+        </div>
+
+        <div class="person-card">
+            <div class="person-image">
+                <img src="{% static 'thank_yous/tibran-pfp.png' %}" alt="Tibran">
+            </div>
+            <div class="person-name">Tibran</div>
+            <div class="person-role">Friend</div>
+            <div class="person-bio">
+                In truth I push this giant soft hearted wolf around~ I feel like he's influenced me for the better just
+                as much as I've corrupted him. My future mate and most knightly protector, he's always been there for
+                me. And shown me how much meaning comes when you really put yourself in somebody's arms and spend a life
+                together~ Thank you Tibran
+            </div>
+            <div class="person-links">
+                <a href="https://www.f-list.net/c/Tibran%20Drakewing" target="_blank" rel="noopener">F-List</a>
+            </div>
+        </div>
+
+        <div class="person-card">
+            <div class="person-image">
+                <img src="{% static 'thank_yous/tyro-pfp.jpg' %}" alt="Tyro">
+            </div>
+            <div class="person-name">Tyro</div>
+            <div class="person-role">Friend</div>
+            <div class="person-bio">
+                Tyro is my best friend. I wish I could truly express how much he means to me. He's never missed a moment
+                to help me, he's never asked for anything and he's never let me down. He does so much more than he has
+                to and works so hard. I can't imagine giving back what he gives to me. My most trusted friend, Thank you
+                Tyro~
+            </div>
+            <div class="person-links">
+                <a href="https://bsky.app/profile/tyroalbian.bsky.social" target="_blank" rel="noopener">Bluesky</a>
+            </div>
+        </div>
+
+        <div class="person-card">
+            <div class="person-image">
+                <img src="{% static 'thank_yous/randal-pfp.png' %}" alt="Randal">
+            </div>
+            <div class="person-name">Randal</div>
+            <div class="person-role">Friend</div>
+            <div class="person-bio">
+                Randal has been there since what feels like forever ago. He's my friend and my rock and he's seen me cry
+                and cheer and everything in between for years.
+                It's hard to imagine where I would be without him. Thank you Randal~ Truly foxy~
+            </div>
+            <div class="person-links">
+                <a href="https://www.furaffinity.net/user/randaltassler" target="_blank" rel="noopener">FurAffinity</a>
+            </div>
+        </div>
+
+        <div class="person-card">
+            <div class="person-image">
+                <img src="{% static 'thank_yous/foxifly-pfp.png' %}" alt="Mothwing">
+            </div>
+            <div class="person-name">Mothwing</div>
+            <div class="person-role">Artist & Friend</div>
+            <div class="person-bio">
+                Creator of my favorite and softest comic on the internet! Amazing, endlessly sweet moral supporter, dear
+                friend
+                and the aritst behind almost all the logos, icons and stickers on my site! Thank you!
+            </div>
+            <div class="person-links">
+                <a href="https://www.furaffinity.net/user/foxifly" target="_blank" rel="noopener">FurAffinity</a>
+                <a href="https://www.twitch.tv/mothwing_vt" target="_blank" rel="noopener">Twitch</a>
+                <a href="https://bsky.app/profile/m0thwing.bsky.social" target="_blank" rel="noopener">Bluesky</a>
+            </div>
+        </div>
+
+        <!-- Person 2 -->
+        <div class="person-card">
+            <div class="person-image">
+                <img src="{% static 'thank_yous/kyte-pfp.jpg' %}" alt="kyte">
+            </div>
+            <div class="person-name">Kyte</div>
+            <div class="person-role">Artist & Friend</div>
+            <div class="person-bio">
+                Soft spoken and sometimes shy~ But an amazing artist with amazing insight! And so endlessly friendly and
+                thoughtful~
+                And a little lewd! Never hurts having a friend to bounce ideas off of!
+                Thank you Kyte~
+            </div>
+            <div class="person-links">
+                <a href="https://www.furaffinity.net/user/kyte/" target="_blank" rel="noopener">FurAffinity</a>
+            </div>
+        </div>
+
+        <!-- Person 3 -->
+        <div class="person-card">
+            <div class="person-image">
+                <img src="{% static 'thank_yous/myles-pfp.png' %}" alt="Myles">
+            </div>
+            <div class="person-name">Myles</div>
+            <div class="person-role">Beta Tester</div>
+            <div class="person-bio">
+                Myles hasn't been here five minutes and has already found every bug on my site hehe! Thank you Myles for
+                jumping right in and helping me out~ no questions asked. You're credited in half the latest commits!
+            </div>
+            <div class="person-links">
+                <a href="https://lagomorph.club " target="_blank" rel="noopener">Lagomorph.club</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-message">
+        <h3>Want to Help?</h3>
+        <p>
+            If you'd like to support Snowsune.net, consider checking out the projects, sharing the site with
+            friends,
+            or even <a href="https://ko-fi.com/snowsune" target="_blank" rel="noopener">supporting on Ko-fi</a> if
+            you're able!
+        </p>
+    </div>
+</div>
+{% endblock %}
