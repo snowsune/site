@@ -182,6 +182,15 @@
         mobileLinks.querySelectorAll('a').forEach(link => {
           link.addEventListener('click', () => mobileLinks.classList.remove('open'));
         });
+
+        // Close menu when clicking something other than the hamburger button or mobile menu
+        // Thank you Kyte!!
+        document.addEventListener('click', function (event) {
+          // Check if click is outside both the hamburger button and mobile menu
+          if (!hamburger.contains(event.target) && !mobileLinks.contains(event.target)) {
+            mobileLinks.classList.remove('open');
+          }
+        });
       }
 
       // Convert Django messages to notifications
