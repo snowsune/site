@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Thank You - Snowsune.net{% endblock %}
+
+{% block meta_description %}Special thanks to the amazing people who have helped make Snowsune.net
+possible!{% endblock %}
+{% block og_description %}Special thanks to the amazing people who have helped make Snowsune.net possible!{% endblock %}
+{% block twitter_description %}Special thanks to the amazing people who have helped make Snowsune.net
+possible!{% endblock %}
+
+{% block og_image %}{% static 'stickers/Thankful By Tailster13.png' %}{% endblock %}
+{% block twitter_image %}{% static 'stickers/Thankful By Tailster13.png' %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/thank_yous.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="thank-you-container">
+    <div class="thank-you-header">
+        <h1>Thank You! <img src="{% static 'stickers/bep_bounce.gif' %}" alt="Bep bounce"
+                style="width: 2rem; height: 2rem; vertical-align: middle;"></h1>
+        <p>This site wouldn't be possible without the amazing people In my life. Here's to the artists, testers and
+            supporters that I call friends!</p>
+    </div>
+
+    <div class="people-grid">
+        {% for entry in thank_you_entries %}
+        <div class="person-card">
+            {% if entry.image %}
+            <div class="person-image">
+                <img src="{{ entry.image.url }}" alt="{{ entry.name }}">
+            </div>
+            {% else %}
+            <div class="person-image">
+                <img src="{% static 'stickers/foxi-sticker-ERROR.png' %}" alt="{{ entry.name }}">
+            </div>
+            {% endif %}
+            <div class="person-name">{{ entry.name }}</div>
+            <div class="person-role">{{ entry.role }}</div>
+            <div class="person-bio">
+                {{ entry.bio|linebreaks }}
+            </div>
+            {% if entry.get_links %}
+            <div class="person-links">
+                {% for label, url in entry.get_links %}
+                <a href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="person-card">
+            <div class="person-name">No thank you entries yet</div>
+            <div class="person-bio">Check back soon for updates!</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="footer-message">
+        <h3>Want to Help?</h3>
+        <p>
+            If you'd like to support Snowsune.net, consider checking out the projects, sharing the site with
+            friends,
+            or even <a href="https://ko-fi.com/snowsune" target="_blank" rel="noopener">supporting on Ko-fi</a> if
+            you're able!
+        </p>
+    </div>
+</div>
+{% endblock %}
