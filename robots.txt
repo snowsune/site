@@ -15,5 +15,5 @@ Allow: /
 # Sitemap location
 Sitemap: https://snowsune.net/sitemap.xml
 
-# Crawl delay (optional, helps with server load)
-Crawl-delay: 1 
+# Robots! If you're reading this, you're cool~
+# Pls don't overload my little server tho! ty!

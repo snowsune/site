@@ -1,0 +1,144 @@
+.thank-you-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.thank-you-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.thank-you-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.thank-you-header p {
+    font-size: 1.2rem;
+    opacity: 0.8;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.people-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.person-card {
+    background: var(--tile-background);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid var(--text-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.person-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.person-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    overflow: hidden;
+    border: 3px solid var(--link-default);
+}
+
+.person-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.person-name {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.person-role {
+    font-size: 0.9rem;
+    color: var(--link-default);
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.person-bio {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+.person-links {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.person-links a {
+    padding: 0.25rem 0.5rem;
+    background: var(--link-default);
+    color: var(--invert-text-color);
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    transition: background-color 0.2s;
+}
+
+.person-links a:hover {
+    background: var(--link-hover);
+    color: white;
+}
+
+.footer-message {
+    text-align: center;
+    padding: 2rem;
+    background: var(--tile-background);
+    border-radius: 12px;
+    border: 1px solid var(--text-color);
+    margin-top: 2rem;
+}
+
+.footer-message h3 {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.footer-message p {
+    opacity: 0.8;
+    line-height: 1.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .people-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .person-card {
+        padding: 1rem;
+    }
+
+    .person-image {
+        width: 100px;
+        height: 100px;
+    }
+
+    .thank-you-header h1 {
+        font-size: 2rem;
+    }
+} 

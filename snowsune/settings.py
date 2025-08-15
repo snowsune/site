@@ -15,6 +15,7 @@ import re
 import logging
 from pathlib import Path
 import sys
+from typing import Any, Dict, cast
 
 # Logging setup
 LOGGING = {
@@ -73,6 +74,7 @@ INSTALLED_APPS = [
     "apps.pages",
     "apps.commorganizer",  # Commission Organizer app
     "apps.notifications",  # Centralized notification system
+    "apps.thank_yous",  # Thank yous management app
 ]
 
 MIDDLEWARE = [
@@ -118,7 +120,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "snowsune.wsgi.application"
 
 # Database configuration
-DATABASES = {
+DATABASES: Dict[str, Dict[str, Any]] = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
@@ -130,7 +132,8 @@ DATABASE_URL = os.getenv("DATABASE_URL", None)
 if DATABASE_URL:
     import dj_database_url
 
-    DATABASES["default"] = dj_database_url.parse(DATABASE_URL)
+    parsed = dj_database_url.parse(DATABASE_URL)
+    DATABASES["default"] = cast(Dict[str, Any], parsed)
 
 # I'll use a custom user model for user-storage
 AUTH_USER_MODEL = "users.CustomUser"
@@ -164,6 +167,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",  # Normal Static Files
     BASE_DIR / "apps/characters/static",  # Characters have their own static files too
     BASE_DIR / "apps/comics/static",  # Comics
+    BASE_DIR / "apps/thank_yous/static",  # Thank Yous
 ]
 
 # Media Paths (things like profile pictures and such are uploaded here)
