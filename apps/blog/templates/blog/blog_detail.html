@@ -18,35 +18,39 @@
     <article class="blog-post">
         <!-- Post Header -->
         <header class="post-header">
-            <div class="post-meta">
-                <span class="post-date">{{ post.display_date|date:"F j, Y" }}</span>
-                <span class="post-author">by {{ post.author.username }}</span>
-                {% if post.status == 'draft' %}
-                <span class="post-status draft">Draft</span>
+            <div class="post-header-content">
+                {% if post.featured_image %}
+                <div class="post-thumbnail">
+                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                </div>
                 {% endif %}
+
+                <div class="post-header-text">
+                    <div class="post-meta">
+                        <span class="post-date">{{ post.display_date|date:"F j, Y" }}</span>
+                        <span class="post-author">by {{ post.author.username }}</span>
+                        {% if post.status == 'draft' %}
+                        <span class="post-status draft">Draft</span>
+                        {% endif %}
+                    </div>
+
+                    <h1 class="post-title">{{ post.title }}</h1>
+
+                    {% if post.meta_description %}
+                    <p class="post-description">{{ post.meta_description }}</p>
+                    {% endif %}
+
+                    {% if post.tags.all %}
+                    <div class="post-tags">
+                        {% for tag in post.tags.all %}
+                        <a href="{% url 'blog:blog_list' %}?tag={{ tag.slug }}" class="tag">{{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-
-            <h1 class="post-title">{{ post.title }}</h1>
-
-            {% if post.meta_description %}
-            <p class="post-description">{{ post.meta_description }}</p>
-            {% endif %}
-
-            {% if post.tags.all %}
-            <div class="post-tags">
-                {% for tag in post.tags.all %}
-                <a href="{% url 'blog:blog_list' %}?tag={{ tag.slug }}" class="tag">{{ tag.name }}</a>
-                {% endfor %}
-            </div>
-            {% endif %}
         </header>
 
-        <!-- I decided not to feature these images up here haha i'll just remember to post images internally -->
-        <!-- {% if post.featured_image %}
-        <div class="post-featured-image">
-            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
-        </div>
-        {% endif %} -->
 
         <!-- Post Content -->
         <div class="post-content markdown-content">
