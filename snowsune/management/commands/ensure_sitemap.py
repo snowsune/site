@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, timezone as dt_timezone
 from apps.blog.models import BlogPost
 from apps.comics.models import ComicPage
 from apps.pages.models import EditablePage
@@ -17,7 +17,7 @@ class Command(BaseCommand):
         if os.path.exists(sitemap_path):
             file_time = os.path.getmtime(sitemap_path)
             file_age = timezone.now() - timezone.datetime.fromtimestamp(
-                file_time, tz=timezone.utc
+                file_time, tz=dt_timezone.utc
             )
 
             if file_age < timedelta(hours=24):

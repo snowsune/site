@@ -163,7 +163,7 @@
 .tag {
     padding: 0.25em 0.5em;
     background: var(--link-default);
-    color: rgb(22, 17, 74);
+    color: var(--invert-text-color);
     border-radius: 4px;
     font-size: 0.75rem;
 }

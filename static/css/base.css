@@ -3,6 +3,7 @@
   --background-color: #f8f9fa;
   --tile-background: #ffffff;
   --text-color: #000000;
+  --invert-text-color: #ffffff;
   --navbar-bg: #00bcd4;
   --navbar-text: white;
   --sidebar-bg: #eaeaea;
@@ -16,6 +17,7 @@
   --background-color: #121212;
   --tile-background: #1e1e1e;
   --text-color: #ffffff;
+  --invert-text-color: #000000;
   --navbar-bg: #18404b;
   --navbar-text: white;
   --sidebar-bg: #222222;
