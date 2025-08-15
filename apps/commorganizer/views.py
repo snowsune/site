@@ -1,43 +1,87 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import get_user_model
 from .models import Commission, Draft, Comment
-from .forms import CommissionCreateForm, CommissionReturnForm
+from .forms import (
+    CommissionCreateForm,
+    CommissionCreateFormLoggedIn,
+    CommissionReturnForm,
+)
 from django.urls import reverse
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django import forms
 from .utils import send_discord_webhook
 from django.db.models import Count, Q
 from django.utils.dateparse import parse_datetime
 from collections import defaultdict
 
+User = get_user_model()
+
 # Create your views here.
 
 
 def commorganizer_landing(request):
-    create_form = CommissionCreateForm()
+    # Use different forms based on authentication status
+    if request.user.is_authenticated:
+        create_form = CommissionCreateFormLoggedIn()
+    else:
+        create_form = CommissionCreateForm()
+
     return_form = CommissionReturnForm()
 
     if request.method == "POST":
         action = request.POST.get("action")
         if action == "create":
-            create_form = CommissionCreateForm(request.POST)
+            # Use the appropriate form based on user status
+            if request.user.is_authenticated:
+                create_form = CommissionCreateFormLoggedIn(request.POST)
+            else:
+                create_form = CommissionCreateForm(request.POST)
+
             if create_form.is_valid():
                 name = create_form.cleaned_data["name"]
-                password = create_form.cleaned_data["password"]
-                commission, created = Commission.objects.get_or_create(
-                    name=name, defaults={"artist_password": password}
-                )
-                if not created and commission.artist_password != password:
-                    create_form.add_error(
-                        "name",
-                        "A commission with this name already exists and the password is incorrect.",
+
+                # If user is logged in, create commission linked to them
+                if request.user.is_authenticated:
+                    commission, created = Commission.objects.get_or_create(
+                        name=name,
+                        defaults={"user": request.user, "artist_password": None},
                     )
+                    if not created:
+                        if commission.user == request.user:
+                            # User owns this commission, redirect to dashboard
+                            return redirect(
+                                "commorganizer-artist-dashboard",
+                                commission_name=commission.name,
+                            )
+                        else:
+                            create_form.add_error(
+                                "name",
+                                "A commission with this name already exists.",
+                            )
+                    else:
+                        return redirect(
+                            "commorganizer-artist-dashboard",
+                            commission_name=commission.name,
+                        )
                 else:
-                    # If commission exists and password matches, or new commission created
-                    return redirect(
-                        "commorganizer-artist-dashboard",
-                        commission_name=commission.name,
+                    # Anonymous user, require password
+                    password = create_form.cleaned_data["password"]
+                    commission, created = Commission.objects.get_or_create(
+                        name=name, defaults={"artist_password": password}
                     )
+                    if not created and commission.artist_password != password:
+                        create_form.add_error(
+                            "name",
+                            "A commission with this name already exists and the password is incorrect.",
+                        )
+                    else:
+                        return redirect(
+                            "commorganizer-artist-dashboard",
+                            commission_name=commission.name,
+                        )
         elif action == "return":
             return_form = CommissionReturnForm(request.POST)
             if return_form.is_valid():
@@ -63,6 +107,74 @@ def commorganizer_landing(request):
     )
 
 
+@login_required
+def user_commission_select(request):
+    """View for logged-in users to select from their commissions"""
+
+    if request.method == "POST" and "delete_commission" in request.POST:
+        commission_id = request.POST.get("delete_commission")
+        try:
+            commission = Commission.objects.get(id=commission_id)
+
+            # Security check: user must own the commission or be staff/moderator
+            if (
+                commission.user == request.user
+                or request.user.is_staff
+                or getattr(request.user, "is_moderator", False)
+            ):
+
+                commission_name = commission.name
+                commission.delete()
+                messages.success(
+                    request, f"Commission '{commission_name}' has been deleted."
+                )
+                return redirect("commorganizer-user-select")
+            else:
+                messages.error(
+                    request, "You don't have permission to delete this commission."
+                )
+        except Commission.DoesNotExist:
+            messages.error(request, "Commission not found.")
+        except Exception as e:
+            messages.error(request, f"Error deleting commission: {str(e)}")
+
+    user_commissions = Commission.objects.filter(user=request.user).order_by(
+        "-created_at"
+    )
+
+    # Add comment counts to user commissions
+    for commission in user_commissions:
+        commission.total_comments_count = Comment.objects.filter(
+            draft__commission=commission
+        ).count()
+        commission.resolved_comments_count = Comment.objects.filter(
+            draft__commission=commission, resolved=True
+        ).count()
+
+    # For moderators/admins, show all commissions
+    all_commissions = None
+    if request.user.is_staff or getattr(request.user, "is_moderator", False):
+        all_commissions = Commission.objects.all().order_by("-created_at")
+
+        # Add comment counts to all commissions
+        for commission in all_commissions:
+            commission.total_comments_count = Comment.objects.filter(
+                draft__commission=commission
+            ).count()
+            commission.resolved_comments_count = Comment.objects.filter(
+                draft__commission=commission, resolved=True
+            ).count()
+
+    return render(
+        request,
+        "commorganizer_user_select.html",
+        {
+            "user_commissions": user_commissions,
+            "all_commissions": all_commissions,
+        },
+    )
+
+
 class DraftUploadForm(forms.Form):
     image = forms.ImageField()
 
@@ -82,7 +194,42 @@ class WebhookForm(forms.ModelForm):
 
 
 def artist_dashboard(request, commission_name):
-    commission = Commission.objects.get(name=commission_name)
+    try:
+        commission = Commission.objects.get(name=commission_name)
+    except Commission.DoesNotExist:
+        raise Http404("Commission not found")
+
+    # Security check: user must own the commission, have the password, or be staff/moderator
+    if not (
+        (request.user.is_authenticated and commission.user == request.user)
+        or (
+            commission.artist_password
+            and request.POST.get("password") == commission.artist_password
+        )
+        or request.user.is_staff
+        or getattr(request.user, "is_moderator", False)
+    ):
+        # If user is logged in but doesn't own this commission, redirect to selection
+        if request.user.is_authenticated:
+            messages.error(request, "You don't have access to this commission.")
+            return redirect("commorganizer-user-select")
+        else:
+            # Anonymous user needs password, but only if commission has password protection
+            if commission.artist_password:
+                return render(
+                    request,
+                    "commorganizer_password_check.html",
+                    {
+                        "commission_name": commission_name,
+                        "commission": commission,
+                    },
+                )
+            else:
+                # Commission is user-owned but user is not logged in
+                messages.error(
+                    request, "This commission requires a logged-in account to access."
+                )
+                return redirect("commorganizer")
 
     # Comments: unresolved first, then resolved, both sorted by age
     unresolved_comments = Comment.objects.filter(
