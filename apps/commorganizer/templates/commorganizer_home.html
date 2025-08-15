@@ -17,12 +17,27 @@
     <!-- Instructions (Left) -->
     <div style="flex: 1; min-width: 250px;">
         <h2>How to Use</h2>
+        {% if user.is_authenticated %}
+        <div class="logged-in-info">
+            <p><strong>Welcome, {{ user.username }}!</strong></p>
+            <p>Since you're logged in, you can:</p>
+            <ul>
+                <li>Create commissions with any name</li>
+                <li>No passwords needed!</li>
+            </ul>
+            <a href="{% url 'commorganizer-user-select' %}" class="btn btn-primary"
+                style="display: inline-block; margin: 1em 0;">
+                View My Commissions
+            </a>
+        </div>
+        {% else %}
         <ol>
             <li>To start a new commission, enter a unique name and password, then click Create.</li>
             <li>To return to an existing commission, enter its password below.</li>
             <li>Remember your password! It must be unique to each commission.</li>
-            <li>Snowsune.net account not required!</li>
+            <li>Snowsune.net account not required! (But it does make it easier~)</li>
         </ol>
+        {% endif %}
         <hr />
         <div style="margin-top: 10em;">
             <h4>Thank you!</h4>
@@ -54,6 +69,8 @@
             {{ create_form.as_p }}
             <button type="submit" name="action" value="create">Create</button>
         </form>
+
+        {% if not user.is_authenticated %}
         <hr />
         <h2>Return to Commission</h2>
         <form method="post" autocomplete="off">
@@ -61,6 +78,7 @@
             {{ return_form.as_p }}
             <button type="submit" name="action" value="return">Enter</button>
         </form>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

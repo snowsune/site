@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Commissions - Commission Organizer{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{% static 'commorganizer/my-commissions.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>My Commissions</h1>
+
+    {% if user_commissions %}
+    <div class="commission-list">
+        <h2>Your Commissions</h2>
+        <div class="commission-grid">
+            {% for commission in user_commissions %}
+            <div class="commission-card">
+                <h3>{{ commission.name }}</h3>
+                <p>Created: {{ commission.created_at|date:"M j, Y" }}</p>
+                <p class="commission-url">URL: /{{ commission.name }}/</p>
+
+                <!-- Comment counts -->
+                <div class="comment-stats">
+                    <span class="comment-count">
+                        Comments: {{ commission.resolved_comments_count }}/{{ commission.total_comments_count }}
+                    </span>
+                </div>
+
+                <div class="card-actions">
+                    <a href="{% url 'commorganizer-artist-dashboard' commission.name %}" class="btn btn-primary">
+                        Manage Commission
+                    </a>
+                    <form method="post" style="display: inline; margin-top: 0.5em;">
+                        {% csrf_token %}
+                        <input type="hidden" name="delete_commission" value="{{ commission.id }}">
+                        <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to delete this commission? This action cannot be undone.')">
+                            Delete Commission
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="no-commissions">
+        <p>You don't have any commissions yet.</p>
+        <a href="{% url 'commorganizer' %}" class="btn btn-primary">Create Your First Commission</a>
+    </div>
+    {% endif %}
+
+    {% if all_commissions %}
+    <div class="admin-section">
+        <h2>All Commissions (Admin/Moderator View)</h2>
+        <div class="commission-grid">
+            {% for commission in all_commissions %}
+            <div class="commission-card {% if commission.user %}user-owned{% else %}password-protected{% endif %}">
+                <h3>{{ commission.name }}</h3>
+                <p>Created: {{ commission.created_at|date:"M j, Y" }}</p>
+                {% if commission.user %}
+                <p>Owner: {{ commission.user.username }}</p>
+                {% else %}
+                <p>Password Protected</p>
+                {% endif %}
+
+                <!-- Comment counts -->
+                <div class="comment-stats">
+                    <span class="comment-count">
+                        Comments: {{ commission.resolved_comments_count }}/{{ commission.total_comments_count }}
+                    </span>
+                </div>
+
+                <div class="card-actions">
+                    <a href="{% url 'commorganizer-artist-dashboard' commission.name %}" class="btn btn-primary">
+                        Manage Commission
+                    </a>
+                    <form method="post" style="display: inline; margin-top: 0.5em;">
+                        {% csrf_token %}
+                        <input type="hidden" name="delete_commission" value="{{ commission.id }}">
+                        <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to delete this commission? This action cannot be undone.')">
+                            Delete Commission
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="actions">
+        <a href="{% url 'commorganizer' %}" class="btn btn-secondary">Back to Commission Organizer</a>
+    </div>
+</div>
+{% endblock %}

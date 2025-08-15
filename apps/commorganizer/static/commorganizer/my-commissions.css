@@ -1,0 +1,121 @@
+/* My Commissions Page Styles - Simple Version */
+
+.commission-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1em;
+  margin: 1em 0;
+}
+
+.commission-card {
+  background: var(--card-bg, #18304b);
+  border: 1px solid var(--accent-color, #00eaff);
+  padding: 1em;
+  color: var(--text-color, #fff);
+}
+
+.commission-card h3 {
+  color: var(--accent-color, #00eaff);
+  margin: 0 0 0.5em 0;
+  font-size: 1.2em;
+}
+
+.commission-card p {
+  color: var(--muted-text, #ccc);
+  margin-bottom: 0.5em;
+  font-size: 0.9em;
+}
+
+.commission-card .commission-url {
+  font-family: monospace;
+  background: var(--muted-bg, #2a2a2a);
+  padding: 0.3em 0.5em;
+  font-size: 0.8em;
+  color: var(--accent-color, #00eaff);
+  margin-bottom: 0.5em;
+  border: 1px solid var(--accent-color, #00eaff);
+}
+
+.comment-stats {
+  text-align: center;
+  margin-bottom: 0.5em;
+}
+
+.comment-count {
+  background: var(--muted-bg, #2a2a2a);
+  padding: 0.3em 0.5em;
+  font-size: 0.8em;
+  color: var(--accent-color, #00eaff);
+  border: 1px solid var(--accent-color, #00eaff);
+}
+
+.card-actions {
+  width: 100%;
+}
+
+.card-actions .btn,
+.card-actions a.btn,
+.card-actions button.btn,
+.card-actions form .btn,
+.card-actions form button {
+  width: 100% !important;
+  margin-bottom: 0.3em;
+  padding: 0.5em;
+  font-size: 0.9em;
+  border-radius: 4px;
+  text-decoration: none;
+  display: block;
+  box-sizing: border-box;
+}
+
+.card-actions form {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--accent-color, #00eaff);
+  color: var(--invert-text-color, #000);
+  border: 1px solid var(--accent-color, #00eaff);
+}
+
+.btn-primary:visited {
+  color: var(--invert-text-color, #000);
+}
+
+.btn-danger {
+  background: var(--danger-color, #d90429);
+  color: var(--text-color, #fff);
+  border: 1px solid var(--danger-color, #d90429);
+}
+
+.no-commissions {
+  text-align: center;
+  padding: 2em;
+  background: var(--card-bg, #18304b);
+  border: 1px dashed var(--accent-color, #00eaff);
+  margin: 1em 0;
+}
+
+.admin-section {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid var(--accent-color, #00eaff);
+}
+
+.actions {
+  margin-top: 1em;
+  text-align: center;
+}
+
+.actions .btn {
+  display: inline-block;
+  padding: 0.5em 1em;
+  margin: 0 0.5em;
+  background: var(--muted-bg, #2a2a2a);
+  color: var(--text-color, #fff);
+  border: 1px solid var(--muted-text, #ccc);
+  text-decoration: none;
+  border-radius: 4px;
+} 
