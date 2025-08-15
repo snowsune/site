@@ -25,17 +25,22 @@
 
   <!-- Default Meta Tags -->
   <meta name="description"
-    content="{% block meta_description %}Welcome to Snowsune.net! Vixi's website for projects, tools and more!{% endblock %}" />
-  <meta name="keywords" content="{% block meta_keywords %}Snowsune, Vixi, projects, blog, tools{% endblock %}" />
+    content="{% block meta_description %}Welcome to Snowsune.net! Vixi's website for projects, tools, comics, and more!{% endblock %}" />
+  <meta name="keywords"
+    content="{% block meta_keywords %}Snowsune, Vixi, Vixi Argorrok, Rhettan, projects, blog, tools, comics, furry, art{% endblock %}" />
+  <meta name="author" content="Vixi" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="{% block canonical_url %}https://snowsune.net{% endblock %}" />
 
   <!-- Open Graph / Discord Embed -->
   <meta property="og:title" content="{% block og_title %}Snowsune.net{% endblock %}" />
   <meta property="og:description"
-    content="{% block og_description %}Vixi's website for projects, tools and more!{% endblock %}" />
+    content="{% block og_description %}Vixi's website for projects, tools, comics, and more!{% endblock %}" />
   <meta property="og:image"
     content="{% block og_image %}{% static 'placeholders/placeholder_wide.png' %}{% endblock %}" />
   <meta property="og:url" content="{% block og_url %}https://snowsune.net{% endblock %}" />
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Snowsune.net" />
 
   <!-- Twitter Card (not because i like twitter, only for compat in apps that accept the summary_large) -->
   <meta name="twitter:card" content="summary_large_image" />
@@ -44,6 +49,12 @@
     content="{% block twitter_description %}Vixi's website for projects, tools and more!{% endblock %}" />
   <meta name="twitter:image"
     content="{% block twitter_image %}{% static 'placeholders/placeholder_wide.png' %}{% endblock %}" />
+
+  <!-- DuckDuckGo specific meta tags -->
+  <meta name="theme-color" content="#2222ff" />
+  <meta name="msapplication-TileColor" content="#2222ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <!-- Favicon -->
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
