@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("commorganizer", "0004_commission_user_alter_commission_artist_password"),
     ]

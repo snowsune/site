@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("commorganizer", "0003_commission_webhook_url_alter_draft_id"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

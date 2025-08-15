@@ -122,7 +122,6 @@ def user_commission_select(request):
                 or request.user.is_staff
                 or getattr(request.user, "is_moderator", False)
             ):
-
                 commission_name = commission.name
                 commission.delete()
                 messages.success(
