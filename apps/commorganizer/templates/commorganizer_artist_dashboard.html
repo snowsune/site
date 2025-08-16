@@ -1,7 +1,18 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Manage Commission: {{ commission_name }}{% endblock %}
+{% block title %}Manage Commission: {{ commission_name }} - Commission Organizer{% endblock %}
+
+{% block meta_description %}Manage your commission '{{ commission_name }}'. Upload drafts, track client feedback, and
+organize your artwork workflow efficiently.{% endblock %}
+
+{% block meta_keywords %}commission management, draft upload, client feedback, artwork workflow,
+{{ commission_name }}{% endblock %}
+
+{% block og_title %}Manage Commission: {{ commission_name }} - Commission Organizer{% endblock %}
+
+{% block og_description %}Manage your commission '{{ commission_name }}'. Upload drafts, track client feedback, and
+organize your artwork workflow efficiently.{% endblock %}
 
 {% block header %}
 <link rel="stylesheet" href="{% static 'commorganizer/commorganizer.css' %}">

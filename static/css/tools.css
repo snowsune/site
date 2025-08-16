@@ -1,0 +1,230 @@
+/* Tools Page Styles */
+.tools-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.tools-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    border-bottom: 2px solid var(--accent-color);
+}
+
+.tools-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.tools-subtitle {
+    font-size: 1.2rem;
+    color: var(--muted-text-color);
+    margin: 0;
+}
+
+.tools-section {
+    margin-bottom: 3rem;
+}
+
+.tools-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    border-left: 4px solid var(--accent-color);
+    padding-left: 1rem;
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.tool-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tool-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent-color);
+}
+
+.tool-image {
+    height: 200px;
+    overflow: hidden;
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tool-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    padding: 1rem;
+}
+
+.tool-content {
+    padding: 1.5rem;
+}
+
+.tool-content h3 {
+    font-size: 1.4rem;
+    margin: 0 0 1rem 0;
+    color: var(--text-color);
+}
+
+.tool-content p {
+    color: var(--muted-text-color);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.tool-button {
+    display: inline-block;
+    background: var(--primary-color);
+    color: var(--invert-text-color);
+    padding: 0.8rem 1.5rem;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid var(--primary-color);
+}
+
+.tool-button:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.tool-button.external {
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.tool-button.external:hover {
+    background: var(--secondary-hover);
+    border-color: var(--secondary-hover);
+}
+
+/* Formal/Boring Tool Styles */
+.tool-card.formal-tool {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.tool-card.formal-tool:hover {
+    transform: none;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    border-color: var(--border-color);
+}
+
+.tool-card.formal-tool .tool-image {
+    height: 120px;
+    background: var(--bg-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tool-card.formal-tool .tool-content {
+    padding: 1rem;
+}
+
+.tool-card.formal-tool .tool-content h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-color);
+}
+
+.tool-card.formal-tool .tool-content p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    color: var(--muted-text-color);
+}
+
+.tool-card.formal-tool .tool-button {
+    background: var(--muted-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: normal;
+    border-radius: 4px;
+}
+
+.tool-card.formal-tool .tool-button:hover {
+    background: var(--hover-bg);
+    border-color: var(--accent-color);
+    transform: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .tools-container {
+        padding: 0.5rem;
+    }
+    
+    .tools-header h1 {
+        font-size: 2rem;
+    }
+    
+    .tools-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .tool-card {
+        margin-bottom: 1rem;
+    }
+    
+    .tool-image {
+        height: 150px;
+    }
+    
+    .tool-content {
+        padding: 1rem;
+    }
+    
+    .feature-tag {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .tools-header {
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+    }
+    
+    .tools-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .tools-subtitle {
+        font-size: 1rem;
+    }
+    
+    .tool-content h3 {
+        font-size: 1.2rem;
+    }
+    
+    .tool-button {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.9rem;
+    }
+} 

@@ -1,45 +1,145 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Tools - Snowsune.net{% endblock %}
+{% block title %}Tools & Utilities - Snowsune.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tools.css' %}">
+{% endblock %}
+
+{% block meta %}
+<meta name="description"
+    content="Explore Snowsune's collection of useful tools including Commission Organizer, BixiBooru image board, Size Diff calculator, and gaming servers.">
+<meta name="keywords"
+    content="commission organizer, image board, size calculator, minecraft server, factorio server, webcomics, tools">
+<meta property="og:title" content="Tools & Utilities - Snowsune.net">
+<meta property="og:description" content="Collection of useful tools and utilities for artists, creators, and gamers.">
+<meta property="og:type" content="website">
+{% endblock %}
 
 {% block content %}
-<h2>My Own</h2>
+<div class="tools-container">
+    <!-- <header class="tools-header">
+        <h1>Tools & Utilities</h1>
+        <p class="tools-subtitle">A collection of useful tools I've built and maintain</p>
+    </header> -->
 
-<h3>CommOrganizer</h3>
-A commission management tool for artists. <a href="{% url 'commorganizer' %}">Check it out!</a><br>
+    <section class="tools-section">
+        <h2>Vixi's Tools</h2>
+        <div class="tools-grid">
+            <!-- Commission Organizer -->
+            <div class="tool-card">
+                <div class="tool-image">
+                    <img src="{% static 'commorganizer/ComOrganizerCard.png' %}" alt="Commission Organizer Tool"
+                        loading="lazy">
+                </div>
+                <div class="tool-content">
+                    <h3>Commission Organizer</h3>
+                    <p>A comprehensive commission management tool for artists. Track drafts, manage client feedback, and
+                        organize your workflow efficiently.</p>
+                    <a href="{% url 'commorganizer' %}" class="tool-button">Try The Organizer</a>
+                </div>
+            </div>
 
-<h3>BixiBooru</h3>
-Check out and use my booru image board <a href="https://booru.kitsunehosting.net/">BixiBooru!</a><br>
-BixiBooru is a Danbooru fork that I maintain! Join my Discord too for information and bot commands!
+            <!-- BixiBooru -->
+            <div class="tool-card">
+                <div class="tool-image">
+                    <img src="{% static 'stickers/bixibooru.png' %}" alt="BixiBooru Image Board" loading="lazy">
+                </div>
+                <div class="tool-content">
+                    <h3>BixiBooru</h3>
+                    <p>A Danbooru fork image board that I maintain and host. Browse, tag, and organize images with a
+                        powerful search system.</p>
+                    <a href="https://booru.kitsunehosting.net/" class="tool-button external">Visit The Booru</a>
+                </div>
+            </div>
 
-<h3>Size Diff</h3>
-I have a <a href="https://size-diff.snowsune.net/">Size Diff!</a> app! It even has species-based scaling! Something
-I'm very proud of~
+            <!-- Size Diff -->
+            <div class="tool-card">
+                <div class="tool-image">
+                    <img src="{% static 'stickers/size_diff.png' %}" alt="Size Difference Calculator" loading="lazy">
+                </div>
+                <div class="tool-content">
+                    <h3>Size Diff Calculator</h3>
+                    <p>Calculate size differences with species-based scaling! A tool I'm particularly proud of for
+                        character size comparisons.</p>
+                    <a href="https://size-diff.snowsune.net/" class="tool-button external">Size yourself~</a>
+                </div>
+            </div>
 
-<h3>Minecraft Server</h3>
-Still a work in progress! You're welcome to help me test out my server though! Just click
-<a href="https://play.snowsune.net/">here</a> for details!
+            <!-- Minecraft Server -->
+            <div class="tool-card">
+                <div class="tool-image">
+                    <img src="{% static 'stickers/vixi_minecraft.png' %}" alt="Minecraft Server" loading="lazy">
+                </div>
+                <div class="tool-content">
+                    <h3>Minecraft Server</h3>
+                    <p>Join my Minecraft server! Still in development but open for testing. Come help me build and
+                        explore together.</p>
+                    <a href="https://play.snowsune.net/" class="tool-button external">Play Minecraft!</a>
+                </div>
+            </div>
 
-<h3>Factorio Server</h3>
-Also fun to play!
-<a href="https://factorio.snowsune.net/">Click here!</a>
+            <!-- Factorio Server -->
+            <div class="tool-card">
+                <div class="tool-image">
+                    <img src="{% static 'stickers/factorio.png' %}" alt="Factorio Server" loading="lazy">
+                </div>
+                <div class="tool-content">
+                    <h3>Factorio Server</h3>
+                    <p>Automate, build, and optimize in my Factorio server. Perfect for factory building enthusiasts and
+                        automation lovers.</p>
+                    <a href="https://factorio.snowsune.net/" class="tool-button external">Play Factorio</a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<h2>Other Tools</h2>
-The <a href="https://new.belfrycomics.net/">Belfry Webcomics Index</a>! A super handy webcomic resource!
-
+    <section class="tools-section">
+        <h2>Other Useful Tools!</h2>
+        <div class="tools-grid">
+            <div class="tool-card external-tool formal-tool">
+                <div class="tool-image">
+                    <img src="{% static 'logos/logo.png' %}" alt="Belfry Webcomics Index" loading="lazy">
+                </div>
+                <div class="tool-content">
+                    <h3>Belfry Webcomics Index</h3>
+                    <p>A super handy webcomic resource and index. Discover new comics and track your favorite webcomics
+                        in one place.</p>
+                    <a href="https://new.belfrycomics.net/" class="tool-button external">Visit Belfry</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
 {% endblock %}
 
 {% block sidebar %}
-<h2>Games</h2>
-<ul>
-    <li><a href="https://play.snowsune.net/">Minecraft Server</a></li>
-    <li><a href="https://factorio.snowsune.net/">Factorio Server</a></li>
-</ul>
+<div class="tools-sidebar">
+    <h2>Quick Access</h2>
 
-<h2>Tools</h2>
-<ul>
-    <li><a href="https://booru.kitsunehosting.net/">BixiBooru</a></li>
-    <li><a href="https://size-diff.snowsune.net/">Size-Diff</a></li>
-    <li><a href="{% url 'commorganizer' %}">Commission Organizer</a></li>
-</ul>
+    <div class="sidebar-section">
+        <h3>Games</h3>
+        <ul class="sidebar-links">
+            <li><a href="https://play.snowsune.net/">Minecraft Server</a></li>
+            <li><a href="https://factorio.snowsune.net/">Factorio Server</a></li>
+        </ul>
+    </div>
+
+    <div class="sidebar-section">
+        <h3>Development Tools</h3>
+        <ul class="sidebar-links">
+            <li><a href="{% url 'commorganizer' %}">Commission Organizer</a></li>
+            <li><a href="https://booru.kitsunehosting.net/">BixiBooru</a></li>
+            <li><a href="https://size-diff.snowsune.net/">Size-Diff Calculator</a></li>
+        </ul>
+    </div>
+
+    <div class="sidebar-section">
+        <h3>Resources</h3>
+        <ul class="sidebar-links">
+            <li><a href="https://new.belfrycomics.net/">Belfry Webcomics</a></li>
+        </ul>
+    </div>
+</div>
 {% endblock %}
