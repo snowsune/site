@@ -1,0 +1,752 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'css/transcript-editor.css' %}">
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='comics' %}">Comics</a>
+    &rsaquo; <a href="{% url 'admin:comics_comicpage_changelist' %}">Comic pages</a>
+    &rsaquo; <a href="{% url 'admin:comics_comicpage_change' comic_page.pk %}">{{ comic_page.title }}</a>
+    &rsaquo; Transcript Editor
+</div>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div id="transcript-editor">
+    <div class="editor-header">
+        <h1>Transcript Editor - {{ comic_page.title }}</h1>
+        <div class="editor-controls">
+            <button id="add-transcript" class="btn btn-primary">Add Transcript Box</button>
+            <button id="add-credits" class="btn btn-secondary">Add Credits Box</button>
+            <button id="add-note" class="btn btn-info">Add Note</button>
+            <button id="save-transcript" class="btn btn-success">Save Transcript</button>
+            <button id="clear-all" class="btn btn-danger">Clear All</button>
+        </div>
+    </div>
+
+    <div class="editor-main">
+        <div class="image-container">
+            <img id="comic-image" src="{{ comic_page.image.url }}" alt="{{ comic_page.title }}" />
+            <canvas id="overlay-canvas"></canvas>
+            <div id="transcript-overlay"></div>
+        </div>
+
+        <div class="sidebar">
+            <div class="element-list">
+                <h3>Transcript Elements</h3>
+                <div id="elements-container">
+                    <!-- Elements will be populated here -->
+                </div>
+            </div>
+
+            <div class="element-editor" id="element-editor" style="display: none;">
+                <h3>Edit Element</h3>
+                <form id="element-form">
+                    <div class="form-group">
+                        <label for="element-type">Type:</label>
+                        <select id="element-type" name="type">
+                            <option value="transcript">Transcript Text</option>
+                            <option value="credits">Character Credits</option>
+                            <option value="note">Note/Annotation</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="element-text">Text:</label>
+                        <textarea id="element-text" name="text" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="element-character">Character Name:</label>
+                        <input type="text" id="element-character" name="character_name" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="element-css">CSS Class:</label>
+                        <input type="text" id="element-css" name="css_class" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Position:</label>
+                        <div class="coordinate-inputs">
+                            <input type="number" id="element-x1" name="x1" placeholder="X1" />
+                            <input type="number" id="element-y1" name="y1" placeholder="Y1" />
+                            <input type="number" id="element-x2" name="x2" placeholder="X2" />
+                            <input type="number" id="element-y2" name="y2" placeholder="Y2" />
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                        <button type="button" id="delete-element" class="btn btn-danger">Delete</button>
+                        <button type="button" id="cancel-edit" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="transcript-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add Transcript Element</h2>
+        <form id="transcript-form">
+            <div class="form-group">
+                <label for="modal-type">Type:</label>
+                <select id="modal-type" name="type" required>
+                    <option value="transcript">Transcript Text</option>
+                    <option value="credits">Character Credits</option>
+                    <option value="note">Note/Annotation</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="modal-text">Text:</label>
+                <textarea id="modal-text" name="text" rows="4" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="modal-character">Character Name:</label>
+                <input type="text" id="modal-character" name="character_name" />
+            </div>
+
+            <div class="form-group">
+                <label for="modal-css">CSS Class:</label>
+                <input type="text" id="modal-css" name="css_class" />
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Add Element</button>
+                <button type="button" id="modal-cancel" class="btn btn-secondary">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Global variables
+    let currentElements = [];
+    let selectedElement = null;
+    let isDrawing = false;
+    let startX, startY;
+    let currentBox = null;
+    let imageLoaded = false;
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeEditor();
+        loadTranscriptData();
+    });
+
+    function initializeEditor() {
+        const image = document.getElementById('comic-image');
+        const canvas = document.getElementById('overlay-canvas');
+        const overlay = document.getElementById('transcript-overlay');
+
+        // Wait for image to load
+        image.onload = function () {
+            imageLoaded = true;
+            setupCanvas();
+            setupEventListeners();
+        };
+
+        if (image.complete) {
+            imageLoaded = true;
+            setupCanvas();
+            setupEventListeners();
+        }
+
+        // Also setup when image dimensions are available
+        if (image.naturalWidth > 0) {
+            setupCanvas();
+        }
+    }
+
+    function setupCanvas() {
+        const image = document.getElementById('comic-image');
+        const canvas = document.getElementById('overlay-canvas');
+        const overlay = document.getElementById('transcript-overlay');
+
+        // Wait for image to be fully loaded and positioned
+        setTimeout(() => {
+            // Get the actual displayed image dimensions
+            const imageRect = image.getBoundingClientRect();
+            const containerRect = image.parentElement.getBoundingClientRect();
+
+            // Set overlay size to match the displayed image size
+            overlay.style.width = imageRect.width + 'px';
+            overlay.style.height = imageRect.height + 'px';
+
+            // Position overlay exactly over the image
+            overlay.style.left = (imageRect.left - containerRect.left) + 'px';
+            overlay.style.top = (imageRect.top - containerRect.top) + 'px';
+
+            // Set canvas size to match image
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
+        }, 100);
+    }
+
+    function setupEventListeners() {
+        // Drawing events
+        const overlay = document.getElementById('transcript-overlay');
+
+        overlay.addEventListener('mousedown', startDrawing);
+        overlay.addEventListener('mousemove', draw);
+        overlay.addEventListener('mouseup', endDrawing);
+
+        // Button events
+        document.getElementById('add-transcript').addEventListener('click', () => showModal('transcript'));
+        document.getElementById('add-credits').addEventListener('click', () => showModal('credits'));
+        document.getElementById('add-note').addEventListener('click', () => showModal('note'));
+        document.getElementById('save-transcript').addEventListener('click', saveTranscript);
+        document.getElementById('clear-all').addEventListener('click', clearAllElements);
+
+        // Form events
+        document.getElementById('transcript-form').addEventListener('submit', handleModalSubmit);
+        document.getElementById('element-form').addEventListener('submit', handleElementUpdate);
+        document.getElementById('delete-element').addEventListener('click', deleteSelectedElement);
+        document.getElementById('cancel-edit').addEventListener('click', cancelEdit);
+        document.getElementById('modal-cancel').addEventListener('click', hideModal);
+
+        // Modal close
+        document.querySelector('.close').addEventListener('click', hideModal);
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function (event) {
+            const modal = document.getElementById('transcript-modal');
+            if (event.target === modal) {
+                hideModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Delete' && selectedElement !== null) {
+                deleteSelectedElement();
+            } else if (e.key === 'Escape') {
+                if (selectedElement !== null) {
+                    cancelEdit();
+                } else {
+                    hideModal();
+                }
+            } else if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                saveTranscript();
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function () {
+            setupCanvas();
+            renderOverlay();
+        });
+    }
+
+    function startDrawing(e) {
+        if (selectedElement) return;
+
+        isDrawing = true;
+        const overlay = document.getElementById('transcript-overlay');
+        const overlayRect = overlay.getBoundingClientRect();
+        startX = e.clientX - overlayRect.left;
+        startY = e.clientY - overlayRect.top;
+
+        // Convert overlay coordinates to image coordinates
+        const image = document.getElementById('comic-image');
+        const scaleX = image.naturalWidth / overlayRect.width;
+        const scaleY = image.naturalHeight / overlayRect.height;
+        startX = Math.round(startX * scaleX);
+        startY = Math.round(startY * scaleY);
+
+        currentBox = document.createElement('div');
+        currentBox.className = 'drawing-box';
+        currentBox.style.position = 'absolute';
+        currentBox.style.border = '2px dashed #ff0000';
+        currentBox.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+        currentBox.style.pointerEvents = 'none';
+
+        overlay.appendChild(currentBox);
+    }
+
+    function draw(e) {
+        if (!isDrawing || !currentBox) return;
+
+        const overlay = document.getElementById('transcript-overlay');
+        const overlayRect = overlay.getBoundingClientRect();
+        const currentX = e.clientX - overlayRect.left;
+        const currentY = e.clientY - overlayRect.top;
+
+        // Convert overlay coordinates to image coordinates for display
+        const image = document.getElementById('comic-image');
+        const scaleX = image.naturalWidth / overlayRect.width;
+        const scaleY = image.naturalHeight / overlayRect.height;
+        const scaledX = Math.round(currentX * scaleX);
+        const scaledY = Math.round(currentY * scaleY);
+
+        // Calculate the drawing box position in overlay coordinates
+        const left = Math.min(startX / scaleX, currentX);
+        const top = Math.min(startY / scaleY, currentY);
+        const width = Math.abs(currentX - (startX / scaleX));
+        const height = Math.abs(currentY - (startY / scaleY));
+
+        currentBox.style.left = left + 'px';
+        currentBox.style.top = top + 'px';
+        currentBox.style.width = width + 'px';
+        currentBox.style.height = height + 'px';
+    }
+
+    function endDrawing(e) {
+        if (!isDrawing || !currentBox) return;
+
+        isDrawing = false;
+
+        const overlay = document.getElementById('transcript-overlay');
+        const overlayRect = overlay.getBoundingClientRect();
+        const endX = e.clientX - overlayRect.left;
+        const endY = e.clientY - overlayRect.top;
+
+        // Convert overlay coordinates to image coordinates
+        const image = document.getElementById('comic-image');
+        const scaleX = image.naturalWidth / overlayRect.width;
+        const scaleY = image.naturalHeight / overlayRect.height;
+        const scaledEndX = Math.round(endX * scaleX);
+        const scaledEndY = Math.round(endY * scaleY);
+
+        // Remove drawing box
+        currentBox.remove();
+        currentBox = null;
+
+        // Check if box is large enough
+        const width = Math.abs(scaledEndX - startX);
+        const height = Math.abs(scaledEndY - startY);
+
+        if (width > 10 && height > 10) {
+            // Show modal to add element
+            showModal('transcript', {
+                x1: Math.min(startX, scaledEndX),
+                y1: Math.min(startY, scaledEndY),
+                x2: Math.max(startX, scaledEndX),
+                y2: Math.max(startY, scaledEndY)
+            });
+        }
+    }
+
+    function showModal(type, coordinates = null) {
+        const modal = document.getElementById('transcript-modal');
+        const typeSelect = document.getElementById('modal-type');
+        const textArea = document.getElementById('modal-text');
+        const characterInput = document.getElementById('modal-character');
+
+        // Set default values
+        typeSelect.value = type;
+        textArea.value = '';
+        characterInput.value = '';
+
+        // Pre-fill coordinates if provided
+        if (coordinates) {
+            // Store coordinates for later use
+            modal.dataset.coordinates = JSON.stringify(coordinates);
+        }
+
+        modal.style.display = 'block';
+        textArea.focus();
+    }
+
+    function hideModal() {
+        const modal = document.getElementById('transcript-modal');
+        modal.style.display = 'none';
+        delete modal.dataset.coordinates;
+    }
+
+    function handleModalSubmit(e) {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const coordinates = JSON.parse(document.getElementById('transcript-modal').dataset.coordinates || '{}');
+
+        const element = {
+            id: Date.now(), // Temporary ID
+            type: formData.get('type'),
+            text: formData.get('text'),
+            character_name: formData.get('character_name'),
+            css_class: formData.get('css_class'),
+            x1: coordinates.x1 || 0,
+            y1: coordinates.y1 || 0,
+            x2: coordinates.x2 || 100,
+            y2: coordinates.y2 || 100,
+            order: currentElements.length
+        };
+
+        addElement(element);
+        hideModal();
+    }
+
+    function addElement(element) {
+        currentElements.push(element);
+        renderElements();
+        renderOverlay();
+    }
+
+    function renderElements() {
+        const container = document.getElementById('elements-container');
+        container.innerHTML = '';
+
+        currentElements.forEach((element, index) => {
+            const elementDiv = document.createElement('div');
+            elementDiv.className = 'element-item';
+            elementDiv.dataset.index = index;
+
+            elementDiv.innerHTML = `
+                <div class="element-header">
+                    <span class="element-type">${element.type}</span>
+                    <span class="element-coords">(${element.x1}, ${element.y1}) - (${element.x2}, ${element.y2})</span>
+                </div>
+                <div class="element-text">${element.text.substring(0, 50)}${element.text.length > 50 ? '...' : ''}</div>
+                ${element.character_name ? `<div class="element-character">${element.character_name}</div>` : ''}
+                <div class="element-actions">
+                    <button class="btn-edit" onclick="editElement(${index})">Edit</button>
+                    <button class="btn-delete" onclick="deleteElement(${index})">Delete</button>
+                </div>
+            `;
+
+            container.appendChild(elementDiv);
+        });
+    }
+
+    function renderOverlay() {
+        const overlay = document.getElementById('transcript-overlay');
+        overlay.innerHTML = '';
+
+        const image = document.getElementById('comic-image');
+        const overlayRect = overlay.getBoundingClientRect();
+        const scaleX = overlayRect.width / image.naturalWidth;
+        const scaleY = overlayRect.height / image.naturalHeight;
+
+        currentElements.forEach((element, index) => {
+            const elementDiv = document.createElement('div');
+            elementDiv.className = `transcript-element ${element.type} ${element.css_class}`;
+            elementDiv.dataset.index = index;
+            elementDiv.style.position = 'absolute';
+
+            // Convert image coordinates to overlay coordinates
+            elementDiv.style.left = (element.x1 * scaleX) + 'px';
+            elementDiv.style.top = (element.y1 * scaleY) + 'px';
+            elementDiv.style.width = ((element.x2 - element.x1) * scaleX) + 'px';
+            elementDiv.style.height = ((element.y2 - element.y1) * scaleY) + 'px';
+
+            // Add hover effect for transcript text
+            if (element.type === 'transcript') {
+                elementDiv.title = element.text;
+            }
+
+            elementDiv.addEventListener('click', () => selectElement(index));
+            elementDiv.addEventListener('dblclick', () => editElement(index));
+
+            // Make elements draggable
+            makeElementDraggable(elementDiv, index);
+
+            overlay.appendChild(elementDiv);
+        });
+    }
+
+    function makeElementDraggable(elementDiv, index) {
+        let isDragging = false;
+        let isResizing = false;
+        let startX, startY;
+        let originalX, originalY;
+        let originalWidth, originalHeight;
+        let resizeHandle = null;
+
+        // Add resize handles
+        const handles = ['nw', 'ne', 'sw', 'se'];
+        handles.forEach(handle => {
+            const handleDiv = document.createElement('div');
+            handleDiv.className = `resize-handle resize-${handle}`;
+            handleDiv.dataset.handle = handle;
+            handleDiv.style.display = 'none'; // Hidden by default
+            elementDiv.appendChild(handleDiv);
+        });
+
+        elementDiv.addEventListener('mousedown', function (e) {
+            if (e.target.classList.contains('resize-handle')) {
+                isResizing = true;
+                resizeHandle = e.target.dataset.handle;
+                startX = e.clientX;
+                startY = e.clientY;
+                originalX = parseInt(elementDiv.style.left);
+                originalY = parseInt(elementDiv.style.top);
+                originalWidth = parseInt(elementDiv.style.width);
+                originalHeight = parseInt(elementDiv.style.height);
+                e.preventDefault();
+            } else if (e.target === elementDiv) {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                originalX = parseInt(elementDiv.style.left);
+                originalY = parseInt(elementDiv.style.top);
+
+                elementDiv.classList.add('dragging');
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('mousemove', function (e) {
+            if (isDragging) {
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+
+                const newX = originalX + deltaX;
+                const newY = originalY + deltaY;
+
+                elementDiv.style.left = newX + 'px';
+                elementDiv.style.top = newY + 'px';
+            } else if (isResizing) {
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+
+                let newX = originalX;
+                let newY = originalY;
+                let newWidth = originalWidth;
+                let newHeight = originalHeight;
+
+                switch (resizeHandle) {
+                    case 'nw':
+                        newX = originalX + deltaX;
+                        newY = originalY + deltaY;
+                        newWidth = originalWidth - deltaX;
+                        newHeight = originalHeight - deltaY;
+                        break;
+                    case 'ne':
+                        newY = originalY + deltaY;
+                        newWidth = originalWidth + deltaX;
+                        newHeight = originalHeight - deltaY;
+                        break;
+                    case 'sw':
+                        newX = originalX + deltaX;
+                        newWidth = originalWidth - deltaX;
+                        newHeight = originalHeight + deltaY;
+                        break;
+                    case 'se':
+                        newWidth = originalWidth + deltaX;
+                        newHeight = originalHeight + deltaY;
+                        break;
+                }
+
+                // Ensure minimum size
+                if (newWidth > 20 && newHeight > 20) {
+                    elementDiv.style.left = newX + 'px';
+                    elementDiv.style.top = newY + 'px';
+                    elementDiv.style.width = newWidth + 'px';
+                    elementDiv.style.height = newHeight + 'px';
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', function () {
+            if (isDragging || isResizing) {
+                isDragging = false;
+                isResizing = false;
+                elementDiv.classList.remove('dragging');
+
+                // Update the element coordinates
+                const newX1 = parseInt(elementDiv.style.left);
+                const newY1 = parseInt(elementDiv.style.top);
+                const width = parseInt(elementDiv.style.width);
+                const height = parseInt(elementDiv.style.height);
+
+                // Convert overlay coordinates back to image coordinates
+                const image = document.getElementById('comic-image');
+                const overlayRect = document.getElementById('transcript-overlay').getBoundingClientRect();
+                const scaleX = image.naturalWidth / overlayRect.width;
+                const scaleY = image.naturalHeight / overlayRect.height;
+
+                currentElements[index].x1 = Math.round(newX1 * scaleX);
+                currentElements[index].y1 = Math.round(newY1 * scaleY);
+                currentElements[index].x2 = Math.round((newX1 + width) * scaleX);
+                currentElements[index].y2 = Math.round((newY1 + height) * scaleY);
+
+                // Update the sidebar display
+                renderElements();
+            }
+        });
+    }
+
+    function selectElement(index) {
+        if (selectedElement === index) {
+            selectedElement = null;
+            hideElementEditor();
+        } else {
+            selectedElement = index;
+            showElementEditor(index);
+        }
+
+        // Update visual selection
+        updateElementSelection();
+    }
+
+    function updateElementSelection() {
+        const elements = document.querySelectorAll('.transcript-element');
+        elements.forEach((el, index) => {
+            if (index === selectedElement) {
+                el.style.border = '3px solid #28a745';
+                el.style.backgroundColor = 'rgba(40, 167, 69, 0.2)';
+                // Show resize handles for selected element
+                el.querySelectorAll('.resize-handle').forEach(handle => {
+                    handle.style.display = 'block';
+                });
+            } else {
+                el.style.border = '2px solid #007bff';
+                el.style.backgroundColor = 'rgba(0, 123, 255, 0.1)';
+                // Hide resize handles for non-selected elements
+                el.querySelectorAll('.resize-handle').forEach(handle => {
+                    handle.style.display = 'none';
+                });
+            }
+        });
+    }
+
+    function editElement(index) {
+        selectedElement = index;
+        showElementEditor(index);
+        updateElementSelection();
+    }
+
+    function showElementEditor(index) {
+        const element = currentElements[index];
+        const editor = document.getElementById('element-editor');
+
+        // Populate form
+        document.getElementById('element-type').value = element.type;
+        document.getElementById('element-text').value = element.text;
+        document.getElementById('element-character').value = element.character_name || '';
+        document.getElementById('element-css').value = element.css_class || '';
+        document.getElementById('element-x1').value = element.x1;
+        document.getElementById('element-y1').value = element.y1;
+        document.getElementById('element-x2').value = element.x2;
+        document.getElementById('element-y2').value = element.y2;
+
+        editor.style.display = 'block';
+    }
+
+    function hideElementEditor() {
+        document.getElementById('element-editor').style.display = 'none';
+    }
+
+    function handleElementUpdate(e) {
+        e.preventDefault();
+
+        if (selectedElement === null) return;
+
+        const formData = new FormData(e.target);
+
+        currentElements[selectedElement] = {
+            ...currentElements[selectedElement],
+            type: formData.get('type'),
+            text: formData.get('text'),
+            character_name: formData.get('character_name'),
+            css_class: formData.get('css_class'),
+            x1: parseInt(formData.get('x1')),
+            y1: parseInt(formData.get('y1')),
+            x2: parseInt(formData.get('x2')),
+            y2: parseInt(formData.get('y2'))
+        };
+
+        renderElements();
+        renderOverlay();
+        hideElementEditor();
+        selectedElement = null;
+    }
+
+    function deleteSelectedElement() {
+        if (selectedElement === null) return;
+
+        if (confirm('Are you sure you want to delete this element?')) {
+            currentElements.splice(selectedElement, 1);
+            renderElements();
+            renderOverlay();
+            hideElementEditor();
+            selectedElement = null;
+        }
+    }
+
+    function deleteElement(index) {
+        if (confirm('Are you sure you want to delete this element?')) {
+            currentElements.splice(index, 1);
+            renderElements();
+            renderOverlay();
+
+            if (selectedElement === index) {
+                hideElementEditor();
+                selectedElement = null;
+            }
+        }
+    }
+
+    function cancelEdit() {
+        hideElementEditor();
+        selectedElement = null;
+        updateElementSelection();
+    }
+
+    function clearAllElements() {
+        if (confirm('Are you sure you want to clear all transcript elements?')) {
+            currentElements = [];
+            renderElements();
+            renderOverlay();
+            hideElementEditor();
+            selectedElement = null;
+        }
+    }
+
+    async function loadTranscriptData() {
+        try {
+            const response = await fetch(`{% url 'admin:comics_comicpage_transcript_data' comic_page.pk %}`);
+            const data = await response.json();
+
+            if (data.elements) {
+                currentElements = data.elements;
+                renderElements();
+                renderOverlay();
+            }
+        } catch (error) {
+            console.error('Error loading transcript data:', error);
+        }
+    }
+
+    async function saveTranscript() {
+        try {
+            const response = await fetch(`{% url 'admin:comics_comicpage_transcript_data' comic_page.pk %}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    elements: currentElements
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Transcript saved successfully!');
+            } else {
+                alert('Error saving transcript: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Error saving transcript:', error);
+            alert('Error saving transcript. Please try again.');
+        }
+    }
+</script>
+{% endblock %}

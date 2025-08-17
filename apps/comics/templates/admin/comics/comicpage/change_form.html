@@ -1,0 +1,32 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+{{ block.super }}
+{% if original.pk %}
+<li>
+    <a href="{% url 'admin:comics_comicpage_transcript_editor' original.pk %}" class="transcript-editor-link">
+        📝 Transcript Editor
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .transcript-editor-link {
+        background: #79aec8;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .transcript-editor-link:hover {
+        background: #417690;
+        color: white;
+    }
+</style>
+{% endblock %}
