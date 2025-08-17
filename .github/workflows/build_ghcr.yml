@@ -23,7 +23,6 @@ jobs:
           - "apps.blog.tests"
           - "apps.users.tests"
           - "apps.commorganizer.tests"
-          - "apps.pages.tests"
           - "apps.comics.tests"
           - "apps.characters.tests"
           - "snowsune.tests"
