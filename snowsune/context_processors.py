@@ -58,10 +58,83 @@ def visit_stats(request):
         .count()
     )
 
+    # Check for new concurrent user record
+    check_concurrent_user_record(today_unique_visitors)
+
     return {
         "today_visits": today_visits,
         "today_unique_visitors": today_unique_visitors,
     }
+
+
+def check_concurrent_user_record(current_count):
+    """
+    Check if we've hit a new concurrent user record and trigger webhook if so.
+    Stores the last record in site settings to avoid performance drag.
+    """
+    try:
+        # Get the last recorded concurrent user count
+        record_setting = SiteSetting.objects.filter(
+            key="last_concurrent_user_record"
+        ).first()
+        last_record = (
+            int(record_setting.value)
+            if record_setting and record_setting.value.isdigit()
+            else 0
+        )
+
+        # Check if we've hit a new record
+        if current_count > last_record:
+            # Check if we've crossed a multiple of 10 threshold
+            last_threshold = (last_record // 10) * 10
+            current_threshold = (current_count // 10) * 10
+
+            # Update the record
+            if record_setting:
+                record_setting.value = str(current_count)
+                record_setting.save()
+            else:
+                SiteSetting.objects.create(
+                    key="last_concurrent_user_record", value=str(current_count)
+                )
+
+            # Only trigger webhook if we've crossed a new multiple of 10
+            if current_threshold > last_threshold:
+                trigger_concurrent_user_webhook(current_count)
+
+    except Exception as e:
+        # Log error but don't break the context processor
+        print(f"Failed to check concurrent user record: {e}")
+
+
+def trigger_concurrent_user_webhook(record_count):
+    """
+    Send webhook notification for new concurrent user record
+    """
+    try:
+        # Get webhook URL from site settings
+        webhook_setting = SiteSetting.objects.filter(key="moderator_webhook").first()
+        if not webhook_setting or not webhook_setting.value:
+            return  # No webhook configured
+
+        webhook_url = webhook_setting.value.strip()
+        if not webhook_url:
+            return
+
+        # Import here to avoid circular imports
+        from apps.commorganizer.utils import send_discord_webhook
+
+        # Create notification message
+        message = f"🎉 **New Concurrent User Record!**\n\n"
+        message += f"**{record_count}** concurrent users today!\n"
+        message += f"Timestamp: <t:{int(django_timezone.now().timestamp())}:R>"
+
+        # Send webhook
+        send_discord_webhook(webhook_url, message)
+
+    except Exception as e:
+        # Log error but don't break the process
+        print(f"Failed to send concurrent user record webhook: {e}")
 
 
 # Quick processor for the discord invite link
