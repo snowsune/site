@@ -85,11 +85,30 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "tracking.middleware.VisitorTrackingMiddleware",  # For tracking user visits
+    "snowsune.middleware.CloudflareAwareVisitorTrackingMiddleware",  # Custom Cloudflare-aware tracking
 ]
 
 # Trust reverse proxy headers
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Cloudflare-specific settings
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
+# Note: django-tracking2 should read HTTP_CF_CONNECTING_IP for real user IPs
+
+# Django-tracking2 configuration to reduce Cloudflare duplicate sessions
+TRACK_AJAX_REQUESTS = False  # Don't track AJAX requests
+TRACK_PAGEVIEWS = False  # Don't track individual page views (just sessions)
+TRACK_REFERER = False  # Don't track referrer (reduces data)
+TRACK_QUERY_STRING = False  # Don't track query strings
+TRACK_IGNORE_USER_AGENTS = (
+    "bot",
+    "crawler",
+    "spider",
+    "scraper",  # Ignore obvious bots
+)
+TRACK_IGNORE_STATUS_CODES = [404, 500, 502, 503, 504]  # Ignore error pages
 
 ROOT_URLCONF = "snowsune.urls"
 

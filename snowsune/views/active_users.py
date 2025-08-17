@@ -14,10 +14,10 @@ def active_users_view(request):
     # Get all active sessions for debugging
     all_sessions = Session.objects.filter(expire_date__gt=now)
 
-    # Count unique visitors active in the last 2 hours
-    two_hour_cutoff = now - timedelta(hours=2)
+    # Count unique visitors active in the last 15 minutes (more realistic)
+    fifteen_minute_cutoff = now - timedelta(minutes=15)
     active_users = (
-        Visitor.objects.filter(start_time__gte=two_hour_cutoff)
+        Visitor.objects.filter(start_time__gte=fifteen_minute_cutoff)
         .distinct("session_key")
         .order_by("session_key")
         .count()

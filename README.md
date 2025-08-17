@@ -63,3 +63,13 @@ services:
       DATABASE_URL: postgres://<user>:<password>@db:5432/<dbname>
     ...
 ```
+
+
+# Crontab TODO
+
+Yeah yeah >.< ik i gotta figure out crontabs
+
+```
+# For tracking cleanup
+0 2 * * * python manage.py cleanup_tracking
+```
