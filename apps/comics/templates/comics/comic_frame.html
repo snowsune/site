@@ -68,6 +68,22 @@
             <img src="{{ current_page.image.url }}" alt="{{ current_page.title }}"
                 class="comic-image {% if current_page.is_nsfw %}nsfw-blurred{% endif %}"
                 id="comic-image-{{ current_page.page_number }}">
+
+            <!-- Transcript Overlay -->
+            {% if current_page.transcript.elements %}
+            <div class="transcript-overlay" id="transcript-overlay-{{ current_page.page_number }}">
+                {% for element in current_page.transcript.elements %}
+                <div class="transcript-element {{ element.type }} {{ element.css_class|default:'' }}"
+                    data-element-type="{{ element.type }}" data-text="{{ element.text|escape }}"
+                    data-character="{{ element.character_name|default:''|escape }}" data-x1="{{ element.x1 }}"
+                    data-y1="{{ element.y1 }}" data-x2="{{ element.x2 }}" data-y2="{{ element.y2 }}">
+                    {% if element.type == 'note' %}
+                    <div class="note-content">{{ element.text }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
 
         {% if show_description and current_page.description %}
@@ -162,4 +178,103 @@
                 break;
         }
     });
+
+    // Transcript Element Functionality
+    document.addEventListener('DOMContentLoaded', function () {
+        // Position transcript elements based on displayed image size
+        positionTranscriptElements();
+
+        // Add hover tooltips for transcript elements
+        const transcriptElements = document.querySelectorAll('.transcript-element');
+
+        transcriptElements.forEach(element => {
+            const elementType = element.dataset.elementType;
+            const text = element.dataset.text;
+            const character = element.dataset.character;
+
+            if (elementType === 'transcript') {
+                // Add title attribute for hover tooltip
+                element.title = text;
+            }
+
+            if (elementType === 'credits') {
+                // Make credits clickable - open text content as link in new tab
+                element.addEventListener('click', function () {
+                    // Check if the text looks like a URL
+                    if (text.startsWith('http://') || text.startsWith('https://') || text.startsWith('www.')) {
+                        // If it's a URL, open it directly
+                        window.open(text, '_blank');
+                    } else {
+                        // If it's not a URL, try to make it one by adding https://
+                        const url = text.includes('://') ? text : `https://${text}`;
+                        window.open(url, '_blank');
+                    }
+                });
+            }
+        });
+    });
+
+    // Handle window resize for transcript elements
+    window.addEventListener('resize', function () {
+        setTimeout(positionTranscriptElements, 100); // Small delay to ensure resize is complete
+    });
+
+    function positionTranscriptElements() {
+        const comicFrame = document.querySelector('.comic-frame');
+        if (!comicFrame) return;
+
+        const currentPage = comicFrame.dataset.currentPage;
+        const image = document.getElementById(`comic-image-${currentPage}`);
+        const overlay = document.getElementById(`transcript-overlay-${currentPage}`);
+
+        if (!image || !overlay) return;
+
+        // Wait for image to be fully loaded
+        if (image.complete) {
+            calculateElementPositions(image, overlay);
+        } else {
+            image.onload = function () {
+                calculateElementPositions(image, overlay);
+            };
+        }
+    }
+
+    function calculateElementPositions(image, overlay) {
+        const imageRect = image.getBoundingClientRect();
+        const containerRect = image.parentElement.getBoundingClientRect();
+
+        // Calculate scaling factors
+        const scaleX = imageRect.width / image.naturalWidth;
+        const scaleY = imageRect.height / image.naturalHeight;
+
+        // Position overlay to align with the image
+        const imageOffsetX = imageRect.left - containerRect.left;
+        const imageOffsetY = imageRect.top - containerRect.top;
+
+        overlay.style.left = imageOffsetX + 'px';
+        overlay.style.top = imageOffsetY + 'px';
+        overlay.style.width = imageRect.width + 'px';
+        overlay.style.height = imageRect.height + 'px';
+
+        // Position and size each transcript element
+        const elements = overlay.querySelectorAll('.transcript-element');
+        elements.forEach(element => {
+            const x1 = parseInt(element.dataset.x1);
+            const y1 = parseInt(element.dataset.y1);
+            const x2 = parseInt(element.dataset.x2);
+            const y2 = parseInt(element.dataset.y2);
+
+            // Scale coordinates to match displayed image
+            const scaledX1 = x1 * scaleX;
+            const scaledY1 = y1 * scaleY;
+            const scaledWidth = (x2 - x1) * scaleX;
+            const scaledHeight = (y2 - y1) * scaleY;
+
+            // Apply scaled positioning and sizing
+            element.style.left = scaledX1 + 'px';
+            element.style.top = scaledY1 + 'px';
+            element.style.width = scaledWidth + 'px';
+            element.style.height = scaledHeight + 'px';
+        });
+    }
 </script>
