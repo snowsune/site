@@ -71,7 +71,6 @@ INSTALLED_APPS = [
     "apps.blog",
     "apps.comics",
     "apps.characters",
-    "apps.pages",
     "apps.commorganizer",  # Commission Organizer app
     "apps.notifications",  # Centralized notification system
     "apps.thank_yous",  # Thank yous management app

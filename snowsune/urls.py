@@ -30,7 +30,6 @@ urlpatterns = [
     path("commorganizer/", include("apps.commorganizer.urls")),
     path("characters/", include("apps.characters.urls")),
     path("users/", include("apps.users.urls")),
-    path("", include("apps.pages.urls")),
     # SEO
     path(
         "sitemap.xml",

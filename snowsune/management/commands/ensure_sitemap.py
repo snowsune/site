@@ -3,7 +3,7 @@ from django.utils import timezone
 from datetime import timedelta, timezone as dt_timezone
 from apps.blog.models import BlogPost
 from apps.comics.models import ComicPage
-from apps.pages.models import EditablePage
+
 import os
 
 
@@ -109,16 +109,6 @@ class Command(BaseCommand):
         <lastmod>{page.updated_at.strftime('%Y-%m-%d')}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
-    </url>"""
-
-            # Add static pages
-            for page in EditablePage.objects.all():
-                sitemap_content += f"""
-    <url>
-        <loc>https://{domain}/pages/{page.slug}/</loc>
-        <lastmod>{page.updated_at.strftime('%Y-%m-%d')}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.5</priority>
     </url>"""
 
             # Close the sitemap
