@@ -102,7 +102,7 @@ class Command(BaseCommand):
     </url>"""
 
             # Add comic pages
-            for page in ComicPage.objects.all():
+            for page in ComicPage.published.all():
                 sitemap_content += f"""
     <url>
         <loc>https://{domain}{page.get_absolute_url()}</loc>

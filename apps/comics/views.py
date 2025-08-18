@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from .models import ComicPage
@@ -7,7 +7,8 @@ from .models import ComicPage
 
 def page_detail(request, page_number):
     """Display a specific comic page with navigation"""
-    page = get_object_or_404(ComicPage, page_number=page_number)
+    # Only allow access to published comics
+    page = get_object_or_404(ComicPage.published, page_number=page_number)
 
     context = {
         "page": page,
@@ -19,20 +20,19 @@ def page_detail(request, page_number):
 
 def comic_home(request):
     """Display the comic home page with latest pages"""
-    latest_pages = ComicPage.objects.filter(published_at__isnull=False).order_by(
-        "-page_number"
-    )[:10]
+    latest_pages = ComicPage.published.order_by("-page_number")[:10]
 
     context = {
         "latest_pages": latest_pages,
-        "total_pages": ComicPage.objects.filter(published_at__isnull=False).count(),
+        "total_pages": ComicPage.published.count(),
     }
     return render(request, "comics/comic_home.html", context)
 
 
 def page_navigation(request, page_number):
     """AJAX endpoint for page navigation data"""
-    page = get_object_or_404(ComicPage, page_number=page_number)
+    # Only allow access to published comics
+    page = get_object_or_404(ComicPage.published, page_number=page_number)
 
     next_page = page.get_next_page()
     previous_page = page.get_previous_page()

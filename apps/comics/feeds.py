@@ -11,8 +11,8 @@ class ComicsFeed(Feed):
     feed_type = Rss201rev2Feed
 
     def items(self):
-        """Return the latest 20 comic pages"""
-        return ComicPage.objects.all().order_by("-created_at")[:20]
+        """Return the latest 20 published comic pages"""
+        return ComicPage.published.order_by("-published_at")[:20]
 
     def item_title(self, item):
         """Return the title of each comic page"""
@@ -30,7 +30,7 @@ class ComicsFeed(Feed):
 
     def item_pubdate(self, item):
         """Return the publication date"""
-        return item.created_at
+        return item.published_at
 
     def item_updateddate(self, item):
         """Return the last updated date"""

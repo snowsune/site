@@ -25,21 +25,15 @@ def comic_frame(
 
     if page_number:
         try:
-            current_page = ComicPage.objects.get(page_number=page_number)
+            current_page = ComicPage.published.get(page_number=page_number)
         except ComicPage.DoesNotExist:
             current_page = None
     else:
         # Get the latest published page
-        current_page = (
-            ComicPage.objects.filter(published_at__isnull=False)
-            .order_by("-page_number")
-            .first()
-        )
+        current_page = ComicPage.published.order_by("-page_number").first()
 
     # Get all available pages for the dropdown
-    available_pages = ComicPage.objects.filter(published_at__isnull=False).order_by(
-        "page_number"
-    )
+    available_pages = ComicPage.published.order_by("page_number")
 
     return {
         "current_page": current_page,
@@ -53,8 +47,4 @@ def comic_frame(
 @register.simple_tag
 def latest_comic_page():
     """Get the latest published comic page"""
-    return (
-        ComicPage.objects.filter(published_at__isnull=False)
-        .order_by("-page_number")
-        .first()
-    )
+    return ComicPage.published.order_by("-page_number").first()

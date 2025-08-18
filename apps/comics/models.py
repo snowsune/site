@@ -9,6 +9,18 @@ from apps.blog.models import BlogPost
 User = get_user_model()
 
 
+class PublishedComicPageManager(models.Manager):
+    """Manager that only returns published comic pages"""
+
+    def get_queryset(self):
+        now = timezone.now()
+        return (
+            super()
+            .get_queryset()
+            .filter(published_at__isnull=False, published_at__lte=now)
+        )
+
+
 class ComicPage(models.Model):
     """Model for individual comic pages"""
 
@@ -34,6 +46,10 @@ class ComicPage(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     published_at = models.DateTimeField(null=True, blank=True)
 
+    # Managers
+    objects = models.Manager()
+    published = PublishedComicPageManager()
+
     class Meta:
         ordering = ["page_number"]
         indexes = [
@@ -47,18 +63,25 @@ class ComicPage(models.Model):
     def get_absolute_url(self):
         return reverse("comics:page_detail", kwargs={"page_number": self.page_number})
 
+    @property
+    def is_published(self):
+        """Check if the comic page is published"""
+        if not self.published_at:
+            return False
+        return self.published_at <= timezone.now()
+
     def get_next_page(self):
-        """Get the next page if it exists"""
+        """Get the next published page if it exists"""
         try:
-            return ComicPage.objects.filter(page_number__gt=self.page_number).first()
+            return ComicPage.published.filter(page_number__gt=self.page_number).first()
         except ComicPage.DoesNotExist:
             return None
 
     def get_previous_page(self):
-        """Get the previous page if it exists"""
+        """Get the previous published page if it exists"""
         try:
             return (
-                ComicPage.objects.filter(page_number__lt=self.page_number)
+                ComicPage.published.filter(page_number__lt=self.page_number)
                 .order_by("-page_number")
                 .first()
             )
