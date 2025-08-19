@@ -49,7 +49,7 @@ class Command(BaseCommand):
         <loc>https://{domain}/tools/</loc>
         <lastmod>{timezone.now().strftime('%Y-%m-%d')}</lastmod>
         <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <priority>0.9</priority>
     </url>
     
     <!-- Blog landing -->
@@ -65,7 +65,7 @@ class Command(BaseCommand):
         <loc>https://{domain}/comics/</loc>
         <lastmod>{timezone.now().strftime('%Y-%m-%d')}</lastmod>
         <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
+        <priority>0.9</priority>
     </url>
     
     <!-- Characters -->
@@ -73,7 +73,7 @@ class Command(BaseCommand):
         <loc>https://{domain}/characters/</loc>
         <lastmod>{timezone.now().strftime('%Y-%m-%d')}</lastmod>
         <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
+        <priority>0.8</priority>
     </url>
     
     <!-- Character pages -->
@@ -81,14 +81,30 @@ class Command(BaseCommand):
         <loc>https://{domain}/characters/vixi-argorrok/</loc>
         <lastmod>{timezone.now().strftime('%Y-%m-%d')}</lastmod>
         <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <priority>0.7</priority>
     </url>
     
     <url>
         <loc>https://{domain}/characters/rhettan/</loc>
         <lastmod>{timezone.now().strftime('%Y-%m-%d')}</lastmod>
         <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <priority>0.7</priority>
+    </url>
+    
+    <!-- Commission Organizer -->
+    <url>
+        <loc>https://{domain}/commorganizer/</loc>
+        <lastmod>{timezone.now().strftime('%Y-%m-%d')}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <!-- Thank Yous -->
+    <url>
+        <loc>https://{domain}/thank-you/</loc>
+        <lastmod>{timezone.now().strftime('%Y-%m-%d')}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
     </url>"""
 
             # Add blog posts
@@ -97,8 +113,8 @@ class Command(BaseCommand):
     <url>
         <loc>https://{domain}{post.get_absolute_url()}</loc>
         <lastmod>{post.updated_at.strftime('%Y-%m-%d')}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
     </url>"""
 
             # Add comic pages
@@ -107,8 +123,8 @@ class Command(BaseCommand):
     <url>
         <loc>https://{domain}{page.get_absolute_url()}</loc>
         <lastmod>{page.updated_at.strftime('%Y-%m-%d')}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
     </url>"""
 
             # Close the sitemap

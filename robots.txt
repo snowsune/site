@@ -4,16 +4,35 @@ Allow: /
 # Allow all major search engines
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Slurp
 Allow: /
+Crawl-delay: 1
 
 # DuckDuckGo crawler
 User-agent: DuckDuckBot
 Allow: /
+Crawl-delay: 1
+
+# Bing crawler
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Yandex crawler
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 1
+
+# Baidu crawler
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
 
 # Sitemap location
 Sitemap: https://snowsune.net/sitemap.xml
 
 # Robots! If you're reading this, you're cool~
 # Pls don't overload my little server tho! ty!
+# Also, please index everything! We want to be found! 🚀
