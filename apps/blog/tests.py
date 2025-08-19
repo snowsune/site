@@ -154,7 +154,7 @@ class BlogModelsTest(TestCase):
 
     @patch("apps.commorganizer.utils.send_discord_webhook")
     def test_comment_webhook_on_creation(self, mock_webhook):
-        """Test that webhook is sent when a comment is created"""
+        """Test that moderator webhook is sent when an anonymous comment is created"""
         # Create a site setting for the moderator webhook
         from snowsune.models import SiteSetting
 
@@ -162,7 +162,7 @@ class BlogModelsTest(TestCase):
             key="moderator_webhook", value="https://example.com/webhook"
         )
 
-        # Create a comment - this should trigger the webhook
+        # Create a comment from anonymous user - this should trigger the moderator webhook
         comment = Comment.objects.create(
             post=self.post,
             author_name="Test Commenter",
@@ -179,12 +179,82 @@ class BlogModelsTest(TestCase):
         message = call_args[0][1]
 
         self.assertEqual(webhook_url, "https://example.com/webhook")
-        self.assertIn("New post on [Test Post]", message)
+        self.assertIn("New comment awaiting moderation on [Test Post]", message)
         self.assertIn("by Test Commenter:", message)
         self.assertIn(
             ">>> This is a test comment that should trigger a webhook", message
         )
         self.assertIn("-# Moderate [here]", message)
+
+    @patch("apps.commorganizer.utils.send_discord_webhook")
+    def test_authenticated_user_comment_webhook(self, mock_webhook):
+        """Test that blogpost webhook is sent when an authenticated user comment is created"""
+        # Create site settings for both webhooks
+        from snowsune.models import SiteSetting
+
+        SiteSetting.objects.create(
+            key="blogpost_webhook", value="https://example.com/blogpost-webhook"
+        )
+
+        # Create a comment from authenticated user - this should trigger the blogpost webhook
+        comment = Comment.objects.create(
+            post=self.post,
+            user=self.user,
+            author_name=self.user.username,
+            content="This is a test comment from authenticated user",
+            status="approved",
+        )
+
+        # Verify the webhook was called
+        mock_webhook.assert_called_once()
+
+        # Verify the webhook message contains expected content
+        call_args = mock_webhook.call_args
+        webhook_url = call_args[0][0]
+        message = call_args[0][1]
+
+        self.assertEqual(webhook_url, "https://example.com/blogpost-webhook")
+        self.assertIn(
+            f"[{self.user.username}](<https://dev.snowsune.net//user/{self.user.username}>) commented on [Test Post]",
+            message,
+        )
+        self.assertIn(">>> This is a test comment from authenticated user", message)
+        self.assertIn("-# View [here]", message)
+
+    @patch("apps.commorganizer.utils.send_discord_webhook")
+    def test_authenticated_user_comment_no_webhook_setting(self, mock_webhook):
+        """Test that no webhook is sent when blogpost_webhook setting is not configured"""
+        # Create a comment from authenticated user without the blogpost webhook setting
+        comment = Comment.objects.create(
+            post=self.post,
+            user=self.user,
+            author_name=self.user.username,
+            content="This comment should not trigger a webhook",
+            status="approved",
+        )
+
+        # Verify no webhook was called
+        mock_webhook.assert_not_called()
+
+    @patch("apps.commorganizer.utils.send_discord_webhook")
+    def test_authenticated_user_comment_empty_webhook_setting(self, mock_webhook):
+        """Test that no webhook is sent when blogpost_webhook setting is empty"""
+        # Create a site setting with empty value
+        from snowsune.models import SiteSetting
+
+        SiteSetting.objects.create(key="blogpost_webhook", value="")
+
+        # Create a comment from authenticated user
+        comment = Comment.objects.create(
+            post=self.post,
+            user=self.user,
+            author_name=self.user.username,
+            content="This comment should not trigger a webhook",
+            status="approved",
+        )
+
+        # Verify no webhook was called
+        mock_webhook.assert_not_called()
 
     @patch("apps.commorganizer.utils.send_discord_webhook")
     def test_comment_webhook_no_setting(self, mock_webhook):
@@ -246,6 +316,52 @@ class BlogModelsTest(TestCase):
 
         # Verify the webhook was still only called once
         mock_webhook.assert_called_once()
+
+    @patch("apps.commorganizer.utils.send_discord_webhook")
+    def test_comment_webhook_on_approval(self, mock_webhook):
+        """Test that blogpost webhook is sent when a pending comment is approved"""
+        # Create site settings for both webhooks
+        from snowsune.models import SiteSetting
+
+        SiteSetting.objects.create(
+            key="moderator_webhook", value="https://example.com/moderator-webhook"
+        )
+        SiteSetting.objects.create(
+            key="blogpost_webhook", value="https://example.com/blogpost-webhook"
+        )
+
+        # Create a comment from anonymous user - this should trigger the moderator webhook
+        comment = Comment.objects.create(
+            post=self.post,
+            author_name="Anonymous Commenter",
+            content="This comment needs moderation",
+            status="pending",
+        )
+
+        # Verify the moderator webhook was called once
+        mock_webhook.assert_called_once()
+
+        # Reset the mock to track the next call
+        mock_webhook.reset_mock()
+
+        # Now approve the comment - this should trigger the blogpost webhook
+        comment.status = "approved"
+        comment.save()
+
+        # Verify the blogpost webhook was called
+        mock_webhook.assert_called_once()
+
+        # Verify it was called with the blogpost webhook URL
+        call_args = mock_webhook.call_args
+        webhook_url = call_args[0][0]
+        message = call_args[0][1]
+
+        self.assertEqual(webhook_url, "https://example.com/blogpost-webhook")
+        self.assertIn(
+            '"Anonymous Commenter" commented on [Test Post]',
+            message,
+        )
+        self.assertIn(">>> This comment needs moderation", message)
 
 
 class BlogFormsTest(TestCase):

@@ -282,14 +282,37 @@ class Comment(models.Model):
         # Check if this is a new comment
         is_new_comment = self.pk is None
 
+        # Get the previous status if this is an update
+        previous_status = None
+        if not is_new_comment:
+            try:
+                previous_instance = Comment.objects.get(pk=self.pk)
+                previous_status = previous_instance.status
+            except Comment.DoesNotExist:
+                pass
+
         super().save(*args, **kwargs)
 
-        # Send webhook notification for new comments
+        # Send appropriate webhook notification for new comments
         if is_new_comment:
-            self.send_moderator_webhook()
+            if self.user and self.user.is_authenticated:
+                # Authenticated users get auto-approved, send to blogpost webhook
+                self.send_blogpost_webhook()
+            else:
+                # Anonymous users need moderation, send to moderator webhook
+                self.send_moderator_webhook()
+
+        # Handle status changes for existing comments
+        elif (
+            not is_new_comment
+            and previous_status == "pending"
+            and self.status == "approved"
+        ):
+            # Comment was approved during moderation, send to blogpost webhook
+            self.send_blogpost_webhook()
 
     def send_moderator_webhook(self):
-        """Send webhook notification to moderator webhook for new comments"""
+        """Send webhook notification to moderator webhook for comments needing moderation"""
         try:
             # Get webhook URL from site settings
             webhook_setting = SiteSetting.objects.filter(
@@ -306,7 +329,7 @@ class Comment(models.Model):
             from apps.commorganizer.utils import send_discord_webhook
 
             # Create notification message
-            message = f"New post on [{self.post.title}](<{settings.SITE_URL}{self.post.get_absolute_url()}>) by {self.get_display_name()}:\n"
+            message = f"New comment awaiting moderation on [{self.post.title}](<{settings.SITE_URL}{self.post.get_absolute_url()}>) by {self.get_display_name()}:\n"
             message += f">>> {self.content}\n\n"
             message += f"-# Moderate [here](<{settings.SITE_URL}/blog/dashboard/>)"
 
@@ -317,4 +340,38 @@ class Comment(models.Model):
             # Log error but don't break the save process
             print(
                 f"Failed to send moderator webhook for comment on {self.post.title}: {e}"
+            )
+
+    def send_blogpost_webhook(self):
+        """Send webhook notification to blogpost webhook for approved comments from authenticated users"""
+        try:
+            # Get webhook URL from site settings
+            webhook_setting = SiteSetting.objects.filter(key="blogpost_webhook").first()
+            if not webhook_setting or not webhook_setting.value:
+                return  # No webhook configured
+
+            webhook_url = webhook_setting.value.strip()
+            if not webhook_url:
+                return
+
+            # Import here to avoid circular imports
+            from apps.commorganizer.utils import send_discord_webhook
+
+            # Only format username as a link if the user is authenticated
+            if self.user and self.user.is_authenticated:
+                username_display = f"[{self.get_display_name()}](<{settings.SITE_URL}/user/{self.get_display_name()}>)"
+            else:
+                username_display = f'"{self.get_display_name()}"'
+
+            message = f"{username_display} commented on [{self.post.title}](<{settings.SITE_URL}{self.post.get_absolute_url()}>):\n"
+            message += f">>> {self.content}\n\n"
+            message += f"-# View [here](<{settings.SITE_URL}{self.post.get_absolute_url()}#comment-{self.id}>)"
+
+            # Send webhook
+            send_discord_webhook(webhook_url, message)
+
+        except Exception as e:
+            # Log error but don't break the save process
+            print(
+                f"Failed to send blogpost webhook for comment on {self.post.title}: {e}"
             )
