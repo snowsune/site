@@ -214,8 +214,14 @@ class BlogModelsTest(TestCase):
         message = call_args[0][1]
 
         self.assertEqual(webhook_url, "https://example.com/blogpost-webhook")
+
+        # Get the actual SITE_URL from Django settings to make test environment-agnostic
+        from django.conf import settings
+
+        site_url = getattr(settings, "SITE_URL", "https://snowsune.net")
+
         self.assertIn(
-            f"[{self.user.username}](<https://dev.snowsune.net//user/{self.user.username}>) commented on [Test Post]",
+            f"[{self.user.username}](<{site_url}/user/{self.user.username}>) commented on [Test Post]",
             message,
         )
         self.assertIn(">>> This is a test comment from authenticated user", message)
@@ -357,6 +363,12 @@ class BlogModelsTest(TestCase):
         message = call_args[0][1]
 
         self.assertEqual(webhook_url, "https://example.com/blogpost-webhook")
+
+        # Get the actual SITE_URL from Django settings to make test environment-agnostic
+        from django.conf import settings
+
+        site_url = getattr(settings, "SITE_URL", "https://snowsune.net")
+
         self.assertIn(
             '"Anonymous Commenter" commented on [Test Post]',
             message,
