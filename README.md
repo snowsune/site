@@ -17,9 +17,9 @@ content categories and i try to be as **modular** as possible. Here's how things
 ### 📁 `apps/`
 Houses all feature-specific Django apps:
 
-- `blog/` — Blog landing page and future dynamic markdown-powered post system. (WIP!)
-- `characters/` — Static character profiles stored as `.md` files and rendered with markdown. (WIP also!)
-- `comics/` — Placeholder for comic content.
+- `blog/` — Blog subapp! Templates and DB Stuff for blog in here
+- `characters/` — Static character profiles stored as `.md` files and rendered with markdown. (WIP/maybe removal >.<!)
+- `comics/` — COMCIS! My own personal webcomic system! its pretty barebones. TODO: Implement independant comments/etc (rn it hooks the blogpost system for comments)
   
 Each app contains its own:
 - `templates/` — App-specific templates.
@@ -64,6 +64,37 @@ services:
     ...
 ```
 
+# Basic development Guide!
+
+## Setup ENVs
+
+Start by making up a `.env` file! The minumum defines are here
+
+```
+DEBUG=True
+SECRET_KEY="fortestingonly"
+DATABASE_URL="sqlite:///db.sqlite3"
+MEDIA_ROOT=.local/media
+SITE_URL=https://dev.snowsune.net/
+```
+
+## Setup dependencies and run!
+
+I use `pipenv` to make the management easy but you could use any chroot/venv you like really!
+
+```
+# Install
+pipenv install -r requirements.txt
+
+# Run inital migrations
+pipenv run python manage.py migrate
+
+# Run devserver!
+pipenv run python manage.py runserver
+```
+
+Thats it! You're running a dev server at http://127.0.0.1:8000/ with a sqlite
+database!
 
 # Crontab TODO
 
