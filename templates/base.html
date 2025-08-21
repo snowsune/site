@@ -2,21 +2,16 @@
 <html lang="en">
 {% load static %}
 
-<!-- Dark Mode Script! -->
-<script>
-  // Set theme class before load!
-  (function () {
-    try {
-      if (localStorage.getItem("darkMode") === "enabled") {
-        document.documentElement.classList.add("dark-mode");
-      }
-    } catch (e) {
-      // fallback silently
-    }
-  })();
-</script>
 
 <head>
+  <!-- Dark Mode Script! -->
+  <script>
+    // Set theme class before load!
+    if (localStorage.getItem("darkMode") === "enabled" || window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.documentElement.classList.add("dark-mode");
+    }
+  </script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}Snowsune.net{% endblock %}</title>
@@ -148,7 +143,6 @@
         </a>
         {% endif %}
         {% include "users/widget.html" %}
-        <button id="dark-mode-toggle" onclick="toggleDarkMode()">Dark Mode</button>
       </div>
     </div>
   </header>
@@ -203,30 +197,6 @@
     </div>
   </footer>
 
-  <script>
-    function toggleDarkMode() {
-      const html = document.documentElement;
-      html.classList.toggle("dark-mode");
-
-      const isDarkMode = html.classList.contains("dark-mode");
-      localStorage.setItem("darkMode", isDarkMode ? "enabled" : "disabled");
-
-      // Update button text
-      const btn = document.getElementById("dark-mode-toggle");
-      if (btn) {
-        btn.innerText = isDarkMode ? "Light Mode" : "Dark Mode";
-      }
-    }
-
-    // Set correct button text on page load
-    window.onload = function () {
-      const isDarkMode = document.documentElement.classList.contains("dark-mode");
-      const btn = document.getElementById("dark-mode-toggle");
-      if (btn) {
-        btn.innerText = isDarkMode ? "Light Mode" : "Dark Mode";
-      }
-    };
-  </script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const hamburger = document.getElementById('nav-hamburger');
