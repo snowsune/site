@@ -420,19 +420,3 @@ class BlogRSSFeed(Feed):
 
     def item_categories(self, item):
         return [tag.name for tag in item.tags.all()]
-
-
-def blog_landing(request):
-    """Landing page for the blog"""
-    latest_posts = (
-        BlogPost.objects.filter(status="published")
-        .select_related("author")
-        .prefetch_related("tags")[:6]
-    )
-    popular_tags = Tag.objects.all()[:10]
-
-    context = {
-        "latest_posts": latest_posts,
-        "popular_tags": popular_tags,
-    }
-    return render(request, "blog/landing.html", context)

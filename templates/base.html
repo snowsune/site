@@ -128,13 +128,13 @@
         <div class="nav-links">
           <a href="{% url 'home' %}">Home</a>
           <a href="{% url 'tools' %}">Apps/Tools</a>
-          <a href="{% url 'blog:blog_landing' %}">Blog</a>
+          <a href="{% url 'blog:blog_list' %}">Blog</a>
           <a href="{% url 'comics:comic_home' %}">Comics</a>
         </div>
         <div class="nav-mobile-links" id="nav-mobile-links">
           <a href="{% url 'home' %}">Home</a>
           <a href="{% url 'tools' %}">Apps/Tools</a>
-          <a href="{% url 'blog:blog_landing' %}">Blog</a>
+          <a href="{% url 'blog:blog_list' %}">Blog</a>
           <a href="{% url 'comics:comic_home' %}">Comics</a>
         </div>
       </nav>
@@ -169,7 +169,7 @@
         <li><a href="{% url 'home' %}">About</a></li>
         <!-- TODO: Change me to a proper about page later -->
         <li><a href="{% url 'tools' %}">Tools</a></li>
-        <li><a href="{% url 'blog:blog_landing' %}">Blog</a></li>
+        <li><a href="{% url 'blog:blog_list' %}">Blog</a></li>
       </ul>
       {% block sidebar %} {% endblock %}
 
