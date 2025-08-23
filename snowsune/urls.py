@@ -9,6 +9,7 @@ from snowsune.views.home import HomeView
 from snowsune.views.projects import ProjectsView
 from snowsune.views.tools import ToolsView
 from snowsune.views.live_status import live_status_view
+from snowsune.views.image_utils import format_preview_view
 from apps.thank_yous.views import thank_you_view
 
 
@@ -24,6 +25,10 @@ urlpatterns = [
     path("logout/", HomeView.as_view(), name="logout"),
     # API endpoints
     path("api/live/", live_status_view, name="live_status_api"),
+    # Image formatting for social media previews
+    path(
+        "format_preview/<path:image_path>", format_preview_view, name="format_preview"
+    ),
     # "app" urls
     path("blog/", include("apps.blog.urls")),
     path("comics/", include("apps.comics.urls")),

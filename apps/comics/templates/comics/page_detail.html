@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 {% load comic_tags %}
+{% load image_tags %}
 
 {% block title %}{{ page.title }} - Page {{ page.page_number }} - snowsune.net{% endblock %}
 
 {% block meta_keywords %}comic, webcomic, {{ page.title }}, page {{ page.page_number }}, snowsune{% endblock %}
 
-{% block og_image %}{% if page.image %}{{ page.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
-{% block twitter_image %}{% if page.image %}{{ page.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block og_image %}{% if page.image %}{{ page.image.url|social_preview_url_og:request }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block twitter_image %}{% if page.image %}{{ page.image.url|social_preview_url_og:request }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
 {% block meta_description %}{{ page.description_html|striptags|truncatewords:30 }}{% endblock %}
 {% block og_description %}{{ page.description_html|striptags|truncatewords:30 }}{% endblock %}
 {% block twitter_description %}{{ page.description_html|striptags|truncatewords:30 }}{% endblock %}
@@ -43,7 +44,7 @@
   "@type": "CreativeWork",
   "name": "{{ page.title }}",
   "description": "{{ page.description_html|striptags|truncatewords:30 }}",
-  "image": "{% if page.image %}{{ page.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}",
+  "image": "{% if page.image %}{{ page.image.url|social_preview_url_og:request }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}",
   "url": "{{ request.build_absolute_uri }}",
   "creator": {
     "@type": "Person",

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load image_tags %}
 
 {% block title %}{{ post.title }} - Snowsune Blog{% endblock %}
 
@@ -47,7 +48,7 @@
     "@type": "WebPage",
     "@id": "https://snowsune.net{{ post.get_absolute_url }}"
   },
-  "image": "{% if post.featured_image %}https://snowsune.net{{ post.featured_image.url }}{% else %}https://snowsune.net{% static 'placeholders/placeholder_wide.png' %}{% endif %}",
+  "image": "{% if post.featured_image %}{{ post.featured_image.url|social_preview_url_og:request }}{% else %}https://snowsune.net{% static 'placeholders/placeholder_wide.png' %}{% endif %}",
   "keywords": "{{ post.tags.all|join:', ' }}, blog, furry, art, community, snowsune, vixi",
   "articleSection": "Blog",
   "inLanguage": "en-US"
