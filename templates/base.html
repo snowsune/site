@@ -116,8 +116,10 @@
         <img src="{% if debug %}{% static 'logos/devlogo.png' %}{% else %}{% static 'logos/logo.png' %}{% endif %}"
           alt="Snowsune Logo" />
         <div class="live-stats">
-          <span class="active-users">👥 <span id="active-users-count">-</span> online</span>
-          <span class="server-offset">☀️ <span id="server-offset">-</span>%</span>
+          <span class="active-users" title="Users online! (Last 15 Minutes)">👥 <span id="active-users-count">-</span>
+            online</span>
+          <span class="server-offset" title="Percent of server energy provided by solar!">☀️ <span
+              id="server-offset">-</span>%</span>
         </div>
       </div>
       <nav class="navbar">
