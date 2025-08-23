@@ -2,21 +2,16 @@
 <html lang="en">
 {% load static %}
 
-<!-- Dark Mode Script! -->
-<script>
-  // Set theme class before load!
-  (function () {
-    try {
-      if (localStorage.getItem("darkMode") === "enabled") {
-        document.documentElement.classList.add("dark-mode");
-      }
-    } catch (e) {
-      // fallback silently
-    }
-  })();
-</script>
 
 <head>
+  <!-- Dark Mode Script! -->
+  <script>
+    // Set theme class before load!
+    if (localStorage.getItem("darkMode") === "enabled" || window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.documentElement.classList.add("dark-mode");
+    }
+  </script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}Snowsune.net{% endblock %}</title>
@@ -27,7 +22,7 @@
   <meta name="description"
     content="{% block meta_description %}Welcome to Snowsune.net! Vixi's website for projects, tools, comics, and more!{% endblock %}" />
   <meta name="keywords"
-    content="{% block meta_keywords %}Snowsune, Vixi, Vixi Argorrok, Rhettan, projects, blog, tools, comics, furry, art, webcomic, discord, server, hangout, community, furry art, digital art, character art, commission, commission organizer, thank you tracker, furry community, online tools, web development, creative projects{% endblock %}" />
+    content="{% block meta_keywords %}Snowsune, Vixi, Vixi Argorrok, Rhettan, Alice Prairie, projects, blog, tools, comics, furry, art, webcomic, discord, server, hangout, community, furry art, digital art, character art, commission, commission organizer, furry community, online tools, web development, creative projects{% endblock %}" />
   <meta name="author" content="Vixi" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="{% block canonical_url %}https://snowsune.net{% endblock %}" />
@@ -54,7 +49,7 @@
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt"
-    content="{% block og_image_alt %}Snowsune.net - Vixi's creative website{% endblock %}" />
+    content="{% block og_image_alt %}Snowsune.net - Vixi's personal website{% endblock %}" />
 
   <!-- Twitter Card (not because I like twitter, only for compat in apps that accept the summary_large) -->
   <meta name="twitter:card" content="summary_large_image" />
@@ -64,7 +59,7 @@
   <meta name="twitter:image"
     content="{% block twitter_image %}{% static 'placeholders/placeholder_wide.png' %}{% endblock %}" />
   <meta name="twitter:image:alt"
-    content="{% block twitter_image_alt %}Snowsune.net - Vixi's creative website{% endblock %}" />
+    content="{% block twitter_image_alt %}Snowsune.net - Vixi's personal website{% endblock %}" />
   <meta name="twitter:site" content="@snowsune" />
   <meta name="twitter:creator" content="@vixi" />
 
@@ -121,20 +116,23 @@
         <img src="{% if debug %}{% static 'logos/devlogo.png' %}{% else %}{% static 'logos/logo.png' %}{% endif %}"
           alt="Snowsune Logo" />
         <div class="live-stats">
-          <span class="active-users">👥 <span id="active-users-count">-</span> online</span>
+          <span class="active-users" title="Users online! (Last 15 Minutes)">👥 <span id="active-users-count">-</span>
+            online</span>
+          <span class="server-offset" title="Percent of server energy provided by solar!">☀️ <span
+              id="server-offset">-</span>%</span>
         </div>
       </div>
       <nav class="navbar">
         <div class="nav-links">
           <a href="{% url 'home' %}">Home</a>
           <a href="{% url 'tools' %}">Apps/Tools</a>
-          <a href="{% url 'blog:blog_landing' %}">Blog</a>
+          <a href="{% url 'blog:blog_list' %}">Blog</a>
           <a href="{% url 'comics:comic_home' %}">Comics</a>
         </div>
         <div class="nav-mobile-links" id="nav-mobile-links">
           <a href="{% url 'home' %}">Home</a>
           <a href="{% url 'tools' %}">Apps/Tools</a>
-          <a href="{% url 'blog:blog_landing' %}">Blog</a>
+          <a href="{% url 'blog:blog_list' %}">Blog</a>
           <a href="{% url 'comics:comic_home' %}">Comics</a>
         </div>
       </nav>
@@ -148,7 +146,6 @@
         </a>
         {% endif %}
         {% include "users/widget.html" %}
-        <button id="dark-mode-toggle" onclick="toggleDarkMode()">Dark Mode</button>
       </div>
     </div>
   </header>
@@ -169,7 +166,7 @@
         <li><a href="{% url 'home' %}">About</a></li>
         <!-- TODO: Change me to a proper about page later -->
         <li><a href="{% url 'tools' %}">Tools</a></li>
-        <li><a href="{% url 'blog:blog_landing' %}">Blog</a></li>
+        <li><a href="{% url 'blog:blog_list' %}">Blog</a></li>
       </ul>
       {% block sidebar %} {% endblock %}
 
@@ -203,30 +200,6 @@
     </div>
   </footer>
 
-  <script>
-    function toggleDarkMode() {
-      const html = document.documentElement;
-      html.classList.toggle("dark-mode");
-
-      const isDarkMode = html.classList.contains("dark-mode");
-      localStorage.setItem("darkMode", isDarkMode ? "enabled" : "disabled");
-
-      // Update button text
-      const btn = document.getElementById("dark-mode-toggle");
-      if (btn) {
-        btn.innerText = isDarkMode ? "Light Mode" : "Dark Mode";
-      }
-    }
-
-    // Set correct button text on page load
-    window.onload = function () {
-      const isDarkMode = document.documentElement.classList.contains("dark-mode");
-      const btn = document.getElementById("dark-mode-toggle");
-      if (btn) {
-        btn.innerText = isDarkMode ? "Light Mode" : "Dark Mode";
-      }
-    };
-  </script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const hamburger = document.getElementById('nav-hamburger');
@@ -270,60 +243,8 @@
   <!-- Centralized Notification System -->
   <script src="{% static 'js/notifications.js' %}"></script>
 
-  <!-- Real-time active users counter -->
-  <script>
-    function updateActiveUsers() {
-      // Get current timestamp
-      const now = new Date().getTime();
-
-      // Check if we have a recent count in localStorage
-      const cached = localStorage.getItem('activeUsersCache');
-      if (cached) {
-        const { count, timestamp } = JSON.parse(cached);
-        const age = now - timestamp;
-
-        // Use cached value if it's less than 30 seconds old
-        if (age < 30000) {
-          document.getElementById('active-users-count').textContent = count;
-          return;
-        }
-      }
-
-      // Fetch new data from server
-      fetch('/api/active-users/', {
-        method: 'GET',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-        }
-      })
-        .then(response => response.json())
-        .then(data => {
-          const count = data.active_users || 0;
-          document.getElementById('active-users-count').textContent = count;
-
-          // Cache the result
-          localStorage.setItem('activeUsersCache', JSON.stringify({
-            count: count,
-            timestamp: now
-          }));
-        })
-        .catch(error => {
-          console.log('Failed to fetch active users:', error);
-          // Show cached value if available, otherwise show '-'
-          const cached = localStorage.getItem('activeUsersCache');
-          if (cached) {
-            const { count } = JSON.parse(cached);
-            document.getElementById('active-users-count').textContent = count;
-          }
-        });
-    }
-
-    // Update every 30 seconds
-    setInterval(updateActiveUsers, 30000);
-
-    // Initial update
-    document.addEventListener('DOMContentLoaded', updateActiveUsers);
-  </script>
+  <!-- Live Stats Script -->
+  <script src="{% static 'js/live-stats.js' %}"></script>
 
   {% block extra_js %}{% endblock %}
 </body>
