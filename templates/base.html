@@ -117,6 +117,7 @@
           alt="Snowsune Logo" />
         <div class="live-stats">
           <span class="active-users">👥 <span id="active-users-count">-</span> online</span>
+          <span class="server-offset">☀️ <span id="server-offset">-</span>%</span>
         </div>
       </div>
       <nav class="navbar">
@@ -240,60 +241,8 @@
   <!-- Centralized Notification System -->
   <script src="{% static 'js/notifications.js' %}"></script>
 
-  <!-- Real-time active users counter -->
-  <script>
-    function updateActiveUsers() {
-      // Get current timestamp
-      const now = new Date().getTime();
-
-      // Check if we have a recent count in localStorage
-      const cached = localStorage.getItem('activeUsersCache');
-      if (cached) {
-        const { count, timestamp } = JSON.parse(cached);
-        const age = now - timestamp;
-
-        // Use cached value if it's less than 30 seconds old
-        if (age < 30000) {
-          document.getElementById('active-users-count').textContent = count;
-          return;
-        }
-      }
-
-      // Fetch new data from server
-      fetch('/api/active-users/', {
-        method: 'GET',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-        }
-      })
-        .then(response => response.json())
-        .then(data => {
-          const count = data.active_users || 0;
-          document.getElementById('active-users-count').textContent = count;
-
-          // Cache the result
-          localStorage.setItem('activeUsersCache', JSON.stringify({
-            count: count,
-            timestamp: now
-          }));
-        })
-        .catch(error => {
-          console.log('Failed to fetch active users:', error);
-          // Show cached value if available, otherwise show '-'
-          const cached = localStorage.getItem('activeUsersCache');
-          if (cached) {
-            const { count } = JSON.parse(cached);
-            document.getElementById('active-users-count').textContent = count;
-          }
-        });
-    }
-
-    // Update every 30 seconds
-    setInterval(updateActiveUsers, 30000);
-
-    // Initial update
-    document.addEventListener('DOMContentLoaded', updateActiveUsers);
-  </script>
+  <!-- Live Stats Script -->
+  <script src="{% static 'js/live-stats.js' %}"></script>
 
   {% block extra_js %}{% endblock %}
 </body>

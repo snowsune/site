@@ -105,15 +105,18 @@ a:visited {
   opacity: 0.8;
 }
 
-.active-users {
+.active-users,
+.server-offset {
   display: inline-block;
   padding: 0.25rem 0.5rem;
   background: var(--tile-background);
   border-radius: 4px;
   border: 1px solid var(--text-color);
+  margin: 0.1rem;
 }
 
-#active-users-count {
+#active-users-count,
+#server-offset {
   font-weight: bold;
   color: var(--link-default);
 }
