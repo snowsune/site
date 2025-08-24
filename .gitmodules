@@ -1,0 +1,3 @@
+[submodule "apps/size-diff"]
+	path = apps/size_diff
+	url = https://github.com/snowsune/size-diff

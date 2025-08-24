@@ -35,6 +35,7 @@ urlpatterns = [
     path("commorganizer/", include("apps.commorganizer.urls")),
     path("characters/", include("apps.characters.urls")),
     path("users/", include("apps.users.urls")),
+    path("size-diff/", include("apps.size_diff.urls")),
     # SEO
     path(
         "sitemap.xml",

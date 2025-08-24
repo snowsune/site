@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     "apps.commorganizer",  # Commission Organizer app
     "apps.notifications",  # Centralized notification system
     "apps.thank_yous",  # Thank yous management app
+    "apps.size_diff",  # Size Diff app
 ]
 
 MIDDLEWARE = [
