@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from django.utils.text import slugify
 from .models import BlogPost, Tag
 from .models import Comment
 
@@ -157,7 +158,7 @@ class BlogPostForm(forms.ModelForm):
                 for tag_name in tag_names:
                     tag, created = Tag.objects.get_or_create(
                         name=tag_name,
-                        defaults={"slug": tag_name.lower().replace(" ", "-")},
+                        defaults={"slug": slugify(tag_name)},
                     )
                     instance.tags.add(tag)
                     has_new_tags = True

@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import strip_tags
+from django.utils.text import slugify
 import markdown
 from apps.blog.models import BlogPost
 
@@ -115,7 +116,7 @@ class ComicPage(models.Model):
         # Create a new blog post
         blog_post = BlogPost.objects.create(
             title=f"Comic Page {self.page_number}: {self.title}",
-            slug=f"comic-page-{self.page_number}-{self.title.lower().replace(' ', '-')}",
+            slug=slugify(f"comic-page-{self.page_number}-{self.title}"),
             author=author,
             content=f"Discuss this comic page: {self.title}\n\n{self.description or ''}",
             status="draft",  # Start as draft, can be published later
