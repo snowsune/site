@@ -18,7 +18,7 @@ function showCommentForm(event) {
   <input type="hidden" name="y" value="${y}" />
   <label>Name: <input type="text" name="commenter_name" value="${commenterName}" required /></label><br>
   <label>Comment:<br><textarea name="content" required style="width: 100%;"></textarea></label><br>
-  <button type="submit" name="add_comment">Add Comment at (${x}, ${y})</button>
+  <button type="submit" name="add_comment">Add Comment${x !== 0 || y !== 0 ? ` at (${x}, ${y})` : ''}</button>
   <button type="button" onclick="document.getElementById('comment-form-container').style.display='none';">Cancel</button>
 </form>
 `;
