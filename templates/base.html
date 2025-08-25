@@ -71,6 +71,7 @@
 
   <!-- Favicon -->
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+  <link rel="stylesheet" href="{% static 'quotes/css/quotes.css' %}" />
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}" />
 
   <!-- Extra CSS block for page-specific styles -->
@@ -122,6 +123,7 @@
               id="server-offset">-</span>%</span>
         </div>
       </div>
+
       <nav class="navbar">
         <div class="nav-links">
           <a href="{% url 'home' %}">Home</a>
@@ -136,6 +138,11 @@
           <a href="{% url 'comics:comic_home' %}">Comics</a>
         </div>
       </nav>
+
+      <!-- Quotes Scroller -->
+      <div id="quotes-scroller" class="quotes-container">
+        <span>Loading quotes...</span>
+      </div>
     </div>
     <div class="header-right">
       <div class="login">
@@ -242,6 +249,9 @@
 
   <!-- Centralized Notification System (WIP) -->
   <script src="{% static 'notifications/js/notifications.js' %}"></script>
+
+  <!-- Quotes Scroller -->
+  <script src="{% static 'quotes/js/quotes-scroller.js' %}"></script>
 
   <!-- Live Stats Script -->
   <script src="{% static 'js/live-stats.js' %}"></script>

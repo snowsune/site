@@ -29,6 +29,7 @@ urlpatterns = [
     path("comics/", include("apps.comics.urls")),
     path("commorganizer/", include("apps.commorganizer.urls")),
     path("characters/", include("apps.characters.urls")),
+    path("quotes/", include("apps.quotes.urls")),
     path("users/", include("apps.users.urls")),
     # SEO
     path(
