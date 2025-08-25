@@ -24,9 +24,9 @@ class MainPageTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_comics_page_loads(self):
-        """Test that the comics page loads successfully."""
+        """Test that the comics page redirects to the latest comic successfully."""
         response = self.client.get(reverse("comics:comic_home"))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)  # Redirect status code
 
     def test_gallery_page_loads(self):
         """Test that the gallery page loads successfully."""
