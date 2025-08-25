@@ -86,14 +86,14 @@
 .nav-btn {
     padding: 8px 16px;
     text-decoration: none;
-    background: #007bff;
+    background: var(--accent-color);
     color: white;
     border-radius: 4px;
     transition: background 0.3s;
 }
 
 .nav-btn:hover {
-    background: #0056b3;
+    background: var(--link-hover);
     color: white;
 }
 
@@ -187,16 +187,18 @@
 
 .nav-btn {
     display: inline-flex;
+    flex-direction: column; /* So the image is on top of the text */
     align-items: center;
     justify-content: center;
     padding: 0px;
     border-radius: 6px;
     transition: all 0.2s;
     text-decoration: none;
-    background: var(--link-default);
+    background: var(--accent-color);
     color: white;
     min-width: 98px;
     min-height: 98px;
+    position: relative;
 }
 
 .nav-btn:not(.disabled):hover {
@@ -217,6 +219,39 @@
     display: block;
     border: none;
     outline: none;
+}
+
+/* Navigation icon states */
+.nav-icon-activated {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.2s ease;
+}
+
+.nav-icon-deactivated {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+.nav-btn:hover .nav-icon-activated {
+    opacity: 1;
+}
+
+.nav-btn:hover .nav-icon-deactivated {
+    opacity: 0;
+}
+
+.nav-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--background-color);
+    text-align: center;
+    position: relative;
+    z-index: 1;
 }
 
 .page-selector select {

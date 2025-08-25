@@ -6,11 +6,14 @@
             {% if current_page and current_page.has_previous %}
             <a href="{% url 'comics:page_detail' current_page.get_previous_page.page_number %}" class="nav-btn"
                 title="Previous Page">
-                <img src="{% static 'nav/previous.png' %}" alt="Previous" class="nav-icon">
+                <img src="{% static 'nav/activated.png' %}" alt="Previous" class="nav-icon nav-icon-activated">
+                <img src="{% static 'nav/deactivated.png' %}" alt="Previous" class="nav-icon nav-icon-deactivated">
+                <span class="nav-label">Previous</span>
             </a>
             {% else %}
             <span class="nav-btn disabled" title="Previous Page">
-                <img src="{% static 'nav/previous.png' %}" alt="Previous" class="nav-icon">
+                <img src="{% static 'nav/deactivated.png' %}" alt="Previous" class="nav-icon nav-icon-deactivated">
+                <span class="nav-label">Previous</span>
             </span>
             {% endif %}
         </div>
@@ -40,11 +43,14 @@
             {% if current_page and current_page.has_next %}
             <a href="{% url 'comics:page_detail' current_page.get_next_page.page_number %}" class="nav-btn"
                 title="Next Page">
-                <img src="{% static 'nav/next.png' %}" alt="Next" class="nav-icon">
+                <img src="{% static 'nav/activated.png' %}" alt="Next" class="nav-icon nav-icon-activated">
+                <img src="{% static 'nav/deactivated.png' %}" alt="Next" class="nav-icon nav-icon-deactivated">
+                <span class="nav-label">Next</span>
             </a>
             {% else %}
             <span class="nav-btn disabled" title="Next Page">
-                <img src="{% static 'nav/next.png' %}" alt="Next" class="nav-icon">
+                <img src="{% static 'nav/deactivated.png' %}" alt="Next" class="nav-icon nav-icon-deactivated">
+                <span class="nav-label">Next</span>
             </span>
             {% endif %}
         </div>
