@@ -1,5 +1,7 @@
 /* CommOrganizer custom styles */
 
+/* CommOrganizer uses main site CSS variables for consistency */
+
 .commorg-comment-list {
   list-style: none;
   padding: 0;
@@ -599,59 +601,64 @@
 .upload-section {
   display: flex;
   align-items: center;
-  gap: 1.5em;
-  margin: 1.5em 0;
-  padding: 1.5em;
-  background: #18304b;
-  border: 2px solid #00eaff;
-  border-radius: 12px;
+  gap: var(--spacing-lg);
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-lg);
+  background: var(--tile-background);
+  border: 2px solid var(--accent-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .upload-area {
   flex: 1;
-  padding: 1.5em;
-  border: 2px dashed #00eaff;
-  border-radius: 8px;
+  padding: var(--spacing-lg);
+  border: 2px dashed var(--accent-color);
+  border-radius: var(--border-radius-small);
   text-align: center;
-  background: rgba(0, 228, 255, 0.05);
+  background: var(--tile-background);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .upload-area:hover {
-  background: rgba(0, 228, 255, 0.1);
-  border-color: #00d4e6;
+  background: var(--background-color);
+  border-color: var(--accent-hover);
+  box-shadow: 0 2px 8px var(--shadow-hover);
 }
 
 .upload-area.drag-over {
-  background: rgba(0, 228, 255, 0.15);
-  border-color: #00ff88;
+  background: var(--background-color);
+  border-color: var(--success-color);
   border-style: solid;
+  box-shadow: 0 4px 16px var(--shadow-hover);
 }
 
 .upload-area.ready {
-  background: rgba(0, 255, 136, 0.1);
-  border-color: #00ff88;
+  background: var(--background-color);
+  border-color: var(--success-color);
   border-style: solid;
+  box-shadow: 0 4px 16px var(--shadow-hover);
 }
 
 .upload-area.ready .upload-text {
-  color: #00ff88;
+  color: var(--success-color);
 }
 
 .upload-area.ready .upload-hint {
-  color: #00ff88;
+  color: var(--success-color);
 }
 
 .upload-text {
-  color: #00eaff;
+  color: var(--accent-color);
   font-size: 1.1em;
   font-weight: bold;
   margin-bottom: 0.5em;
 }
 
 .upload-hint {
-  color: #888;
+  color: var(--text-color);
+  opacity: 0.7;
   font-size: 0.9em;
 }
 
