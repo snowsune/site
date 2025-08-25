@@ -14,6 +14,9 @@ organize your artwork workflow efficiently.{% endblock %}
 {% block og_description %}Manage your commission '{{ commission_name }}'. Upload drafts, track client feedback, and
 organize your artwork workflow efficiently.{% endblock %}
 
+{% block og_image %}{% if drafts %}{% url 'format_preview' drafts.0.image.name %}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block twitter_image %}{% if drafts %}{% url 'format_preview' drafts.0.image.name %}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+
 {% block header %}
 <link rel="stylesheet" href="{% static 'commorganizer/css/commorganizer.css' %}">
 {% endblock %}

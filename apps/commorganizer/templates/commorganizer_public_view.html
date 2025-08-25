@@ -7,8 +7,8 @@
 <link rel="stylesheet" href="{% static 'commorganizer/css/commorganizer.css' %}">
 {% endblock %}
 
-{% block og_image %}{% if current_draft %}{{ current_draft.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
-{% block twitter_image %}{% if current_draft %}{{ current_draft.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block og_image %}{% if current_draft %}{% url 'format_preview' current_draft.image.name %}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block twitter_image %}{% if current_draft %}{% url 'format_preview' current_draft.image.name %}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
 {% block meta_description %}Add comments/Suggestions to this draft!{% endblock %}
 {% block og_description %}Add comments/Suggestions to this draft!{% endblock %}
 {% block twitter_description %}Add comments/Suggestions to this draft!{% endblock %}
