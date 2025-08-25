@@ -10,23 +10,33 @@ def page_detail(request, page_number):
     # Only allow access to published comics
     page = get_object_or_404(ComicPage.published, page_number=page_number)
 
+    # Get latest pages for sidebar
+    latest_pages = ComicPage.published.order_by("-page_number")[:10]
+
+    # Check if this is the latest page
+    latest_page = ComicPage.published.order_by("-page_number").first()
+
     context = {
         "page": page,
         "next_page": page.get_next_page(),
         "previous_page": page.get_previous_page(),
+        "latest_pages": latest_pages,
+        "latest_page": latest_page,
     }
     return render(request, "comics/page_detail.html", context)
 
 
 def comic_home(request):
-    """Display the comic home page with latest pages"""
-    latest_pages = ComicPage.published.order_by("-page_number")[:10]
+    """Redirect to the latest comic page"""
+    latest_page = ComicPage.published.order_by("-page_number").first()
+    if latest_page:
+        return redirect("comics:page_detail", page_number=latest_page.page_number)
+    else:
+        # Catching if no comics exist, redirect to home page with a message
+        from django.contrib import messages
 
-    context = {
-        "latest_pages": latest_pages,
-        "total_pages": ComicPage.published.count(),
-    }
-    return render(request, "comics/comic_home.html", context)
+        messages.warning(request, "No comic pages have been published yet.")
+        return redirect("home")
 
 
 def page_navigation(request, page_number):

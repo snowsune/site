@@ -243,6 +243,24 @@
     opacity: 0;
 }
 
+/* Override hover effects for disabled buttons */
+.nav-btn.disabled:hover .nav-icon-activated {
+    opacity: 0 !important;
+}
+
+.nav-btn.disabled:hover .nav-icon-deactivated {
+    opacity: 1 !important;
+}
+
+/* Rotate navigation button images to point in correct directions */
+.nav-left .nav-icon {
+    transform: rotate(-90deg);
+}
+
+.nav-right .nav-icon {
+    transform: rotate(90deg);
+}
+
 .nav-label {
     display: block;
     margin-bottom: 8px;

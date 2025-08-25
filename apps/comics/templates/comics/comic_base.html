@@ -1,0 +1,29 @@
+{% block sidebar %}
+<div class="latest-pages">
+    <div class="section-header">
+        <h2>All Pages</h2>
+        <a href="{% url 'comics:comic_feed' %}" class="rss-link" title="RSS Feed">
+            📡 RSS Feed
+        </a>
+    </div>
+</div>
+
+<div class="pages-grid">
+    {% for page in latest_pages %}
+    <div class="page-card">
+        <a href="{% url 'comics:page_detail' page.page_number %}">
+            <img src="{{ page.image.url }}" alt="{{ page.title }}" class="page-thumbnail">
+            <div class="page-info">
+                <h3>Page {{ page.page_number }}</h3>
+                <p>{{ page.title }}</p>
+                {% if page.is_nsfw %}
+                <span class="nsfw-tag">NSFW</span>
+                {% endif %}
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <p>No comic pages published yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

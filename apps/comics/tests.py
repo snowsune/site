@@ -123,23 +123,20 @@ class ComicViewsTest(TestCase):
             published_at=past_date,
         )
 
-    def test_comic_home_view_only_shows_published(self):
-        """Test that comic home only shows published comics"""
-        # Create an unpublished comic
-        unpublished_page = ComicPage.objects.create(
-            page_number=2,
-            title="Unpublished Page",
-            is_nsfw=False,
-            image=self.mock_image,
-        )
-
+    def test_comic_home_view_redirects_to_latest(self):
+        """Test that comic home redirects to the latest comic page"""
         response = self.client.get(reverse("comics:comic_home"))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "comics/comic_home.html")
+        self.assertEqual(response.status_code, 302)  # Redirect
+        self.assertEqual(response['Location'], reverse("comics:page_detail", args=[1]))
 
-        # Should only show published comics
-        self.assertEqual(len(response.context["latest_pages"]), 1)
-        self.assertEqual(response.context["total_pages"], 1)
+    def test_comic_home_view_no_comics_redirects_to_home(self):
+        """Test that comic home redirects to home when no comics exist"""
+        # Delete all comic pages
+        ComicPage.objects.all().delete()
+        
+        response = self.client.get(reverse("comics:comic_home"))
+        self.assertEqual(response.status_code, 302)  # Redirect
+        self.assertEqual(response['Location'], reverse("home"))
 
     def test_page_detail_view_unpublished_404(self):
         """Test that unpublished comics return 404"""

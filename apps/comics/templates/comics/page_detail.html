@@ -3,18 +3,28 @@
 {% load comic_tags %}
 {% load image_tags %}
 
-{% block title %}{{ page.title }} - Page {{ page.page_number }} - snowsune.net{% endblock %}
+{% block title %}{% if page.page_number == latest_page.page_number %}Comics - snowsune.net{% else %}{{ page.title }} -
+Page {{ page.page_number }} - snowsune.net{% endif %}{% endblock %}
 
-{% block meta_keywords %}comic, webcomic, {{ page.title }}, page {{ page.page_number }}, snowsune{% endblock %}
+{% block meta_keywords %}comics, webcomics, furry comics, snowsune, vixi, art, furry art, digital comics, online comics,
+comic strips, furry community, webcomic series{% endblock %}
 
 {% block og_image %}{% if page.image %}{{ page.image.url|social_preview_url_og:request }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
 {% block twitter_image %}{% if page.image %}{{ page.image.url|social_preview_url_og:request }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
-{% block meta_description %}{{ page.description_html|striptags|truncatewords:30 }}{% endblock %}
-{% block og_description %}{{ page.description_html|striptags|truncatewords:30 }}{% endblock %}
-{% block twitter_description %}{{ page.description_html|striptags|truncatewords:30 }}{% endblock %}
+{% block meta_description %}{% if page.page_number == latest_page.page_number %}Read the latest webcomic pages and
+explore the story! A furry webcomic series by Vixi on
+Snowsune.net{% else %}{{ page.description_html|striptags|truncatewords:30 }}{% endif %}{% endblock %}
+{% block og_description %}{% if page.page_number == latest_page.page_number %}Read the latest webcomic pages and explore
+the story! A furry webcomic series by Vixi on
+Snowsune.net{% else %}{{ page.description_html|striptags|truncatewords:30 }}{% endif %}{% endblock %}
+{% block twitter_description %}{% if page.page_number == latest_page.page_number %}Read the latest webcomic pages and
+explore the story! A furry webcomic series by Vixi on
+Snowsune.net{% else %}{{ page.description_html|striptags|truncatewords:30 }}{% endif %}{% endblock %}
 
-{% block og_title %}{{ page.title }} - Page {{ page.page_number }} - snowsune.net{% endblock %}
-{% block twitter_title %}{{ page.title }} - Page {{ page.page_number }} - snowsune.net{% endblock %}
+{% block og_title %}{% if page.page_number == latest_page.page_number %}Comics - snowsune.net{% else %}{{ page.title }}
+- Page {{ page.page_number }} - snowsune.net{% endif %}{% endblock %}
+{% block twitter_title %}{% if page.page_number == latest_page.page_number %}Comics -
+snowsune.net{% else %}{{ page.title }} - Page {{ page.page_number }} - snowsune.net{% endif %}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/comics.css' %}">
@@ -96,5 +106,35 @@
         {% endif %}
         {% endif %}
     </div>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="latest-pages">
+    <div class="section-header">
+        <h2>All Pages</h2>
+        <a href="{% url 'comics:comic_feed' %}" class="rss-link" title="RSS Feed">
+            📡 RSS Feed
+        </a>
+    </div>
+</div>
+
+<div class="pages-grid">
+    {% for page in latest_pages %}
+    <div class="page-card">
+        <a href="{% url 'comics:page_detail' page.page_number %}">
+            <img src="{% url 'format_preview' page.image.name %}" alt="{{ page.title }}" class="page-thumbnail">
+            <div class="page-info">
+                <h3>Page {{ page.page_number }}</h3>
+                <p>{{ page.title }}</p>
+                {% if page.is_nsfw %}
+                <span class="nsfw-tag">NSFW</span>
+                {% endif %}
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <p>No comic pages published yet.</p>
+    {% endfor %}
 </div>
 {% endblock %}
