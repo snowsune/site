@@ -415,7 +415,7 @@ def public_commission_view(request, commission_name):
 def api_new_comments(request):
     commission_name = request.GET.get("commission_name")
     since_id = request.GET.get("since_id")
-    
+
     if not commission_name:
         return JsonResponse({"error": "Missing commission_name"}, status=400)
     try:
