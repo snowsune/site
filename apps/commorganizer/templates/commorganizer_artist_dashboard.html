@@ -15,7 +15,7 @@ organize your artwork workflow efficiently.{% endblock %}
 organize your artwork workflow efficiently.{% endblock %}
 
 {% block header %}
-<link rel="stylesheet" href="{% static 'commorganizer/commorganizer.css' %}">
+<link rel="stylesheet" href="{% static 'commorganizer/css/commorganizer.css' %}">
 {% endblock %}
 
 {% block sidebar %}
@@ -87,8 +87,16 @@ organize your artwork workflow efficiently.{% endblock %}
     <h2>Upload New Draft</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ upload_form.as_p }}
-        <button type="submit" name="upload_draft">Upload</button>
+        <div class="upload-section">
+            <div class="upload-area">
+                <div class="upload-text">Drag & Drop your image here</div>
+                <div class="upload-hint">or click to browse</div>
+                <input type="file" name="image" accept="image/*" style="display: none;">
+            </div>
+            <div class="upload-button">
+                <button type="submit" name="upload_draft" class="btn btn-primary">Upload Draft</button>
+            </div>
+        </div>
     </form>
 </div>
 
@@ -265,5 +273,6 @@ organize your artwork workflow efficiently.{% endblock %}
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'commorganizer/artist_dashboard.js' %}"></script>
+<script src="{% static 'commorganizer/js/artist_dashboard.js' %}"></script>
+<script src="{% static 'commorganizer/js/simple-upload.js' %}"></script>
 {% endblock %}

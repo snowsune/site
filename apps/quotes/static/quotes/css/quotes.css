@@ -1,0 +1,102 @@
+/* Quotes scroller styles */
+
+#quotes-scroller {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 300px; /* Reduced width */
+    height: 60px; /* Reduced height to be more compact */
+    background: var(--tile-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 0.5rem 1rem;
+    margin-left: 1rem; /* Space between nav and quotes */
+    box-shadow: 0 2px 4px var(--shadow-color);
+    overflow: hidden;
+    position: relative;
+    color: var(--text-color); /* Ensure base text color is set */
+}
+
+#quotes-scroller .quote-content {
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s ease-in-out;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    color: var(--text-color);
+    font-style: italic;
+    margin-bottom: 0.25rem; /* Reduced margin */
+    text-align: center;
+    cursor: help; /* Show help cursor when hovering */
+}
+
+#quotes-scroller .quote-author {
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s ease-in-out;
+    color: var(--accent-color);
+    font-weight: 500;
+    font-size: 0.85em; /* Slightly smaller font */
+    text-align: right;
+    margin-bottom: 0.1rem; /* Reduced margin */
+}
+
+#quotes-scroller .quote-time {
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s ease-in-out;
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 0.75em; /* Smaller font */
+    font-style: italic;
+    text-align: right;
+}
+
+#quotes-scroller .quote-content.active,
+#quotes-scroller .quote-author.active,
+#quotes-scroller .quote-time.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Loading state */
+#quotes-scroller span:not(.quote-content):not(.quote-author):not(.quote-time) {
+    color: var(--text-color);
+    opacity: 0.7;
+    font-style: italic;
+}
+
+/* Tooltip styles */
+.quote-tooltip {
+    position: absolute;
+    background: var(--tile-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    padding: 0.75rem;
+    box-shadow: 0 4px 8px var(--shadow-color);
+    max-width: 350px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
+    white-space: normal;
+    word-wrap: break-word;
+    color: var(--text-color);
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.quote-tooltip.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Mobile responsiveness - hide quotes on small screens */
+@media (max-width: 768px) {
+    #quotes-scroller {
+        display: none;
+    }
+} 

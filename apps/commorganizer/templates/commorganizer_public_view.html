@@ -4,7 +4,7 @@
 {% block title %}Commission: {{ commission_name }}{% endblock %}
 
 {% block header %}
-<link rel="stylesheet" href="{% static 'commorganizer/commorganizer.css' %}">
+<link rel="stylesheet" href="{% static 'commorganizer/css/commorganizer.css' %}">
 {% endblock %}
 
 {% block og_image %}{% if current_draft %}{{ current_draft.image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
@@ -75,9 +75,10 @@
             <!-- Render comment markers -->
             {% for comment in comments %}
             {% if comment.x != 0 or comment.y != 0 %}
-            <div style="position: absolute; left: {{ comment.x }}px; top: {{ comment.y }}px; width: 18px; height: 18px; background: {% if comment.resolved %}#aaa{% else %}#d90429{% endif %}; border-radius: 50%; color: #fff; text-align: center; line-height: 18px; font-size: 0.8em; transform: translate(-50%, -50%);"
-                title="{{ comment.commenter_name }}: {{ comment.content }}">
-                💬
+            <div class="comment-marker{% if comment.resolved %} resolved{% endif %}"
+                style="left: {{ comment.x }}px; top: {{ comment.y }}px;" data-commenter="{{ comment.commenter_name }}"
+                data-content="{{ comment.content }}">
+                <div class="marker-text">{{ comment.commenter_name }}: {{ comment.content }}</div>
             </div>
             {% endif %}
             {% endfor %}
@@ -103,8 +104,9 @@
             {% if not comment.resolved %}
             {% if not has_comments %}{% with True as has_comments %}{% endwith %}{% endif %}
             <li class="commorg-comment">
-                <span class="commorg-commenter">{{ comment.commenter_name }}</span> <span class="commorg-meta">at
-                    ({{ comment.x }}, {{ comment.y }})</span><br>
+                <span
+                    class="commorg-commenter">{{ comment.commenter_name }}</span>{% if comment.x != 0 or comment.y != 0 %}<span
+                    class="commorg-meta"> at ({{ comment.x }}, {{ comment.y }})</span>{% endif %}<br>
                 <span>{{ comment.content }}</span><br>
                 <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
             </li>
@@ -115,8 +117,9 @@
             {% if comment.resolved %}
             {% if not has_comments %}{% with True as has_comments %}{% endwith %}{% endif %}
             <li class="commorg-comment resolved">
-                <span class="commorg-commenter">{{ comment.commenter_name }}</span> <span class="commorg-meta">at
-                    ({{ comment.x }}, {{ comment.y }})</span><br>
+                <span
+                    class="commorg-commenter">{{ comment.commenter_name }}</span>{% if comment.x != 0 or comment.y != 0 %}<span
+                    class="commorg-meta"> at ({{ comment.x }}, {{ comment.y }})</span>{% endif %}<br>
                 <span>{{ comment.content }}</span><br>
                 <span class="commorg-meta">{{ comment.created_at|date:"Y-m-d H:i" }} (Resolved)</span>
             </li>
@@ -149,5 +152,5 @@
     window.addEventListener('resize', handleDraftsResponsiveBar);
     document.addEventListener('DOMContentLoaded', handleDraftsResponsiveBar);
 </script>
-<script src="{% static 'commorganizer/public_view.js' %}"></script>
+<script src="{% static 'commorganizer/js/public_view.js' %}"></script>
 {% endblock %}

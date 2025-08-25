@@ -8,7 +8,7 @@
   <!-- Dark Mode Script! -->
   <script>
     // Set theme class before load!
-    if (localStorage.getItem("darkMode") === "enabled" || window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
       document.documentElement.classList.add("dark-mode");
     }
   </script>
@@ -65,13 +65,14 @@
   <meta name="twitter:creator" content="@vixi" />
 
   <!-- DuckDuckGo specific meta tags -->
-  <meta name="theme-color" content="#2222ff" />
-  <meta name="msapplication-TileColor" content="#2222ff" />
+  <meta name="theme-color" content="#00FFFF" />
+  <meta name="msapplication-TileColor" content="#00FFFF" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <!-- Favicon -->
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+  <link rel="stylesheet" href="{% static 'quotes/css/quotes.css' %}" />
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}" />
 
   <!-- Extra CSS block for page-specific styles -->
@@ -117,12 +118,13 @@
         <img src="{% if debug %}{% static 'logos/devlogo.png' %}{% else %}{% static 'logos/logo.png' %}{% endif %}"
           alt="Snowsune Logo" />
         <div class="live-stats">
-          <span class="active-users" title="Users online! (Last 15 Minutes)">👥 <span id="active-users-count">-</span>
+          <span class="tile stat-box" title="Users online! (Last 15 Minutes)">👥 <span id="active-users-count">-</span>
             online</span>
-          <span class="server-offset" title="Percent of server energy provided by solar!">☀️ <span
+          <span class="tile stat-box" title="Percent of server energy provided by solar!">☀️ <span
               id="server-offset">-</span>%</span>
         </div>
       </div>
+
       <nav class="navbar">
         <div class="nav-links">
           <a href="{% url 'home' %}">Home</a>
@@ -137,6 +139,11 @@
           <a href="{% url 'comics:comic_home' %}">Comics</a>
         </div>
       </nav>
+
+      <!-- Quotes Scroller -->
+      <div id="quotes-scroller" class="quotes-container">
+        <span>Loading quotes...</span>
+      </div>
     </div>
     <div class="header-right">
       <div class="login">
@@ -241,8 +248,11 @@
     });
   </script>
 
-  <!-- Centralized Notification System -->
-  <script src="{% static 'js/notifications.js' %}"></script>
+  <!-- Centralized Notification System (WIP) -->
+  <script src="{% static 'notifications/js/notifications.js' %}"></script>
+
+  <!-- Quotes Scroller -->
+  <script src="{% static 'quotes/js/quotes-scroller.js' %}"></script>
 
   <!-- Live Stats Script -->
   <script src="{% static 'js/live-stats.js' %}"></script>

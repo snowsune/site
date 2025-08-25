@@ -10,6 +10,21 @@
   --link-hover: #83c5be;
   --link-default: #2222ff;
   --link-visited: #29297d;
+  --accent-color: #00bcd4;
+  --accent-hover: #0099a8;
+  --success-color: #28a745;
+  --success-hover: #218838;
+  --border-color: #dee2e6;
+  --border-hover: #adb5bd;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-hover: rgba(0, 0, 0, 0.15);
+  --border-radius: 12px;
+  --border-radius-small: 4px;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
 }
 
 /* Dark Mode Variables */
@@ -24,6 +39,21 @@
   --link-hover: #66b3a6;
   --link-default: #71e5ff;
   --link-visited: #2bb5ff;
+  --accent-color: #00eaff;
+  --accent-hover: #00d4e6;
+  --success-color: #00ff88;
+  --success-hover: #00e676;
+  --border-color: #444;
+  --border-hover: #666;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-hover: rgba(0, 0, 0, 0.4);
+  --border-radius: 12px;
+  --border-radius-small: 4px;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
 }
 
 /* Body */
@@ -51,11 +81,11 @@ a:visited {
 
 /* My site is divided into chunks, they can inherit that style from here! */
 .tile {
-  background: var(--tile-background); /* Off-white background for tiles */
-  border-radius: 12px; /* Rounded corners */
-  padding: 1em; /* Internal spacing */
-  margin-bottom: 1em; /* Space between tiles */
-  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+  background: var(--tile-background);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: 0 5px 5px var(--shadow-color);
   color: var(--text-color);
 }
 
@@ -105,14 +135,14 @@ a:visited {
   opacity: 0.8;
 }
 
-.active-users,
-.server-offset {
+.stat-box {
   display: inline-block;
-  padding: 0.25rem 0.5rem;
-  background: var(--tile-background);
-  border-radius: 4px;
-  border: 1px solid var(--text-color);
-  margin: 0.1rem;
+  padding: 0.15rem var(--spacing-sm);
+  margin: var(--spacing-xs);
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 0.9em;
+  border-radius: var(--border-radius-small);
 }
 
 #active-users-count,
@@ -201,7 +231,7 @@ a:visited {
   padding: 0.35em 1em 0.35em 0.8em;
   font-size: 1em;
   text-decoration: none;
-  margin-bottom: 0.5em;
+  margin-bottom: 0em;
   margin-right: 0;
   box-shadow: 0 2px 8px rgba(88,101,242,0.08);
   transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
