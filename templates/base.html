@@ -130,13 +130,13 @@
           <a href="{% url 'home' %}">Home</a>
           <a href="{% url 'tools' %}">Apps/Tools</a>
           <a href="{% url 'blog:blog_list' %}">Blog</a>
-          <a href="{% url 'comics:comic_home' %}">Comics</a>
+          <a href="{% url 'comics:comic_home' %}">Webcomic</a>
         </div>
         <div class="nav-mobile-links" id="nav-mobile-links">
           <a href="{% url 'home' %}">Home</a>
           <a href="{% url 'tools' %}">Apps/Tools</a>
           <a href="{% url 'blog:blog_list' %}">Blog</a>
-          <a href="{% url 'comics:comic_home' %}">Comics</a>
+          <a href="{% url 'comics:comic_home' %}">Webcomic</a>
         </div>
       </nav>
 
@@ -175,6 +175,7 @@
         <!-- TODO: Change me to a proper about page later -->
         <li><a href="{% url 'tools' %}">Tools</a></li>
         <li><a href="{% url 'blog:blog_list' %}">Blog</a></li>
+        <li><a href="{% url 'comics:comic_home' %}">Webcomic</a></li>
       </ul>
       {% block sidebar %} {% endblock %}
 

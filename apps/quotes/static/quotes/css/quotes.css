@@ -5,15 +5,15 @@
     flex-direction: column;
     justify-content: center;
     width: 300px; /* Reduced width */
-    height: 60px; /* Reduced height to be more compact */
+    height: 80px; /* Increased height to accommodate 2-line quotes */
     background: var(--tile-background);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    padding: 0.5rem 1rem;
+    padding-left: 0.5rem;
     margin-left: 1rem; /* Space between nav and quotes */
     box-shadow: 0 2px 4px var(--shadow-color);
     overflow: hidden;
-    position: relative;
+    position: relative; /* Ensure absolute positioning works for children */
     color: var(--text-color); /* Ensure base text color is set */
 }
 
@@ -21,15 +21,26 @@
     opacity: 0;
     transform: translateX(100%);
     transition: all 0.5s ease-in-out;
-    white-space: nowrap;
+    white-space: normal; /* Allow text to wrap */
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%;
+    max-width: 85%; /* Make quote shorter to leave space for overlapping author */
     color: var(--text-color);
     font-style: italic;
     margin-bottom: 0.25rem; /* Reduced margin */
-    text-align: center;
+    text-align: left; /* Left justify the quote */
     cursor: help; /* Show help cursor when hovering */
+    
+    /* Allow up to 2 lines with ellipsis */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.2; /* Tighter line height for better fit */
+    max-height: 2.4em; /* 2 lines × 1.2em line-height */
+    
+    /* Fallback for browsers that don't support webkit-line-clamp */
+    word-wrap: break-word;
+    hyphens: auto;
 }
 
 #quotes-scroller .quote-author {
@@ -41,6 +52,10 @@
     font-size: 0.85em; /* Slightly smaller font */
     text-align: right;
     margin-bottom: 0.1rem; /* Reduced margin */
+    position: absolute; /* Position absolutely to overlap */
+    right: 1rem; /* Align to the right side */
+    bottom: 1.5rem; /* Position to overlap with second line of quote */
+    z-index: 2; /* Ensure it appears above the quote content */
 }
 
 #quotes-scroller .quote-time {
@@ -52,6 +67,10 @@
     font-size: 0.75em; /* Smaller font */
     font-style: italic;
     text-align: right;
+    position: absolute; /* Position absolutely */
+    right: 1rem; /* Align to the right side */
+    bottom: 0.5rem; /* Position below the author */
+    z-index: 2; /* Ensure it appears above other elements */
 }
 
 #quotes-scroller .quote-content.active,

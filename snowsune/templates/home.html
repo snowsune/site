@@ -81,16 +81,16 @@ creative projects, furry community hub{% endblock %}
 {% block content %}
 <header class="page-header">
     <h1>Welcome to Snowsune.net!</h1>
-    <p class="lead">My own website! Find webcomics, tools, projects, art, personal things, blogs, other furs and more!
+    <p class="lead">My own website! I've got tools, webcomics, projects, art, personal things, blogs, and plenty of
+        other furry stuff!
     </p>
 </header>
 
 <section class="intro-section">
-    <p>Hey there! I'm Vixi, I'm a fox not super amazing at web design but very passionate about making things for my
-        friends and the furry community!</p>
-
-    <p>This site is constantly evolving with new features, but I always want to be trying to make and provide new
-        useful things! (And receive feedback on those things that don't work out)~</p>
+    <p>Hey there! I'm Vixi, I'm a fox! I'm not amazing at web design but im happy trying, tweaking and getting what I
+        can out there! Im always adding new features here and
+        trying to make tools and spaces for the furry community!
+    </p>
 
     <p><strong>You can always contact me by joining my <a href="{{ discord_invite }}" class="discord-link">Discord
                 community</a> or emailing me at <a href="mailto:vixi@snowsune.net">vixi@snowsune.net</a>!</strong></p>
@@ -100,19 +100,16 @@ creative projects, furry community hub{% endblock %}
 <div class="latest-content-grid">
     <!-- Latest Comic Section -->
     <section class="latest-comic-section">
-        <h2>Latest Webcomic</h2>
+        <h2>Read the webcomic!</h2>
         <div class="comic-frame-wrapper">
             {% comic_frame size='small' show_description=True %}
         </div>
-        <p class="comic-section-footer">
-            <a href="{% url 'comics:comic_home' %}">View all webcomics →</a>
-        </p>
     </section>
 
     <!-- Latest Blog Posts Section -->
     {% if latest_posts %}
     <section class="latest-blog-posts">
-        <h2>Latest Blog Posts</h2>
+        <h2>Read the blog!</h2>
         {% for post in latest_posts %}
         <article class="blog-preview">
             {% if post.featured_image %}
