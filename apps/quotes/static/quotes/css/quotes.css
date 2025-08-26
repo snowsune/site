@@ -3,44 +3,40 @@
 #quotes-scroller {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    width: 300px; /* Reduced width */
-    height: 80px; /* Increased height to accommodate 2-line quotes */
+    justify-content: flex-start; /* Start from top */
+    width: 300px;
+    height: 60px; /* Back to original height */
     background: var(--tile-background);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
+    padding-top: 0.5rem;
     padding-left: 0.5rem;
-    margin-left: 1rem; /* Space between nav and quotes */
+    margin-left: 1rem;
     box-shadow: 0 2px 4px var(--shadow-color);
     overflow: hidden;
-    position: relative; /* Ensure absolute positioning works for children */
-    color: var(--text-color); /* Ensure base text color is set */
+    position: relative;
+    color: var(--text-color);
 }
 
 #quotes-scroller .quote-content {
     opacity: 0;
     transform: translateX(100%);
     transition: all 0.5s ease-in-out;
-    white-space: normal; /* Allow text to wrap */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 85%; /* Make quote shorter to leave space for overlapping author */
+    white-space: normal;
+    overflow: visible; /* No need to hide overflow since JS handles truncation */
     color: var(--text-color);
     font-style: italic;
-    margin-bottom: 0.25rem; /* Reduced margin */
-    text-align: left; /* Left justify the quote */
-    cursor: help; /* Show help cursor when hovering */
+    margin: 0;
+    text-align: left;
+    cursor: help;
     
-    /* Allow up to 2 lines with ellipsis */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-height: 1.2; /* Tighter line height for better fit */
-    max-height: 2.4em; /* 2 lines × 1.2em line-height */
+    /* Simple line height for natural wrapping */
+    line-height: 1.3;
+    max-height: 2.6em; /* 2 lines × 1.3em */
     
-    /* Fallback for browsers that don't support webkit-line-clamp */
+    /* Natural text flow */
+    display: block;
     word-wrap: break-word;
-    hyphens: auto;
 }
 
 #quotes-scroller .quote-author {
@@ -49,13 +45,12 @@
     transition: all 0.5s ease-in-out;
     color: var(--accent-color);
     font-weight: 500;
-    font-size: 0.85em; /* Slightly smaller font */
+    font-size: 0.8em;
     text-align: right;
-    margin-bottom: 0.1rem; /* Reduced margin */
-    position: absolute; /* Position absolutely to overlap */
-    right: 1rem; /* Align to the right side */
-    bottom: 1.5rem; /* Position to overlap with second line of quote */
-    z-index: 2; /* Ensure it appears above the quote content */
+    position: absolute;
+    right: 0.5rem;
+    bottom: 1.5rem; /* Bottom right */
+    z-index: 2;
 }
 
 #quotes-scroller .quote-time {
@@ -64,13 +59,13 @@
     transition: all 0.5s ease-in-out;
     color: var(--text-color);
     opacity: 0.7;
-    font-size: 0.75em; /* Smaller font */
+    font-size: 0.7em;
     font-style: italic;
     text-align: right;
-    position: absolute; /* Position absolutely */
-    right: 1rem; /* Align to the right side */
-    bottom: 0.5rem; /* Position below the author */
-    z-index: 2; /* Ensure it appears above other elements */
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem; /* Bottom right, below author */
+    z-index: 2;
 }
 
 #quotes-scroller .quote-content.active,

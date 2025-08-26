@@ -70,16 +70,51 @@ class QuotesScroller {
         }
     }
 
+    truncateQuote(content, maxChars = 68) {
+        // Truncate quote to maxChars, trying to break at word boundaries
+        if (content.length <= maxChars) {
+            return content;
+        }
+
+        // Find the last space before maxChars
+        let truncated = content.substring(0, maxChars);
+        const lastSpace = truncated.lastIndexOf(' ');
+
+        if (lastSpace > maxChars * 0.8) { // If we can break at word boundary
+            truncated = truncated.substring(0, lastSpace);
+        }
+
+        return truncated + '...';
+    }
+
+    truncateUsername(username, maxChars = 14) {
+        // Truncate username to maxChars
+        if (username.length <= maxChars) {
+            return username;
+        }
+        return username.substring(0, maxChars) + '...';
+    }
+
     displayCurrentQuote() {
         if (this.quotes.length === 0) return; // If there are no quotes, return
 
         const quote = this.quotes[this.currentIndex]; // Get the current quote
         const relativeTime = this.formatRelativeTime(quote.created_at); // Get the relative time
 
+        // Truncate the quote content and username
+        const truncatedContent = this.truncateQuote(quote.content);
+        const truncatedUsername = this.truncateUsername(quote.user);
+
+        // Debug logging
+        console.log('Original length:', quote.content.length, 'Truncated length:', truncatedContent.length);
+        console.log('Original:', quote.content);
+        console.log('Truncated:', truncatedContent);
+        console.log('Username:', quote.user, 'Truncated:', truncatedUsername);
+
         // Display the quote (in the container)
         this.container.innerHTML = `
-            <span class="quote-content" data-full-content="${quote.content}">"${quote.content}"</span>
-            <span class="quote-author">- ${quote.user}</span>
+            <span class="quote-content" data-full-content="${quote.content}">"${truncatedContent}"</span>
+            <span class="quote-author">- ${truncatedUsername}</span>
             <span class="quote-time">${relativeTime}</span>
         `;
 
