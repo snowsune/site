@@ -136,8 +136,9 @@ class QuotesScroller {
     }
 
     setupTooltip(element, fullContent) {
-        // Check if content is truncated (Ellipsis)
-        const isTruncated = element.scrollWidth > element.clientWidth;
+        // Show a tooltip if the quote is truncated! (For when you mouse over~)
+        const displayedContent = element.textContent.replace(/^"|"$/g, ''); // Remove quotes
+        const isTruncated = displayedContent !== fullContent;
 
         if (isTruncated) {
             element.addEventListener('mouseenter', (e) => this.showTooltip(e, fullContent));
