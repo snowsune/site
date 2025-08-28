@@ -3,7 +3,6 @@ django
 whitenoise
 markdown
 requests
-beautifulsoup4
 
 # Middleware
 django-tracking2

@@ -1,8 +1,3 @@
-import requests
-from django.conf import settings
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_page
 from django.utils import timezone
 from django.contrib.sessions.models import Session
@@ -10,57 +5,25 @@ from django.db.models import Q, Count
 from datetime import timedelta
 from tracking.models import Visitor
 from snowsune.models import SiteSetting
-from bs4 import BeautifulSoup
-from django.core.cache import cache
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+import requests
 
 
 def get_ko_fi_progress():
     """
-    Get Ko-fi progress
-    Uses django cache manually!
+    Get Ko-fi progress from site setting
+    Manual updates via Django admin
     """
+    progress_setting = SiteSetting.objects.filter(
+        key="KO_FI_FUNDING_PERCENTAGE"
+    ).first()
 
-    cache_key = "ko_fi_progress"
-    cached_value = cache.get(cache_key)
-
-    if cached_value is not None:
-        return cached_value
-
-    ko_fi_url_setting = SiteSetting.objects.filter(key="KO_FI_URL").first()
-
-    if not ko_fi_url_setting:
+    if progress_setting:
+        return progress_setting.value
+    else:
         return "?"
-
-    try:
-        ko_fi_url = ko_fi_url_setting.value
-
-        # Fetch Ko-fi page and extract progress
-        headers = {"User-Agent": "Mozilla/5.0 (compatible; SnowsuneBot/1.0)"}
-        response = requests.get(ko_fi_url, headers=headers, timeout=5)
-
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, "html.parser")
-            progress_block = soup.find("div", class_="text-left kfds-btm-mrgn-8")
-
-            if progress_block:
-                progress_text = progress_block.get_text(strip=True)
-                # Extract percentage from text like "75% of goal"
-                if "%" in progress_text:
-                    result = progress_text.split("%")[0]
-                else:
-                    result = "?"
-            else:
-                result = "?"
-        else:
-            result = "?"
-
-    except Exception as e:
-        print(f"Error fetching Ko-fi progress: {e}")
-        result = "?"
-
-    # Cache the result for 30 minutes
-    cache.set(cache_key, result, 1800)
-    return result
 
 
 @csrf_exempt
@@ -108,13 +71,8 @@ def live_status_view(request):
             server_offset = "Offline"
 
     # Get Ko-fi progress
-    try:
-        ko_fi_progress = get_ko_fi_progress()
-    except Exception as e:
-        if not settings.DEBUG:
-            ko_fi_progress = "?"
-        else:
-            raise e
+    ko_fi_progress = get_ko_fi_progress()
+
     return JsonResponse(
         {
             "active_users": active_users,
