@@ -1,4 +1,5 @@
 import requests
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -109,9 +110,11 @@ def live_status_view(request):
     # Get Ko-fi progress
     try:
         ko_fi_progress = get_ko_fi_progress()
-    except Exception:
-        ko_fi_progress = "?"
-
+    except Exception as e:
+        if not settings.DEBUG:
+            ko_fi_progress = "?"
+        else:
+            raise e
     return JsonResponse(
         {
             "active_users": active_users,
