@@ -20,15 +20,8 @@ def create_social_preview_image(image_path, target_ratio=1.91):
         # Build full path to the image
         full_path = os.path.join(settings.MEDIA_ROOT, image_path.lstrip("/"))
 
-        print(f"create_social_preview_image: full_path = {full_path}")
-        print(f"create_social_preview_image: MEDIA_ROOT = {settings.MEDIA_ROOT}")
-        print(f"create_social_preview_image: image_path = {image_path}")
-
         if not os.path.exists(full_path):
-            print(f"create_social_preview_image: Image not found at {full_path}")
             return None
-
-        print(f"create_social_preview_image: Image found, opening...")
 
         # Open the image
         with Image.open(full_path) as img:
@@ -105,33 +98,27 @@ def format_preview_view(request, image_path):
         # Build the full path to the original image
         original_path = os.path.join(settings.MEDIA_ROOT, image_path)
 
-        print(f"Looking for image at: {original_path}")
-        print(f"MEDIA_ROOT: {settings.MEDIA_ROOT}")
-        print(f"image_path: {image_path}")
-
         if not os.path.exists(original_path):
-            print(f"Image not found at: {original_path}")
             raise Http404(f"Image not found: {image_path}")
-
-        print(f"Image found, processing...")
 
         # Create the social preview image
         preview_img = create_social_preview_image(image_path)
 
         if not preview_img:
-            print(f"Failed to create preview image for: {image_path}")
             raise Http404("Could not process image")
-
-        print(f"Preview image created successfully")
 
         # Convert to bytes
         buffer = BytesIO()
         preview_img.save(buffer, format="JPEG", quality=85, optimize=True)
         buffer.seek(0)
 
-        # Create response
+        # Create response with improved caching
         response = HttpResponse(buffer.getvalue(), content_type="image/jpeg")
-        response["Cache-Control"] = "public, max-age=86400"  # 24 hours
+
+        # Caching for preview images (1 day)
+        response["Cache-Control"] = "public, max-age=86400, immutable"
+        response["Expires"] = "Thu, 31 Dec 2037 23:55:55 GMT"
+        response["ETag"] = f'"{hash(image_path)}"'
 
         return response
 

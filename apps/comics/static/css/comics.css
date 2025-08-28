@@ -411,54 +411,6 @@
     opacity: 0.6;
 }
 
-.comic-navigation-bottom {
-    padding: 15px;
-    background: var(--sidebar-bg);
-    border-top: 1px solid var(--tile-background);
-}
-
-.nav-actions {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.action-btn {
-    display: inline-block;
-    padding: 8px 16px;
-    text-decoration: none;
-    background: var(--link-default);
-    color: white;
-    border-radius: 4px;
-    font-size: 14px;
-    transition: background 0.2s;
-}
-
-.action-btn:hover {
-    background: var(--link-hover);
-    color: white;
-}
-
-.action-btn.view-full {
-    background: #28a745;
-    color: var(--text-color);
-}
-
-.action-btn.view-full:hover {
-    background: #218838;
-    color: var(--text-hover);
-}
-
-.action-btn.home-btn {
-    background: #6c757d;
-    color: var(--text-color);
-}
-
-.action-btn.home-btn:hover {
-    background: #545b62;
-}
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .comic-navigation-controls {
@@ -472,16 +424,6 @@
     
     .nav-center {
         order: 1;
-    }
-    
-    .nav-actions {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .action-btn {
-        width: 100%;
-        text-align: center;
     }
     
     .comic-frame.size-small {
@@ -872,6 +814,44 @@
     overflow: hidden;
     text-overflow: ellipsis;
     z-index: 20;
+}
+
+/* Navigation button groups */
+.nav-btn-group {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Small navigation buttons for First/Latest */
+.nav-btn-small {
+    min-width: 60px !important;
+    min-height: 60px !important;
+}
+
+.nav-btn-small .nav-icon {
+    width: 60px !important;
+    height: 60px !important;
+}
+
+.nav-btn-small .nav-label {
+    font-size: 14px !important;
+    margin-bottom: 4px !important;
+}
+
+/* Rotated icons for First button (upside down paw) */
+.nav-icon-rotated {
+    transform: rotate(-180deg) !important;
+}
+
+/* Override the left/right rotation for small buttons in their respective containers */
+.nav-left .nav-btn-small .nav-icon-rotated {
+    transform: rotate(-180deg) !important;
+}
+
+.nav-right .nav-btn-small .nav-icon {
+    transform: rotate(0deg) !important; /* Upright paw for Latest */
 }
 
  
