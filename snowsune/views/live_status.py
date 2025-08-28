@@ -10,11 +10,20 @@ from datetime import timedelta
 from tracking.models import Visitor
 from snowsune.models import SiteSetting
 from bs4 import BeautifulSoup
+from django.core.cache import cache
 
 
-@cache_page(1800)  # Cache this for 30 minutes just to reduce the load
 def get_ko_fi_progress():
-    """Get Ko-fi progress"""
+    """
+    Get Ko-fi progress
+    Uses django cache manually!
+    """
+
+    cache_key = "ko_fi_progress"
+    cached_value = cache.get(cache_key)
+
+    if cached_value is not None:
+        return cached_value
 
     ko_fi_url_setting = SiteSetting.objects.filter(key="KO_FI_URL").first()
 
@@ -36,17 +45,21 @@ def get_ko_fi_progress():
                 progress_text = progress_block.get_text(strip=True)
                 # Extract percentage from text like "75% of goal"
                 if "%" in progress_text:
-                    return progress_text.split("%")[0]
+                    result = progress_text.split("%")[0]
                 else:
-                    return "?"
+                    result = "?"
             else:
-                return "?"
+                result = "?"
         else:
-            return "?"
+            result = "?"
 
     except Exception as e:
         print(f"Error fetching Ko-fi progress: {e}")
-        return "?"
+        result = "?"
+
+    # Cache the result for 30 minutes
+    cache.set(cache_key, result, 1800)
+    return result
 
 
 @csrf_exempt
@@ -94,7 +107,10 @@ def live_status_view(request):
             server_offset = "Offline"
 
     # Get Ko-fi progress
-    ko_fi_progress = get_ko_fi_progress()
+    try:
+        ko_fi_progress = get_ko_fi_progress()
+    except Exception:
+        ko_fi_progress = "?"
 
     return JsonResponse(
         {
