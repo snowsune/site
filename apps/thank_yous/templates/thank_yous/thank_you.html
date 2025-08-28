@@ -45,7 +45,13 @@ possible!{% endblock %}
             {% if entry.get_links %}
             <div class="person-links">
                 {% for label, url in entry.get_links %}
+                {% if url|slice:":1" == "<" and url|slice:"-1:" == ">" %}
+                <!-- This is a little unsafe maybe but, only i can input qoutes so its fine~ -->
+                {{ url|safe }}
+                {% else %}
+                <!-- Otherwise just link! -->
                 <a href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>
+                {% endif %}
                 {% endfor %}
             </div>
             {% endif %}
