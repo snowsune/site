@@ -142,3 +142,16 @@ def trigger_concurrent_user_webhook(record_count):
 def discord_invite_link(request):
     invite = SiteSetting.objects.filter(key="discord_invite").first()
     return {"discord_invite": invite.value if invite else ""}
+
+
+def ko_fi_url(request):
+    """Add Ko-fi URL to all template contexts"""
+    try:
+        ko_fi_setting = SiteSetting.objects.filter(key="KO_FI_URL").first()
+        ko_fi_url = (
+            ko_fi_setting.value if ko_fi_setting else "https://ko-fi.com/snowsune"
+        )
+    except:
+        ko_fi_url = "https://ko-fi.com/snowsune"
+
+    return {"ko_fi_url": ko_fi_url}

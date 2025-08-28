@@ -105,12 +105,6 @@ class QuotesScroller {
         const truncatedContent = this.truncateQuote(quote.content);
         const truncatedUsername = this.truncateUsername(quote.user);
 
-        // Debug logging
-        console.log('Original length:', quote.content.length, 'Truncated length:', truncatedContent.length);
-        console.log('Original:', quote.content);
-        console.log('Truncated:', truncatedContent);
-        console.log('Username:', quote.user, 'Truncated:', truncatedUsername);
-
         // Display the quote (in the container)
         this.container.innerHTML = `
             <span class="quote-content" data-full-content="${quote.content}">"${truncatedContent}"</span>

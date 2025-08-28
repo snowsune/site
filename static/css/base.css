@@ -151,6 +151,20 @@ a:visited {
   color: var(--link-default);
 }
 
+/* Clickable stat box styling */
+.stat-box-link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-block;
+}
+
+.stat-box-link:hover .stat-box {
+  background: var(--accent-color);
+  color: white;
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+}
+
 /* ==============
  * Navbar styles!
  * ============== */
