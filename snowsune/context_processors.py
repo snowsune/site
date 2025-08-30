@@ -155,3 +155,14 @@ def ko_fi_url(request):
         ko_fi_url = "https://ko-fi.com/snowsune"
 
     return {"ko_fi_url": ko_fi_url}
+
+
+def google_analytics_id(request):
+    """Add Google Analytics tag to all template contexts"""
+    try:
+        ga_setting = SiteSetting.objects.filter(key="GOOGLE_TAG").first()
+        google_tag = ga_setting.value if ga_setting else None
+    except:
+        google_tag = None
+
+    return {"google_tag": google_tag}

@@ -5,6 +5,11 @@
 
 
 <head>
+  <!-- Google Analytics -->
+  {% if google_tag %}
+  {{ google_tag|safe }}
+  {% endif %}
+
   <!-- Dark Mode Script! -->
   <script>
     // Set theme class before load!
