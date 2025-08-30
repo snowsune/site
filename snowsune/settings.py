@@ -131,6 +131,7 @@ TEMPLATES = [
                 "snowsune.context_processors.visit_stats",
                 "snowsune.context_processors.discord_invite_link",  # TODO: Make generic!
                 "snowsune.context_processors.ko_fi_url",
+                "snowsune.context_processors.google_analytics_id",
                 "apps.notifications.context_processors.notifications_processor",
             ],
         },
