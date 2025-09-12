@@ -11,15 +11,9 @@ comic strips, furry community, webcomic series{% endblock %}
 
 {% block og_image %}{% if page.image %}{{ page.image.url|social_preview_url_og:request }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
 {% block twitter_image %}{% if page.image %}{{ page.image.url|social_preview_url_og:request }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
-{% block meta_description %}{% if page.page_number == latest_page.page_number %}Read the latest webcomic pages and
-explore the story! A furry webcomic series by Vixi on
-Snowsune.net{% else %}{{ page.description_html|striptags|truncatewords:30 }}{% endif %}{% endblock %}
-{% block og_description %}{% if page.page_number == latest_page.page_number %}Read the latest webcomic pages and explore
-the story! A furry webcomic series by Vixi on
-Snowsune.net{% else %}{{ page.description_html|striptags|truncatewords:30 }}{% endif %}{% endblock %}
-{% block twitter_description %}{% if page.page_number == latest_page.page_number %}Read the latest webcomic pages and
-explore the story! A furry webcomic series by Vixi on
-Snowsune.net{% else %}{{ page.description_html|striptags|truncatewords:30 }}{% endif %}{% endblock %}
+{% block meta_description %}{% if page.page_number == latest_page.page_number %}A furry webcomic on snowsune.net!{% else %}{{ page.description_html|striptags|truncatewords:30 }}{% endif %}{% endblock %}
+{% block og_description %}{% if page.page_number == latest_page.page_number %}A furry webcomic on snowsune.net!{% else %}{{ page.description_html|striptags|truncatewords:30 }}{% endif %}{% endblock %}
+{% block twitter_description %}{% if page.page_number == latest_page.page_number %}A furry webcomic on snowsune.net!{% else %}{{ page.description_html|striptags|truncatewords:30 }}{% endif %}{% endblock %}
 
 {% block og_title %}{% if page.page_number == latest_page.page_number %}Comics - snowsune.net{% else %}{{ page.title }}
 - Page {{ page.page_number }} - snowsune.net{% endif %}{% endblock %}
