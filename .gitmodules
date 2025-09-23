@@ -1,0 +1,3 @@
+[submodule "apps/apps/rp_scheduler"]
+	path = apps/rp_scheduler
+	url = git@github_snowsune:snowsune/rp_scheduler.git

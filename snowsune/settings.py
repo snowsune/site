@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     "apps.notifications",  # Centralized notification system
     "apps.thank_yous",  # Thank yous management app
     "apps.quotes",  # Quotes scroller app
+    "apps.rp_scheduler",  # RP Scheduler app
 ]
 
 MIDDLEWARE = [
