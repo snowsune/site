@@ -190,6 +190,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "apps/characters/static",  # Characters have their own static files too
     BASE_DIR / "apps/comics/static",  # Comics
     BASE_DIR / "apps/thank_yous/static",  # Thank Yous
+    BASE_DIR / "apps/rp_scheduler/static",  # RP Scheduler Svelte app
 ]
 
 # Media Paths (things like profile pictures and such are uploaded here)
