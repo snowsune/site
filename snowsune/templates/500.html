@@ -1,18 +1,19 @@
 {% extends "base.html" %}
 
 {% load static %}
- 
-{% block title %}Server Error - Snowsune.net{% endblock %} 
+
+{% block title %}Server Error - Snowsune.net{% endblock %}
+
+{% block og_image %}{% static 'stickers/foxi-sticker-ERROR.png' %}{% endblock %}
+{% block twitter_image %}{% static 'stickers/foxi-sticker-ERROR.png' %}{% endblock %}
+{% block og_description %}Oops! Something went wrong on our end.{% endblock %}
 
 {% block content %}
 <div class="error-page" style="text-align: center">
   <h1>500 - Server Error!</h1>
-  <p>Aah! The server really didn't like that >.<</p>
-  <img
-    src="{% static 'stickers/foxi-sticker-ERROR.png' %}"
-    alt="Art by Mothwing!"
-    style="max-width: 400px; margin: 2em auto"
-  />
-  <p><a href="{% url 'home' %}">Return Home</a></p>
+  <p>Aah! The server really didn't like that >.<< /p>
+      <img src="{% static 'stickers/foxi-sticker-ERROR.png' %}" alt="Art by Mothwing!"
+        style="max-width: 400px; margin: 2em auto" />
+      <p><a href="{% url 'home' %}">Return Home</a></p>
 </div>
 {% endblock %}
