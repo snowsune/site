@@ -1,0 +1,3 @@
+[submodule "apps/rp_scheduler"]
+	path = apps/rp_scheduler
+	url = https://github.com/MasQueElite/rp_scheduler.git

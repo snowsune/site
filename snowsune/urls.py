@@ -36,6 +36,7 @@ urlpatterns = [
     path("characters/", include("apps.characters.urls")),
     path("quotes/", include("apps.quotes.urls")),
     path("users/", include("apps.users.urls")),
+    path("rp/", include("apps.rp_scheduler.urls")),
     # SEO
     path(
         "sitemap.xml",
