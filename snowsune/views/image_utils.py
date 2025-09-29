@@ -99,7 +99,7 @@ def format_preview_view(request, image_path):
         original_path = os.path.join(settings.MEDIA_ROOT, image_path)
 
         if not os.path.exists(original_path):
-            raise Http404(f"Image not found: {image_path}")
+            raise Http404(f"Image not found: {image_path}, searched {original_path}")
 
         # Create the social preview image
         preview_img = create_social_preview_image(image_path)
