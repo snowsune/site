@@ -35,8 +35,10 @@ def get_cloudflare_analytics():
             settings.CLOUDFLARE_ACCOUNT_ID,
         ]
     ):
-        if not settings.DEBUG:
-            raise Exception("Cloudflare Analytics API is not configured")
+        if settings.DEBUG:
+            raise Exception(
+                "Cloudflare Analytics API is not configured - missing API token, zone ID, or account ID"
+            )
         return {"active_users": "?", "page_views": "?", "unique_visitors": "?"}
 
     try:
@@ -78,7 +80,7 @@ def get_cloudflare_analytics():
 
         payload = {"query": query}
 
-        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        response = requests.post(url, headers=headers, json=payload, timeout=3)
 
         if response.status_code == 200:
             data = response.json()
@@ -101,15 +103,21 @@ def get_cloudflare_analytics():
                             "unique_visitors": total_visits,
                         }
             else:
-                # Log GraphQL errors in production
-                if not settings.DEBUG:
+                if settings.DEBUG:
+                    raise Exception(
+                        f"Cloudflare GraphQL errors: {data.get('errors', [])}"
+                    )
+                else:
                     import logging
 
                     logger = logging.getLogger(__name__)
                     logger.error(f"Cloudflare GraphQL errors: {data.get('errors', [])}")
         else:
-            # Log API errors in production
-            if not settings.DEBUG:
+            if settings.DEBUG:
+                raise Exception(
+                    f"Cloudflare API request failed with status {response.status_code}"
+                )
+            else:
                 import logging
 
                 logger = logging.getLogger(__name__)
@@ -117,11 +125,14 @@ def get_cloudflare_analytics():
                     f"Cloudflare API request failed with status {response.status_code}"
                 )
 
+        if settings.DEBUG:
+            raise Exception("Could not retrieve Cloudflare analytics data")
         return {"active_users": "?", "page_views": "?", "unique_visitors": "?"}
 
     except Exception as e:
-        # Log errors in production
-        if not settings.DEBUG:
+        if settings.DEBUG:
+            raise Exception(f"Cloudflare Analytics API error: {e}")
+        else:
             import logging
 
             logger = logging.getLogger(__name__)
@@ -169,7 +180,8 @@ def live_status_view(request):
     # Get Ko-fi progress
     ko_fi_progress = get_ko_fi_progress()
 
-    return JsonResponse(
+    # Create response with low TTL headers to prevent Cloudflare caching
+    response = JsonResponse(
         {
             "active_users": cf_analytics["active_users"],
             "page_views": cf_analytics["page_views"],
@@ -181,3 +193,11 @@ def live_status_view(request):
             "source": "cloudflare_analytics",
         }
     )
+
+    # Set low TTL headers to prevent Cloudflare caching
+    response["Cache-Control"] = "public, max-age=30"
+    response["Expires"] = (timezone.now() + timedelta(seconds=30)).strftime(
+        "%a, %d %b %Y %H:%M:%S GMT"
+    )
+
+    return response
