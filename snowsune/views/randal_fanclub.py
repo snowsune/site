@@ -52,6 +52,16 @@ class RandalFanclubView(TemplateView):
                         If Randal's still wearing his collar, is it really nudity?~""",
                         "nsfw": True,
                     },
+                    {
+                        "filename": "2025/shae/Shae_summer_with_friends_swimsuitsSunset2.png",
+                        "title": "Shae's Summer Special",
+                        "description": """A special <a href="https://www.furaffinity.net/user/insydnis" target="_blank" rel="noopener">Shaezie</a> alt with custom music!
+                        
+                        Link to her track here: <a href="/media/randal_fanclub/2025/shae/Summer of Unity.mp3" target="_blank" rel="noopener">Summer of Unity.mp3</a>
+                        
+                        It's a beautiful shae-vibe edit <3 Thank you!""",
+                        "nsfw": False,
+                    },
                 ],
             },
             {
