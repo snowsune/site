@@ -1,29 +1,132 @@
-from django.views.decorators.cache import cache_page
-from django.utils import timezone
-from django.contrib.sessions.models import Session
-from django.db.models import Q, Count
+import requests
+import json
 from datetime import timedelta
-from tracking.models import Visitor
-from snowsune.models import SiteSetting
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-import requests
+from django.views.decorators.cache import cache_page
+from django.utils import timezone
+from django.conf import settings
+from snowsune.models import SiteSetting
 
 
 def get_ko_fi_progress():
     """
-    Get Ko-fi progress from site setting
-    Manual updates via Django admin
+    Get Ko-fi progress from SiteSetting
     """
-    progress_setting = SiteSetting.objects.filter(
-        key="KO_FI_FUNDING_PERCENTAGE"
-    ).first()
-
-    if progress_setting:
-        return progress_setting.value
+    ko_fi_setting = SiteSetting.objects.filter(key="KO_FI_PROGRESS").first()
+    if ko_fi_setting:
+        try:
+            return f"{float(ko_fi_setting.value):.1f}"
+        except (ValueError, TypeError):
+            return "?"
     else:
         return "?"
+
+
+def get_cloudflare_analytics():
+    """
+    Get analytics data from Cloudflare GraphQL Analytics API
+    """
+    if not all(
+        [
+            settings.CLOUDFLARE_ANALYTICS_API_TOKEN,
+            settings.CLOUDFLARE_ZONE_ID,
+            settings.CLOUDFLARE_ACCOUNT_ID,
+        ]
+    ):
+        if not settings.DEBUG:
+            raise Exception("Cloudflare Analytics API is not configured")
+        return {"active_users": "?", "page_views": "?", "unique_visitors": "?"}
+
+    try:
+        headers = {
+            "Authorization": f"Bearer {settings.CLOUDFLARE_ANALYTICS_API_TOKEN}",
+            "Content-Type": "application/json",
+        }
+
+        # Use GraphQL Analytics API
+        url = "https://api.cloudflare.com/client/v4/graphql"
+
+        # GraphQL query for analytics data
+        query = """
+        query {
+          viewer {
+            zones(filter: {zoneTag: "%s"}) {
+              httpRequestsAdaptiveGroups(
+                filter: {
+                  datetime_geq: "%s"
+                  datetime_leq: "%s"
+                  requestSource: "eyeball"
+                }
+                limit: 1000
+              ) {
+                count
+                sum {
+                  visits
+                  edgeResponseBytes
+                }
+              }
+            }
+          }
+        }
+        """ % (
+            settings.CLOUDFLARE_ZONE_ID,
+            (timezone.now() - timedelta(minutes=15)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            timezone.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        )
+
+        payload = {"query": query}
+
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+
+        if response.status_code == 200:
+            data = response.json()
+
+            if not data.get("errors"):
+                zones = data.get("data", {}).get("viewer", {}).get("zones", [])
+                if zones:
+                    zone_data = zones[0]
+                    http_requests = zone_data.get("httpRequestsAdaptiveGroups", [])
+
+                    if http_requests:
+                        total_requests = sum(group["count"] for group in http_requests)
+                        total_visits = sum(
+                            group["sum"]["visits"] for group in http_requests
+                        )
+
+                        return {
+                            "active_users": total_visits,
+                            "page_views": total_requests,
+                            "unique_visitors": total_visits,
+                        }
+            else:
+                # Log GraphQL errors in production
+                if not settings.DEBUG:
+                    import logging
+
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Cloudflare GraphQL errors: {data.get('errors', [])}")
+        else:
+            # Log API errors in production
+            if not settings.DEBUG:
+                import logging
+
+                logger = logging.getLogger(__name__)
+                logger.error(
+                    f"Cloudflare API request failed with status {response.status_code}"
+                )
+
+        return {"active_users": "?", "page_views": "?", "unique_visitors": "?"}
+
+    except Exception as e:
+        # Log errors in production
+        if not settings.DEBUG:
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.error(f"Cloudflare Analytics API error: {e}")
+        return {"active_users": "?", "page_views": "?", "unique_visitors": "?"}
 
 
 @csrf_exempt
@@ -31,17 +134,10 @@ def get_ko_fi_progress():
 @cache_page(30)  # Cache for 30 seconds
 def live_status_view(request):
     """
-    Active users, Home Assistant server offset, and Ko-fi progress
+    Live status using Cloudflare Analytics instead of custom tracking
     """
-    # Get active users count
-    now = timezone.now()
-    fifteen_minute_cutoff = now - timedelta(minutes=15)
-    active_users = (
-        Visitor.objects.filter(start_time__gte=fifteen_minute_cutoff)
-        .distinct("session_key")
-        .order_by("session_key")
-        .count()
-    )
+    # Get Cloudflare analytics data
+    cf_analytics = get_cloudflare_analytics()
 
     # Get Home Assistant server offset
     server_offset = None
@@ -75,10 +171,13 @@ def live_status_view(request):
 
     return JsonResponse(
         {
-            "active_users": active_users,
+            "active_users": cf_analytics["active_users"],
+            "page_views": cf_analytics["page_views"],
+            "unique_visitors": cf_analytics["unique_visitors"],
             "server_offset": server_offset,
             "ko_fi_progress": ko_fi_progress,
-            "timestamp": now.isoformat(),
+            "timestamp": timezone.now().isoformat(),
             "cached": True,
+            "source": "cloudflare_analytics",
         }
     )

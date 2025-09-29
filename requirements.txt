@@ -4,9 +4,6 @@ whitenoise
 markdown
 requests
 
-# Middleware
-django-tracking2
-
 # App (graphics)
 pillow
 qrcode

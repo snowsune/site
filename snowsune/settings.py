@@ -52,8 +52,6 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 # Site URL for webhooks and external links
 SITE_URL = os.getenv("SITE_URL", "https://snowsune.net")
 
-# For django-tracking
-
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -62,8 +60,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # External apps
-    "tracking",
     # Main app
     "snowsune",
     # Custom apps
@@ -86,7 +82,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "snowsune.middleware.CloudflareAwareVisitorTrackingMiddleware",  # Custom Cloudflare-aware tracking
+    # "snowsune.middleware.CloudflareAwareVisitorTrackingMiddleware",  # Removed - using Cloudflare Analytics instead
 ]
 
 # Trust reverse proxy headers
@@ -96,20 +92,10 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
-# Note: django-tracking2 should read HTTP_CF_CONNECTING_IP for real user IPs
-
-# Django-tracking2 configuration to reduce Cloudflare duplicate sessions
-TRACK_AJAX_REQUESTS = False  # Don't track AJAX requests
-TRACK_PAGEVIEWS = False  # Don't track individual page views (just sessions)
-TRACK_REFERER = False  # Don't track referrer (reduces data)
-TRACK_QUERY_STRING = False  # Don't track query strings
-TRACK_IGNORE_USER_AGENTS = (
-    "bot",
-    "crawler",
-    "spider",
-    "scraper",  # Ignore obvious bots
-)
-TRACK_IGNORE_STATUS_CODES = [404, 500, 502, 503, 504]  # Ignore error pages
+# Cloudflare Analytics API configuration
+CLOUDFLARE_ANALYTICS_API_TOKEN = os.getenv("CLOUDFLARE_ANALYTICS_API_TOKEN")
+CLOUDFLARE_ZONE_ID = os.getenv("CLOUDFLARE_ZONE_ID")
+CLOUDFLARE_ACCOUNT_ID = os.getenv("CLOUDFLARE_ACCOUNT_ID")
 
 ROOT_URLCONF = "snowsune.urls"
 
@@ -128,7 +114,6 @@ TEMPLATES = [
                 "snowsune.context_processors.year_processor",
                 "snowsune.context_processors.debug_mode",
                 "snowsune.context_processors.expiry_links",
-                "snowsune.context_processors.visit_stats",
                 "snowsune.context_processors.discord_invite_link",  # TODO: Make generic!
                 "snowsune.context_processors.ko_fi_url",
                 "snowsune.context_processors.google_analytics_id",
