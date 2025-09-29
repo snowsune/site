@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% load static %}
+{% load image_tags %}
+
+{% block title %}Randal Fanclub{% endblock %}
+
+{% block meta_description %}The "offical" Randal Fanclub~ Just don't tell Randal!{% endblock %}
+
+{% block og_title %}Randal Fanclub{% endblock %}
+{% block og_description %}The "offical" Randal Fanclub~ Just don't tell Randal!{% endblock %}
+{% block og_image %}/media/randal_fanclub/Randal Fanclub.png{% endblock %}
+
+{% block twitter_title %}Randal Fanclub{% endblock %}
+{% block twitter_description %}The "offical" Randal Fanclub~ Just don't tell Randal!{% endblock %}
+{% block twitter_image %}/media/randal_fanclub/Randal Fanclub.png{% endblock %}
+
+{% block extra_head %}
+<style>
+    .randal-fanclub {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .fanclub-header {
+        position: relative;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        border-radius: 15px;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+    }
+
+    .fanclub-logo {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+    }
+
+    .fanclub-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+
+    .fanclub-subtitle {
+        font-size: 1.2rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+    }
+
+    .fanclub-description {
+        color: var(--text-color);
+        line-height: 1.6;
+        max-width: 600px;
+    }
+
+    .years-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .year-column {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .year-header {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: var(--text-color);
+        margin-bottom: 1.5rem;
+        text-align: center;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #d2691e;
+        /* Burnt orange/fox red */
+    }
+
+    .images-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .image-item {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+
+    .image-item:hover {
+        transform: translateY(-2px);
+    }
+
+    .image-item img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .image-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+        color: white;
+        padding: 1rem;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .image-item:hover .image-overlay {
+        transform: translateY(0);
+    }
+
+    .image-overlay a {
+        color: #87CEEB;
+        text-decoration: underline;
+    }
+
+    .image-overlay a:hover {
+        color: #B0E0E6;
+    }
+
+    .image-title {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .image-description {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .nsfw-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+    }
+
+    .nsfw-overlay:hover {
+        opacity: 0.7;
+    }
+
+    /* Modal for image zoom */
+    .image-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        cursor: pointer;
+    }
+
+    .modal-content {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .modal-content img {
+        max-width: 100% !important;
+        max-height: 100% !important;
+        width: auto !important;
+        height: auto !important;
+        border-radius: 10px;
+        object-fit: contain;
+        display: block;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        color: white;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .modal-close:hover {
+        opacity: 0.7;
+    }
+
+    @media (max-width: 768px) {
+        .years-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .fanclub-title {
+            font-size: 2rem;
+        }
+
+        .randal-fanclub {
+            padding: 1rem;
+        }
+
+        .fanclub-logo {
+            position: static;
+            margin: 0 auto 1rem;
+            display: block;
+            width: 100px;
+            height: 100px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="randal-fanclub">
+    <div class="fanclub-header">
+        <img src="/media/randal_fanclub/Randal Fanclub.png" alt="Randal Fanclub Logo" class="fanclub-logo">
+        <h1 class="fanclub-title">The Fanclub~</h1>
+        <p class="fanclub-subtitle">Shh! This page is hidden~ (Though I'm sure Randal will sniff it out sometime~)</p>
+        <p class="fanclub-description">
+            The fanclub is a group of friends who love to bully our friend Randal~ It's very low pressure and just for
+            fun!
+            Randal's just a sweet foxboy. Not directly affiliated but included and appreciated &lt;3
+        </p>
+        <p class="fanclub-description">
+            <strong>Membership is invite only!</strong> Talk to <a href="mailto:vixi@snowsune.net">vixi</a> if you're
+            mutuals with <a href="https://www.furaffinity.net/user/RandalTassler" target="_blank"
+                rel="noopener">Randal</a>~ and would like to get in on one of the group pics!
+        </p>
+    </div>
+
+    <div class="years-grid">
+        {% for year_data in years %}
+        <div class="year-column">
+            <h2 class="year-header">{{ year_data.year }}</h2>
+            <div class="images-grid">
+                {% for image in year_data.images %}
+                <div class="image-item" data-filename="{{ image.filename }}" data-title="{{ image.title }}"
+                    data-description="{{ image.description }}" data-nsfw="{{ image.nsfw|yesno:"true,false" }}">
+                    <img src="/media/randal_fanclub/{{ image.filename }}" alt="{{ image.title }}" loading="lazy">
+
+                    {% if image.nsfw %}
+                    <div class="nsfw-overlay">
+                        <span>NSFW!~</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="image-overlay">
+                        <div class="image-title">{{ image.title }}</div>
+                        <div class="image-description">{{ image.description|safe }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal" onclick="closeModal()">
+    <span class="modal-close" onclick="closeModal()">&times;</span>
+    <div class="modal-content">
+        <img id="modalImage" src="" alt="">
+        <div style="color: white; text-align: center; margin-top: 1rem;">
+            <h3 id="modalTitle"></h3>
+            <div id="modalDescription" style="white-space: pre-line;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal(filename, title, description, isNsfw) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+
+        modalImg.src = `/media/randal_fanclub/${filename}`;
+        modalTitle.textContent = title;
+        modalDescription.innerHTML = description;
+
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('imageModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Was impossible getting the modal so, do this instead.
+    document.addEventListener('DOMContentLoaded', function () {
+        const imageItems = document.querySelectorAll('.image-item');
+        imageItems.forEach(function (item) {
+            item.addEventListener('click', function () {
+                const filename = this.dataset.filename;
+                const title = this.dataset.title;
+                const description = this.dataset.description;
+                const isNsfw = this.dataset.nsfw === 'true';
+
+                openModal(filename, title, description, isNsfw);
+            });
+        });
+    });
+
+    // Close modal with Escape or whatever
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}

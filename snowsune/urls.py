@@ -10,6 +10,7 @@ from snowsune.views.projects import ProjectsView
 from snowsune.views.tools import ToolsView
 from snowsune.views.live_status import live_status_view
 from snowsune.views.image_utils import format_preview_view
+from snowsune.views.randal_fanclub import RandalFanclubView
 from apps.thank_yous.views import thank_you_view
 
 
@@ -36,6 +37,8 @@ urlpatterns = [
     path("characters/", include("apps.characters.urls")),
     path("quotes/", include("apps.quotes.urls")),
     path("users/", include("apps.users.urls")),
+    # Hidden pages
+    path("orfc/", RandalFanclubView.as_view(), name="randal_fanclub"),
     # SEO
     path(
         "sitemap.xml",
