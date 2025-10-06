@@ -1,4 +1,211 @@
-{% extends "base.html" %} {% block title %}Edit Account{% endblock %} {% block content %}
+{% extends "base.html" %}
+{% block title %}Edit Account{% endblock %}
+
+{% block extra_css %}
+<style>
+    .account-section {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        margin: 0.25rem;
+        background-color: #007bff;
+        color: white;
+        border-radius: 3px;
+        font-size: 0.875rem;
+    }
+
+    .badge.verified {
+        background-color: #28a745;
+    }
+
+    .badge.moderator {
+        background-color: #dc3545;
+    }
+
+    .badge-image {
+        width: 48px;
+        height: 48px;
+        margin: 0.25rem;
+        border-radius: 5px;
+        transition: transform 0.2s;
+    }
+
+    .badge-image:hover {
+        transform: scale(1.1);
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        max-width: 500px;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .error {
+        color: #dc3545;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
 <h1>Edit your account</h1>
-<p>Account editing coming soon!</p>
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<div class="account-section">
+    <h2>Account Information</h2>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email|default:"Not set" }}</p>
+    <p><strong>Date Joined:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
+
+    <h3>Badges</h3>
+    <div class="badges">
+        {% if user.badges %}
+        {% for badge in user.badges %}
+        <img src="/static/badges/{{ badge }}.png" alt="{{ badge|title }} Badge" class="badge-image"
+            title="{{ badge|title }}">
+        {% endfor %}
+        {% endif %}
+
+        {% if user.is_verified %}
+        <img src="/static/badges/verified.png" alt="Verified Badge" class="badge-image" title="Verified">
+        {% endif %}
+
+        {% if user.is_moderator %}
+        <img src="/static/badges/mod.png" alt="Moderator Badge" class="badge-image" title="Moderator">
+        {% endif %}
+
+        {% if not user.badges and not user.is_verified and not user.is_moderator %}
+        <p>No badges yet!</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="account-section">
+    <h2>Discord Connection</h2>
+    {% if has_discord %}
+    <p><strong>Status:</strong> Connected</p>
+    <p><strong>Discord Username:</strong> {{ user.discord_username }}</p>
+    <p><strong>Discord ID:</strong> {{ user.discord_id }}</p>
+
+    <form method="post" style="display: inline;"
+        onsubmit="return confirm('Are you sure you want to disconnect your Discord account?')">
+        {% csrf_token %}
+        <button type="submit" name="disconnect_discord" class="btn btn-danger">
+            Disconnect Discord Account
+        </button>
+    </form>
+
+    <p><small>Disconnecting will remove your access to Fops Bot features.</small></p>
+    {% else %}
+    <p><strong>Status:</strong> Not connected</p>
+    <p>Connect your Discord account to access Fops Bot features.</p>
+    <a href="{% url 'bot_manager_discord_login' %}" class="btn btn-primary">
+        Connect Discord Account
+    </a>
+    {% endif %}
+</div>
+
+<div class="account-section">
+    <h2>Profile Information</h2>
+
+    <div class="profile-picture-section">
+        <h3>Profile Picture</h3>
+        {% if user.profile_picture %}
+        <img src="{{ user.profile_picture.url }}" alt="Profile Picture" style="max-width: 150px; border-radius: 50%;">
+        {% else %}
+        <p>No profile picture set</p>
+        {% endif %}
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.bio.id_for_label }}">Bio:</label>
+            {{ form.bio }}
+            {% if form.bio.errors %}
+            <div class="error">{{ form.bio.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.profile_picture.id_for_label }}">Profile Picture:</label>
+            {{ form.profile_picture }}
+            {% if form.profile_picture.errors %}
+            <div class="error">{{ form.profile_picture.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.fa_url.id_for_label }}">FurAffinity URL:</label>
+            {{ form.fa_url }}
+            {% if form.fa_url.errors %}
+            <div class="error">{{ form.fa_url.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.flist_url.id_for_label }}">F-List URL:</label>
+            {{ form.flist_url }}
+            {% if form.flist_url.errors %}
+            <div class="error">{{ form.flist_url.errors }}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" name="save_profile" class="btn btn-primary">Save Profile</button>
+    </form>
+</div>
+
+<div class="account-section">
+    <h2>Account Actions</h2>
+    <a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
+</div>
 {% endblock %}
