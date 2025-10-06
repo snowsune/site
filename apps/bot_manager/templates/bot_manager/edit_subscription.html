@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Edit Subscription</h1>
+
+<a href="{% url 'bot_manager_dashboard' %}">← Back to Dashboard</a>
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label for="service_type">Service Type:</label>
+        <select name="service_type" id="service_type" required>
+            {% for value, label in service_choices %}
+            <option value="{{ value }}" {% if subscription.service_type == value %}selected{% endif %}>{{ label }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="user_id">User ID:</label>
+        <input type="number" name="user_id" id="user_id" value="{{ subscription.user_id }}" required>
+    </div>
+
+    <div class="form-group">
+        <label for="guild_id">Guild ID:</label>
+        <select name="guild_id" id="guild_id" required>
+            {% for guild in shared_guilds %}
+            <option value="{{ guild.id }}" {% if subscription.guild_id == guild.id %}selected{% endif %}>
+                {{ guild.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="channel_id">Channel ID:</label>
+        <input type="number" name="channel_id" id="channel_id" value="{{ subscription.channel_id }}" required>
+    </div>
+
+    <div class="form-group">
+        <label for="search_criteria">Search Criteria:</label>
+        <input type="text" name="search_criteria" id="search_criteria" value="{{ subscription.search_criteria }}"
+            required maxlength="255">
+    </div>
+
+    <div class="form-group">
+        <label for="filters">Filters (optional):</label>
+        <textarea name="filters" id="filters" rows="3">{{ subscription.filters|default:"" }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label>
+            <input type="checkbox" name="is_pm" {% if subscription.is_pm %}checked{% endif %}> Send as PM
+        </label>
+    </div>
+
+    <div class="form-group">
+        <small>Read-only fields:</small><br>
+        <strong>Subscribed:</strong> {{ subscription.subscribed_at }}<br>
+        <strong>Last Reported ID:</strong> {{ subscription.last_reported_id }}<br>
+        <strong>Last Ran:</strong> {{ subscription.last_ran }}
+    </div>
+
+    <button type="submit">Update Subscription</button>
+</form>
+{% endblock %}

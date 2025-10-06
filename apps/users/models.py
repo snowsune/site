@@ -28,6 +28,30 @@ class CustomUser(AbstractUser):
         "Discord Token Expires", blank=True, null=True
     )
 
+    def get_discord_access_token(self):
+        """Get decrypted Discord access token"""
+        from snowsune.encryption import decrypt_token
+
+        return decrypt_token(self.discord_access_token)
+
+    def set_discord_access_token(self, token):
+        """Set encrypted Discord access token"""
+        from snowsune.encryption import encrypt_token
+
+        self.discord_access_token = encrypt_token(token)
+
+    def get_discord_refresh_token(self):
+        """Get decrypted Discord refresh token"""
+        from snowsune.encryption import decrypt_token
+
+        return decrypt_token(self.discord_refresh_token)
+
+    def set_discord_refresh_token(self, token):
+        """Set encrypted Discord refresh token"""
+        from snowsune.encryption import encrypt_token
+
+        self.discord_refresh_token = encrypt_token(token)
+
     # Content
     bio = models.TextField("User Bio", blank=True, null=True)
     size_diff_image = models.ImageField(

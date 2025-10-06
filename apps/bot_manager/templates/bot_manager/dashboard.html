@@ -4,10 +4,16 @@
 <h1>Fops Bot Manager</h1>
 
 {% if user.is_authenticated %}
-<p>Welcome, {{ user.discord_username|default:user.username }}!</p>
+<p>Welcome, {{ user.username }}!</p>
+{% if user.discord_access_token %}
+<p>Discord: {{ user.discord_username|default:"Not connected" }}</p>
+{% else %}
+<p>Discord: <a href="{% url 'bot_manager_discord_login' %}">Connect Discord Account</a></p>
+{% endif %}
 <a href="{% url 'logout' %}">Logout</a>
 {% else %}
-<a href="{% url 'bot_manager_discord_login' %}">Login with Discord</a>
+<p>You must be logged in to access Fops Bot Manager.</p>
+<a href="{% url 'login' %}">Login to Snowsune.net</a>
 {% endif %}
 
 {% if error %}
@@ -52,6 +58,44 @@
 {% else %}
 <p>No shared guilds found.</p>
 {% endif %}
+
+<h2>Active Subscriptions</h2>
+{% if subscriptions %}
+<table>
+    <thead>
+        <tr>
+            <th>Service</th>
+            <th>Search Criteria</th>
+            <th>Guild</th>
+            <th>Channel</th>
+            <th>PM</th>
+            <th>Subscribed</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sub in subscriptions %}
+        <tr>
+            <td>{{ sub.service_type }}</td>
+            <td>{{ sub.search_criteria }}</td>
+            <td>{{ sub.guild_id }}</td>
+            <td>{{ sub.channel_id }}</td>
+            <td>{{ sub.is_pm|yesno:"Yes,No" }}</td>
+            <td>{{ sub.subscribed_at }}</td>
+            <td>
+                <a href="{% url 'bot_manager_edit_subscription' sub.id %}">Edit</a> |
+                <a href="{% url 'bot_manager_delete_subscription' sub.id %}"
+                    onclick="return confirm('Delete this subscription?')">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No subscriptions found.</p>
+{% endif %}
+
+<a href="{% url 'bot_manager_add_subscription' %}">Add New Subscription</a>
 
 <h2>Database Tables</h2>
 <ul>

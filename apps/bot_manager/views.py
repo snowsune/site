@@ -1,24 +1,26 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth import login
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.cache import cache
+from django.contrib import messages
 from datetime import timedelta
 import requests
 import json
-from .models import Guild, FopsDatabase
+from .models import FopsDatabase, Subscription
 
 
 def has_fops_admin_access(user):
     """Check if user has admin rights in any guild where Fops Bot is present"""
-    if not user.discord_access_token:
+    access_token = user.get_discord_access_token()
+    if not access_token:
         return False
 
     try:
         # Get user's guilds from Discord
-        headers = {"Authorization": f"Bearer {user.discord_access_token}"}
+        headers = {"Authorization": f"Bearer {access_token}"}
         guilds_response = requests.get(
             "https://discord.com/api/users/@me/guilds", headers=headers
         )
@@ -151,19 +153,19 @@ def dashboard(request):
         return render(request, "bot_manager/dashboard.html", context)
 
     try:
-        guilds = Guild.get_from_fops()
-        tables = Guild.get_tables()
+        tables = FopsDatabase.get_tables()
         shared_guilds = get_user_fops_guilds(request.user)
+        subscriptions = Subscription.get_all()
     except Exception as e:
-        guilds = []
         tables = []
         shared_guilds = []
+        subscriptions = []
         error = str(e)
 
     context = {
-        "guilds": guilds,
         "tables": tables,
         "shared_guilds": shared_guilds,
+        "subscriptions": subscriptions,
         "error": locals().get("error", None),
     }
     return render(request, "bot_manager/dashboard.html", context)
@@ -184,8 +186,9 @@ def discord_login(request):
     return redirect(discord_url)
 
 
+@login_required
 def discord_callback(request):
-    """Handle Discord OAuth callback"""
+    """Handle Discord OAuth callback - attach Discord to existing Snowsune account"""
     code = request.GET.get("code")
     if not code:
         return JsonResponse({"error": "No authorization code provided"}, status=400)
@@ -218,27 +221,30 @@ def discord_callback(request):
     discord_id = user_data["id"]
     discord_username = f"{user_data['username']}#{user_data['discriminator']}"
 
-    # Update or create user
+    # Check if Discord account is already attached to another user
     from apps.users.models import CustomUser
 
-    user, created = CustomUser.objects.get_or_create(
-        discord_id=discord_id,
-        defaults={
-            "username": f"discord_{discord_id}",
-            "discord_username": discord_username,
-        },
+    existing_discord_user = (
+        CustomUser.objects.filter(discord_id=discord_id)
+        .exclude(id=request.user.id)
+        .first()
     )
+    if existing_discord_user:
+        messages.error(
+            request,
+            "This Discord account is already attached to another Snowsune account.",
+        )
+        return redirect("bot_manager_dashboard")
 
-    # Update Discord info
-    user.discord_username = discord_username
-    user.discord_access_token = access_token
-    user.discord_refresh_token = refresh_token
-    user.discord_token_expires = timezone.now() + timedelta(seconds=expires_in)
-    user.save()
+    # Attach Discord to current logged-in user
+    request.user.discord_id = discord_id
+    request.user.discord_username = discord_username
+    request.user.set_discord_access_token(access_token)
+    request.user.set_discord_refresh_token(refresh_token)
+    request.user.discord_token_expires = timezone.now() + timedelta(seconds=expires_in)
+    request.user.save()
 
-    # Log them in
-    login(request, user)
-
+    messages.success(request, "Discord account successfully attached!")
     return redirect("bot_manager_dashboard")
 
 
@@ -249,16 +255,119 @@ def table_data(request, table_name):
     if not request.user.discord_access_token or not has_fops_admin_access(request.user):
         return redirect("bot_manager_dashboard")
 
+
+@login_required
+def add_subscription(request):
+    """Add a new subscription"""
+    # Check Discord connection and admin access
+    if not request.user.discord_access_token or not has_fops_admin_access(request.user):
+        return redirect("bot_manager_dashboard")
+
+    if request.method == "POST":
+        try:
+            subscription = Subscription(
+                service_type=request.POST.get("service_type"),
+                user_id=request.POST.get("user_id"),
+                guild_id=request.POST.get("guild_id"),
+                channel_id=request.POST.get("channel_id"),
+                search_criteria=request.POST.get("search_criteria"),
+                filters=request.POST.get("filters", ""),
+                is_pm=request.POST.get("is_pm") == "on",
+            )
+            subscription.clean()  # Validate
+            subscription.save_to_fops()
+            messages.success(request, "Subscription added successfully!")
+            return redirect("bot_manager_dashboard")
+        except Exception as e:
+            messages.error(request, f"Error adding subscription: {str(e)}")
+
+    context = {
+        "service_choices": Subscription.SERVICE_CHOICES,
+        "shared_guilds": get_user_fops_guilds(request.user),
+    }
+    return render(request, "bot_manager/add_subscription.html", context)
+
+
+@login_required
+def edit_subscription(request, subscription_id):
+    """Edit an existing subscription"""
+    # Check Discord connection and admin access
+    if not request.user.discord_access_token or not has_fops_admin_access(request.user):
+        return redirect("bot_manager_dashboard")
+
+    # Get subscription from database
     conn = FopsDatabase.get_connection()
     try:
         with conn.cursor() as cur:
-            cur.execute(f"SELECT * FROM {table_name} LIMIT 100")
-            rows = cur.fetchall()
-            columns = [desc[0] for desc in cur.description] if cur.description else []
-
-        context = {"table_name": table_name, "columns": columns, "rows": rows}
-        return render(request, "bot_manager/table_data.html", context)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+            cur.execute("SELECT * FROM subscriptions WHERE id = %s", (subscription_id,))
+            subscription_data = cur.fetchone()
+            if not subscription_data:
+                messages.error(request, "Subscription not found")
+                return redirect("bot_manager_dashboard")
     finally:
         conn.close()
+
+    if request.method == "POST":
+        try:
+            # Update subscription in database
+            conn = FopsDatabase.get_connection()
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        UPDATE subscriptions 
+                        SET service_type = %s, user_id = %s, guild_id = %s, 
+                            channel_id = %s, search_criteria = %s, 
+                            filters = %s, is_pm = %s
+                        WHERE id = %s
+                        """,
+                        (
+                            request.POST.get("service_type"),
+                            request.POST.get("user_id"),
+                            request.POST.get("guild_id"),
+                            request.POST.get("channel_id"),
+                            request.POST.get("search_criteria"),
+                            request.POST.get("filters", ""),
+                            request.POST.get("is_pm") == "on",
+                            subscription_id,
+                        ),
+                    )
+                    conn.commit()
+                    messages.success(request, "Subscription updated successfully!")
+                    return redirect("bot_manager_dashboard")
+            finally:
+                conn.close()
+        except Exception as e:
+            messages.error(request, f"Error updating subscription: {str(e)}")
+
+    context = {
+        "subscription": subscription_data,
+        "service_choices": Subscription.SERVICE_CHOICES,
+        "shared_guilds": get_user_fops_guilds(request.user),
+    }
+    return render(request, "bot_manager/edit_subscription.html", context)
+
+
+@login_required
+def delete_subscription(request, subscription_id):
+    """Delete a subscription"""
+    # Check Discord connection and admin access
+    if not request.user.discord_access_token or not has_fops_admin_access(request.user):
+        return redirect("bot_manager_dashboard")
+
+    if request.method == "POST":
+        try:
+            conn = FopsDatabase.get_connection()
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "DELETE FROM subscriptions WHERE id = %s", (subscription_id,)
+                    )
+                    conn.commit()
+                    messages.success(request, "Subscription deleted successfully!")
+            finally:
+                conn.close()
+        except Exception as e:
+            messages.error(request, f"Error deleting subscription: {str(e)}")
+
+    return redirect("bot_manager_dashboard")

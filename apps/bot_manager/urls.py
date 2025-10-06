@@ -8,4 +8,20 @@ urlpatterns = [
     path(
         "discord/callback/", views.discord_callback, name="bot_manager_discord_callback"
     ),
+    # Subscription management
+    path(
+        "subscriptions/add/",
+        views.add_subscription,
+        name="bot_manager_add_subscription",
+    ),
+    path(
+        "subscriptions/<int:subscription_id>/edit/",
+        views.edit_subscription,
+        name="bot_manager_edit_subscription",
+    ),
+    path(
+        "subscriptions/<int:subscription_id>/delete/",
+        views.delete_subscription,
+        name="bot_manager_delete_subscription",
+    ),
 ]

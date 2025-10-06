@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.views.generic import TemplateView
 from django.http import HttpResponse
@@ -23,7 +24,7 @@ urlpatterns = [
     path("tools/", ToolsView.as_view(), name="tools"),
     path("thank-you/", thank_you_view, name="thank_you"),
     path("login/", HomeView.as_view(), name="login"),
-    path("logout/", HomeView.as_view(), name="logout"),
+    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     # API endpoints
     path("api/live/", live_status_view, name="live_status_api"),
     # Image formatting for social media previews
