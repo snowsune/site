@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Table: {{ table_name }}</h1>
+
+<a href="{% url 'bot_manager_dashboard' %}">← Back to Dashboard</a>
+
+<table>
+    <thead>
+        <tr>
+            {% for column in columns %}
+            <th>{{ column }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            {% for value in row.values %}
+            <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

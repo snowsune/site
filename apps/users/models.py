@@ -12,7 +12,21 @@ class CustomUser(AbstractUser):
         "FurAffinity Profile", max_length=255, blank=True, null=True
     )
     flist_url = models.URLField("F-List Profile", max_length=255, blank=True, null=True)
+
+    # Discord
     discord_id = models.CharField("Discord ID", max_length=50, blank=True, null=True)
+    discord_username = models.CharField(
+        "Discord Username", max_length=100, blank=True, null=True
+    )
+    discord_access_token = models.TextField(
+        "Discord Access Token", blank=True, null=True
+    )
+    discord_refresh_token = models.TextField(
+        "Discord Refresh Token", blank=True, null=True
+    )
+    discord_token_expires = models.DateTimeField(
+        "Discord Token Expires", blank=True, null=True
+    )
 
     # Content
     bio = models.TextField("User Bio", blank=True, null=True)

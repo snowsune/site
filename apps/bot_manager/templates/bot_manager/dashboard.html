@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Fops Bot Manager</h1>
+
+{% if user.is_authenticated %}
+<p>Welcome, {{ user.discord_username|default:user.username }}!</p>
+<a href="{% url 'logout' %}">Logout</a>
+{% else %}
+<a href="{% url 'bot_manager_discord_login' %}">Login with Discord</a>
+{% endif %}
+
+{% if error %}
+<div class="error">{{ error }}</div>
+{% if show_discord_login %}
+<a href="{% url 'bot_manager_discord_login' %}">Connect Discord Account</a>
+{% endif %}
+{% endif %}
+
+<h2>Your Shared Guilds with Fops Bot</h2>
+{% if shared_guilds %}
+<table>
+    <thead>
+        <tr>
+            <th>Server</th>
+            <th>Admin Status</th>
+            <th>Fops Joined</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for guild in shared_guilds %}
+        <tr>
+            <td>
+                {% if guild.icon %}
+                <img src="https://cdn.discordapp.com/icons/{{ guild.id }}/{{ guild.icon }}.png" width="32" height="32"
+                    style="border-radius: 50%; margin-right: 8px;">
+                {% endif %}
+                {{ guild.name }}
+            </td>
+            <td>
+                {% if guild.is_admin %}
+                <span style="color: green;">✓ Admin</span>
+                {% else %}
+                <span style="color: red;">✗ Not Admin</span>
+                {% endif %}
+            </td>
+            <td>{{ guild.fops_joined_at }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No shared guilds found.</p>
+{% endif %}
+
+<h2>Database Tables</h2>
+<ul>
+    {% for table in tables %}
+    <li><a href="{% url 'bot_manager_table' table_name=table %}">{{ table }}</a></li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
