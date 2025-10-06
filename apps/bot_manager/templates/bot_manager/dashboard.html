@@ -17,7 +17,13 @@
 {% endif %}
 
 {% if error %}
-<div class="error">{{ error }}</div>
+<div class="error">
+    {% if error == "discord_auth_expired" %}
+    Your Discord authentication has expired. Please log in again to access Fops Bot Manager.
+    {% else %}
+    {{ error }}
+    {% endif %}
+</div>
 {% if show_discord_login %}
 <a href="{% url 'bot_manager_discord_login' %}">Connect Discord Account</a>
 {% endif %}

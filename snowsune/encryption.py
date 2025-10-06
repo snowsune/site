@@ -11,15 +11,21 @@ def get_encryption_key():
     # Hash the secret key to get a 32-byte key for Fernet
     key = hashlib.sha256(secret).digest()
     # Encode as base64 for Fernet
-    return base64.urlsafe_b64encode(key)
+    encoded_key = base64.urlsafe_b64encode(key)
+    return encoded_key
 
 
 def encrypt_token(token):
     """Encrypt a Discord token for storage"""
     if not token:
         return None
-    f = Fernet(get_encryption_key())
-    return f.encrypt(token.encode()).decode()
+    try:
+        key = get_encryption_key()
+        f = Fernet(key)
+        encrypted = f.encrypt(token.encode()).decode()
+        return encrypted
+    except Exception as e:
+        return None
 
 
 def decrypt_token(encrypted_token):
@@ -27,7 +33,9 @@ def decrypt_token(encrypted_token):
     if not encrypted_token:
         return None
     try:
-        f = Fernet(get_encryption_key())
-        return f.decrypt(encrypted_token.encode()).decode()
-    except Exception:
+        key = get_encryption_key()
+        f = Fernet(key)
+        decrypted = f.decrypt(encrypted_token.encode()).decode()
+        return decrypted
+    except Exception as e:
         return None

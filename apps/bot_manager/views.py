@@ -14,9 +14,22 @@ from .models import FopsDatabase, Subscription
 
 def has_fops_admin_access(user):
     """Check if user has admin rights in any guild where Fops Bot is present"""
+    # Check cache first for admin access result
+    cache_key = f"user_{user.id}_admin_access"
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+
+    # Check if user has a Discord token stored
+    if not user.discord_access_token:
+        cache.set(cache_key, False, 300)  # Cache for 5 minutes
+        return False
+
+    # Try to decrypt the token
     access_token = user.get_discord_access_token()
     if not access_token:
-        return False
+        cache.set(cache_key, "DECRYPTION_FAILED", 60)  # Cache for 1 minute
+        return "DECRYPTION_FAILED"
 
     try:
         # Get user's guilds from Discord
@@ -36,14 +49,17 @@ def has_fops_admin_access(user):
 
         # Check if user has admin rights in any Fops guild
         for guild in user_guilds:
-            if str(guild["id"]) in fops_guild_ids:
-                # Check if user has administrator permission
+            guild_id = str(guild["id"])
+            if guild_id in fops_guild_ids:
                 permissions = int(guild.get("permissions", 0))
-                if permissions & 0x8:  # Administrator permission bit
+                is_admin = bool(permissions & 0x8)
+                if is_admin:
+                    cache.set(cache_key, True, 300)  # Cache successful result
                     return True
 
+        cache.set(cache_key, False, 300)  # Cache negative result
         return False
-    except Exception:
+    except Exception as e:
         return False
 
 
@@ -84,7 +100,8 @@ def get_fops_guilds_from_discord():
 
 def get_user_fops_guilds(user):
     """Get guilds where user and Fops Bot are both present with admin status"""
-    if not user.discord_access_token:
+    access_token = user.get_discord_access_token()
+    if not access_token:
         return []
 
     # Check cache first (user-specific cache key)
@@ -95,7 +112,7 @@ def get_user_fops_guilds(user):
 
     try:
         # Get user's guilds from Discord
-        headers = {"Authorization": f"Bearer {user.discord_access_token}"}
+        headers = {"Authorization": f"Bearer {access_token}"}
         guilds_response = requests.get(
             "https://discord.com/api/users/@me/guilds", headers=headers
         )
@@ -145,7 +162,17 @@ def dashboard(request):
         return render(request, "bot_manager/dashboard.html", context)
 
     # Check if user has admin rights in any Fops guild
-    if not has_fops_admin_access(request.user):
+    admin_access = has_fops_admin_access(request.user)
+    if admin_access == "DECRYPTION_FAILED":
+        messages.error(
+            request, "Your Discord authentication has expired. Please log in again."
+        )
+        context = {
+            "error": "discord_auth_expired",
+            "show_discord_login": True,
+        }
+        return render(request, "bot_manager/dashboard.html", context)
+    elif not admin_access:
         context = {
             "error": "You must have admin rights in a server where Fops Bot is present to access this dashboard",
             "show_discord_login": False,
@@ -252,7 +279,34 @@ def discord_callback(request):
 def table_data(request, table_name):
     """Display data from a specific table"""
     # Check Discord connection and admin access
-    if not request.user.discord_access_token or not has_fops_admin_access(request.user):
+    admin_access = has_fops_admin_access(request.user)
+    if admin_access == "DECRYPTION_FAILED":
+        messages.error(
+            request, "Your Discord authentication has expired. Please log in again."
+        )
+        return redirect("bot_manager_dashboard")
+    elif not request.user.discord_access_token or not admin_access:
+        return redirect("bot_manager_dashboard")
+
+    try:
+        # Get table data from Fops database
+        conn = FopsDatabase.get_connection()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(f"SELECT * FROM {table_name} LIMIT 100")
+                columns = [desc[0] for desc in cur.description]
+                rows = cur.fetchall()
+        finally:
+            conn.close()
+
+        context = {
+            "table_name": table_name,
+            "columns": columns,
+            "rows": rows,
+        }
+        return render(request, "bot_manager/table_data.html", context)
+    except Exception as e:
+        messages.error(request, f"Error loading table data: {str(e)}")
         return redirect("bot_manager_dashboard")
 
 
@@ -260,7 +314,13 @@ def table_data(request, table_name):
 def add_subscription(request):
     """Add a new subscription"""
     # Check Discord connection and admin access
-    if not request.user.discord_access_token or not has_fops_admin_access(request.user):
+    admin_access = has_fops_admin_access(request.user)
+    if admin_access == "DECRYPTION_FAILED":
+        messages.error(
+            request, "Your Discord authentication has expired. Please log in again."
+        )
+        return redirect("bot_manager_dashboard")
+    elif not request.user.discord_access_token or not admin_access:
         return redirect("bot_manager_dashboard")
 
     if request.method == "POST":
@@ -292,7 +352,13 @@ def add_subscription(request):
 def edit_subscription(request, subscription_id):
     """Edit an existing subscription"""
     # Check Discord connection and admin access
-    if not request.user.discord_access_token or not has_fops_admin_access(request.user):
+    admin_access = has_fops_admin_access(request.user)
+    if admin_access == "DECRYPTION_FAILED":
+        messages.error(
+            request, "Your Discord authentication has expired. Please log in again."
+        )
+        return redirect("bot_manager_dashboard")
+    elif not request.user.discord_access_token or not admin_access:
         return redirect("bot_manager_dashboard")
 
     # Get subscription from database
@@ -352,7 +418,13 @@ def edit_subscription(request, subscription_id):
 def delete_subscription(request, subscription_id):
     """Delete a subscription"""
     # Check Discord connection and admin access
-    if not request.user.discord_access_token or not has_fops_admin_access(request.user):
+    admin_access = has_fops_admin_access(request.user)
+    if admin_access == "DECRYPTION_FAILED":
+        messages.error(
+            request, "Your Discord authentication has expired. Please log in again."
+        )
+        return redirect("bot_manager_dashboard")
+    elif not request.user.discord_access_token or not admin_access:
         return redirect("bot_manager_dashboard")
 
     if request.method == "POST":
@@ -371,3 +443,39 @@ def delete_subscription(request, subscription_id):
             messages.error(request, f"Error deleting subscription: {str(e)}")
 
     return redirect("bot_manager_dashboard")
+
+
+@login_required
+def debug_clear_discord(request):
+    """Debug view to clear Discord tokens"""
+    request.user.discord_access_token = None
+    request.user.discord_refresh_token = None
+    request.user.discord_token_expires = None
+    request.user.save()
+    messages.success(request, "Discord tokens cleared. Please reconnect Discord.")
+    return redirect("account-edit")
+
+
+@login_required
+def debug_secret_key(request):
+    """Debug view to show SECRET_KEY info"""
+    from snowsune.encryption import get_encryption_key
+
+    secret_key = settings.SECRET_KEY
+    encryption_key = get_encryption_key()
+
+    debug_info = {
+        "secret_key_length": len(secret_key),
+        "secret_key_start": secret_key[:20] + "...",
+        "secret_key_end": "..." + secret_key[-10:],
+        "encryption_key_length": len(encryption_key),
+        "encryption_key_start": encryption_key[:20].decode() + "...",
+        "discord_token_exists": bool(request.user.discord_access_token),
+        "discord_token_length": (
+            len(request.user.discord_access_token)
+            if request.user.discord_access_token
+            else 0
+        ),
+    }
+
+    return JsonResponse(debug_info)
