@@ -125,8 +125,14 @@
             </td>
             <td>
                 <a href="{% url 'bot_manager_edit_subscription' sub.id %}">Edit</a> |
-                <a href="{% url 'bot_manager_delete_subscription' sub.id %}"
-                    onclick="return confirm('Delete this subscription?')">Delete</a>
+                <form method="post" action="{% url 'bot_manager_delete_subscription' sub.id %}"
+                    style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('U sure you wanna delete this?')"
+                        style="background: none; border: none; color: var(--link-default); cursor: pointer; padding: 0; text-decoration: underline;">
+                        Delete
+                    </button>
+                </form>
             </td>
         </tr>
         {% endfor %}
