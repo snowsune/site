@@ -150,7 +150,7 @@ DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
 DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET")
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 DISCORD_REDIRECT_URI = os.getenv(
-    "DISCORD_REDIRECT_URI", f"{SITE_URL}/fops/discord/callback/"
+    "DISCORD_REDIRECT_URI", f"{SITE_URL}/fops/discord/callback"
 )
 
 # I'll use a custom user model for user-storage
