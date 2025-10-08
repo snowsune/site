@@ -45,8 +45,8 @@ class CustomUser(AbstractUser):
 
         decrypted = decrypt_token(self.discord_access_token)
         if decrypted:
-            # Cache for 5 minutes
-            cache.set(cache_key, decrypted, 300)
+            # Cache for 1 minute
+            cache.set(cache_key, decrypted, 60)
             return decrypted
         else:
             # Token decryption failed

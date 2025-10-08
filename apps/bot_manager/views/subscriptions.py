@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.conf import settings
-import requests
+import json
 
 from ..models import Subscription
 from ..utils import has_fops_admin_access, get_user_fops_guilds, get_fops_connection
+from .. import discord_api
 
 
 @login_required
@@ -51,27 +51,11 @@ def add_subscription(request):
 
     # Get channels for all shared guilds
     shared_guilds = get_user_fops_guilds(request.user)
-    bot_token = settings.DISCORD_BOT_TOKEN
-    headers = {"Authorization": f"Bot {bot_token}"}
 
-    # Fetch channels for each guild
+    # Fetch channels for each guild (cached)
     guild_channels = {}
     for guild in shared_guilds:
-        try:
-            channels_response = requests.get(
-                f"https://discord.com/api/guilds/{guild['id']}/channels",
-                headers=headers,
-            )
-            if channels_response.status_code == 200:
-                channels = channels_response.json()
-                guild_channels[str(guild["id"])] = sorted(
-                    [c for c in channels if c["type"] in [0, 5]],
-                    key=lambda x: x.get("position", 0),
-                )
-        except Exception:
-            guild_channels[str(guild["id"])] = []
-
-    import json
+        guild_channels[str(guild["id"])] = discord_api.get_guild_channels(guild["id"])
 
     context = {
         "service_choices": Subscription.SERVICE_CHOICES,
@@ -133,25 +117,9 @@ def edit_subscription(request, subscription_id):
         except Exception as e:
             messages.error(request, f"Error updating subscription: {str(e)}")
 
-    # Get channels for the subscription's guild
+    # Get channels for the subscription's guild (cached)
     guild_id = str(subscription_data["guild_id"])
-    bot_token = settings.DISCORD_BOT_TOKEN
-    headers = {"Authorization": f"Bot {bot_token}"}
-
-    try:
-        channels_response = requests.get(
-            f"https://discord.com/api/guilds/{guild_id}/channels", headers=headers
-        )
-        if channels_response.status_code == 200:
-            channels = channels_response.json()
-            guild_channels = sorted(
-                [c for c in channels if c["type"] in [0, 5]],
-                key=lambda x: x.get("position", 0),
-            )
-        else:
-            guild_channels = []
-    except Exception:
-        guild_channels = []
+    guild_channels = discord_api.get_guild_channels(guild_id)
 
     context = {
         "subscription": subscription_data,

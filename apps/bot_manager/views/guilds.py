@@ -1,13 +1,12 @@
-import requests
 import logging
 import time
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.conf import settings
 
 from ..models import Subscription
 from ..utils import has_fops_admin_access, get_fops_connection
+from .. import discord_api
 
 
 @login_required
@@ -60,27 +59,8 @@ def guild_detail(request, guild_id):
                     messages.error(request, "Guild not found in Fops database")
                     return redirect("bot_manager_dashboard")
 
-        # Get channels from Discord API using bot token
-        bot_token = settings.DISCORD_BOT_TOKEN
-        headers = {"Authorization": f"Bot {bot_token}"}
-        channels_response = requests.get(
-            f"https://discord.com/api/guilds/{guild_id}/channels", headers=headers
-        )
-
-        if channels_response.status_code == 200:
-            channels = channels_response.json()
-            # Sort by position and filter text channels
-            channels = sorted(
-                [
-                    c for c in channels if c["type"] in [0, 5]
-                ],  # Text and announcement channels
-                key=lambda x: x.get("position", 0),
-            )
-        else:
-            logging.error(
-                f"Failed to get channels for guild {guild_id}. Status code: {channels_response.status_code}"
-            )
-            channels = []
+        # Get channels from Discord API (cached)
+        channels = discord_api.get_guild_channels(guild_id)
 
         # Get guild-specific subscriptions
         guild_subscriptions = Subscription.get_by_guild(guild_id)
@@ -88,26 +68,13 @@ def guild_detail(request, guild_id):
         # Create channel ID to name mapping and enrich subscriptions with channel names
         channel_map = {str(channel["id"]): channel["name"] for channel in channels}
 
-        # Get unique user IDs from subscriptions
+        # Get unique user IDs from subscriptions and fetch user info
         user_ids = set(str(sub["user_id"]) for sub in guild_subscriptions)
-
-        # Fetch user info from Discord API
-        # I think we wont get rate limited :O --vixi
         user_map = {}
         for user_id in user_ids:
-            try:
-                user_response = requests.get(
-                    f"https://discord.com/api/users/{user_id}", headers=headers
-                )
-                if user_response.status_code == 200:
-                    user_data = user_response.json()
-                    user_map[user_id] = {
-                        "username": user_data.get("username"),
-                        "avatar": user_data.get("avatar"),
-                        "id": user_id,
-                    }
-            except Exception:
-                pass
+            user_info = discord_api.get_user_info(user_id)
+            if user_info:
+                user_map[user_id] = user_info
 
         # Add channel names and calculate last_ran time to subscriptions
         current_time = int(time.time())
