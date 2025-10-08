@@ -84,6 +84,7 @@ class Subscription(models.Model):
     def save_to_fops(self):
         """Save subscription to Fops database"""
         from .utils import get_fops_connection
+        from django.utils import timezone
 
         with get_fops_connection() as conn:
             with conn.cursor() as cur:
@@ -91,8 +92,8 @@ class Subscription(models.Model):
                     """
                     INSERT INTO subscriptions 
                     (service_type, user_id, guild_id, channel_id, search_criteria, 
-                     filters, is_pm, last_reported_id, last_ran)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                     filters, is_pm, last_reported_id, last_ran, subscribed_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
                     (
                         self.service_type,
@@ -104,6 +105,7 @@ class Subscription(models.Model):
                         self.is_pm,
                         self.last_reported_id,
                         self.last_ran,
+                        timezone.now(),
                     ),
                 )
                 conn.commit()

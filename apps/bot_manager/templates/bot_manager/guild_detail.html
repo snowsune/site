@@ -84,7 +84,9 @@
         <tr>
             <th>Service</th>
             <th>Search Criteria</th>
+            <th>Filters</th>
             <th>Channel</th>
+            <th>Added By</th>
             <th>Last Ran</th>
             <th>Actions</th>
         </tr>
@@ -94,12 +96,24 @@
         <tr>
             <td>{{ sub.service_type }}</td>
             <td>{{ sub.search_criteria }}</td>
+            <td>{{ sub.filters|default:"--" }}</td>
             <td>
                 {% if sub.channel_name %}
                 <a target="_blank" rel="noopener noreferrer"
                     href="https://discord.com/channels/{{ guild.guild_id }}/{{ sub.channel_id }}">#{{ sub.channel_name }}</a>
                 {% else %}
                 {{ sub.channel_id }}
+                {% endif %}
+            </td>
+            <td>
+                {% if sub.user_info %}
+                {% if sub.user_info.avatar %}
+                <img src="https://cdn.discordapp.com/avatars/{{ sub.user_info.id }}/{{ sub.user_info.avatar }}.png"
+                    width="24" height="24" style="border-radius: 50%; vertical-align: middle; margin-right: 4px;">
+                {% endif %}
+                {{ sub.user_info.username }}
+                {% else %}
+                {{ sub.user_id }}
                 {% endif %}
             </td>
             <td>

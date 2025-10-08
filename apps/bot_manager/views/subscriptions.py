@@ -23,9 +23,19 @@ def add_subscription(request):
     if request.method == "POST":
         try:
             guild_id = request.POST.get("guild_id")
+
+            # Use the logged-in user's Discord ID
+            user_discord_id = request.user.discord_id
+            if not user_discord_id:
+                messages.error(
+                    request,
+                    "What? How! You must have a Discord account connected to add subscriptions!",
+                )
+                return redirect("bot_manager_dashboard")
+
             subscription = Subscription(
                 service_type=request.POST.get("service_type"),
-                user_id=request.POST.get("user_id"),
+                user_id=user_discord_id,
                 guild_id=guild_id,
                 channel_id=request.POST.get("channel_id"),
                 search_criteria=request.POST.get("search_criteria"),
@@ -102,14 +112,13 @@ def edit_subscription(request, subscription_id):
                     cur.execute(
                         """
                         UPDATE subscriptions 
-                        SET service_type = %s, user_id = %s, guild_id = %s, 
+                        SET service_type = %s, guild_id = %s, 
                             channel_id = %s, search_criteria = %s, 
                             filters = %s, is_pm = %s
                         WHERE id = %s
                         """,
                         (
                             request.POST.get("service_type"),
-                            request.POST.get("user_id"),
                             guild_id,
                             request.POST.get("channel_id"),
                             request.POST.get("search_criteria"),

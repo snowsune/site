@@ -86,10 +86,32 @@ def guild_detail(request, guild_id):
         # Create channel ID to name mapping and enrich subscriptions with channel names
         channel_map = {str(channel["id"]): channel["name"] for channel in channels}
 
+        # Get unique user IDs from subscriptions
+        user_ids = set(str(sub["user_id"]) for sub in guild_subscriptions)
+
+        # Fetch user info from Discord API
+        # I think we wont get rate limited :O --vixi
+        user_map = {}
+        for user_id in user_ids:
+            try:
+                user_response = requests.get(
+                    f"https://discord.com/api/users/{user_id}", headers=headers
+                )
+                if user_response.status_code == 200:
+                    user_data = user_response.json()
+                    user_map[user_id] = {
+                        "username": user_data.get("username"),
+                        "avatar": user_data.get("avatar"),
+                        "id": user_id,
+                    }
+            except Exception:
+                pass
+
         # Add channel names and calculate last_ran time to subscriptions
         current_time = int(time.time())
         for sub in guild_subscriptions:
             sub["channel_name"] = channel_map.get(str(sub["channel_id"]), None)
+            sub["user_info"] = user_map.get(str(sub["user_id"]), None)
 
             # Really qucik and dirty calculate time since last_ran
             if sub.get("last_ran"):
