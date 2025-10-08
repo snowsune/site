@@ -42,12 +42,14 @@ def dashboard(request):
 
     try:
         shared_guilds = get_user_fops_guilds(request.user)
+        guilds_error = None
     except Exception as e:
-        shared_guilds = []
-        error = str(e)
+        shared_guilds = None  # None means error, [] means no guilds
+        guilds_error = str(e)
 
     context = {
         "shared_guilds": shared_guilds,
+        "guilds_error": guilds_error,
         "error": locals().get("error", None),
     }
     return render(request, "bot_manager/dashboard.html", context)

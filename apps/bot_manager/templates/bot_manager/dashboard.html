@@ -35,7 +35,19 @@
 {% endif %}
 
 <h2>Your Shared Guilds with Fops Bot</h2>
-{% if shared_guilds %}
+{% if guilds_error %}
+<div class="alert alert-error">
+    <strong>Error loading guilds:</strong> {{ guilds_error }}
+    <br>
+    <small>Try refreshing the page or <a href="{% url 'bot_manager_discord_login' %}">reconnecting Discord</a>.</small>
+</div>
+{% elif shared_guilds is None %}
+<div class="alert alert-error">
+    <strong>Unable to fetch your guilds.</strong>
+    <br>
+    <small>Try refreshing the page or <a href="{% url 'bot_manager_discord_login' %}">reconnecting Discord</a>.</small>
+</div>
+{% elif shared_guilds %}
 <table>
     <thead>
         <tr>
@@ -69,7 +81,7 @@
     </tbody>
 </table>
 {% else %}
-<p>No shared guilds found.</p>
+<p>No shared guilds found. You don't share any servers with Fops Bot where you have admin rights.</p>
 {% endif %}
 
 {% endblock %}

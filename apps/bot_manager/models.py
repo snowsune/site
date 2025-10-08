@@ -25,7 +25,6 @@ class Subscription(models.Model):
     SERVICE_CHOICES = [
         ("BixiBooru", "BixiBooru"),
         ("FurAffinity", "FurAffinity"),
-        ("E621", "E621"),
     ]
 
     # Editable fields
@@ -101,10 +100,10 @@ class Subscription(models.Model):
                         self.guild_id,
                         self.channel_id,
                         self.search_criteria,
-                        self.filters,
+                        self.filters if self.filters else None,
                         self.is_pm,
-                        self.last_reported_id,
-                        self.last_ran,
+                        None,  # last_reported_id should be NULL for new subscriptions
+                        None,  # last_ran should be NULL for new subscriptions
                         timezone.now(),
                     ),
                 )
