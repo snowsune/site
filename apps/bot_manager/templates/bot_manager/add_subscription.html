@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Add New Subscription</h1>
 
-<a href="{% url 'bot_manager_dashboard' %}">← Back to Dashboard</a>
+<a href="javascript:history.back()">← Back</a>
 
 {% if messages %}
 {% for message in messages %}
@@ -40,8 +40,30 @@
     </div>
 
     <div class="form-group">
-        <label for="channel_id">Channel ID:</label>
-        <input type="number" name="channel_id" id="channel_id" required>
+        <label for="channel_id">Channel:</label>
+        <select name="channel_id" id="channel_id" required>
+            <option value="">Select a channel</option>
+        </select>
+        <script>
+            // Update channel list when guild is selected
+            const guildSelect = document.getElementById('guild_id');
+            const channelSelect = document.getElementById('channel_id');
+            const guildChannels = {{ guild_channels_json| safe }};
+
+            guildSelect.addEventListener('change', function () {
+                const guildId = this.value;
+                channelSelect.innerHTML = '<option value="">Select a channel</option>';
+
+                if (guildId && guildChannels[guildId]) {
+                    guildChannels[guildId].forEach(channel => {
+                        const option = document.createElement('option');
+                        option.value = channel.id;
+                        option.textContent = '#' + channel.name;
+                        channelSelect.appendChild(option);
+                    });
+                }
+            });
+        </script>
     </div>
 
     <div class="form-group">

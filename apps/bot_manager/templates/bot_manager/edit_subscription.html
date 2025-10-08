@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Edit Subscription</h1>
 
-<a href="{% url 'bot_manager_dashboard' %}">← Back to Dashboard</a>
+<a href="javascript:history.back()">← Back</a>
 
 {% if messages %}
 {% for message in messages %}
@@ -40,8 +40,18 @@
     </div>
 
     <div class="form-group">
-        <label for="channel_id">Channel ID:</label>
-        <input type="number" name="channel_id" id="channel_id" value="{{ subscription.channel_id }}" required>
+        <label for="channel_id">Channel:</label>
+        <select name="channel_id" id="channel_id" required>
+            {% for channel in guild_channels %}
+            <option value="{{ channel.id }}"
+                {% if subscription.channel_id|stringformat:"s" == channel.id|stringformat:"s" %}selected{% endif %}>
+                #{{ channel.name }}
+            </option>
+            {% endfor %}
+            {% if not guild_channels %}
+            <option value="{{ subscription.channel_id }}" selected>Channel ID: {{ subscription.channel_id }}</option>
+            {% endif %}
+        </select>
     </div>
 
     <div class="form-group">

@@ -13,7 +13,7 @@
 {% endfor %}
 {% endif %}
 
-<h2>Guild Settings</h2>
+<h2>Guild Info</h2>
 <table>
     <tr>
         <th>Guild ID</th>
@@ -43,38 +43,28 @@
     {% endif %}
 </table>
 
-<h2>Channels</h2>
-{% if channels %}
-<table>
-    <thead>
-        <tr>
-            <th>Type</th>
-            <th>Name</th>
-            <th>ID</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for channel in channels %}
-        <tr>
-            <td>
-                {% if channel.type == 0 %}
-                💬 Text
-                {% elif channel.type == 5 %}
-                📢 Announcement
-                {% else %}
-                {{ channel.type }}
-                {% endif %}
-            </td>
-            <td>{{ channel.name }}</td>
-            <td>{{ channel.id }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No channels found (you may not have permissions to view channels).</p>
-{% endif %}
-
+<h2>Bot Configuration</h2>
+<form method="post">
+    {% csrf_token %}
+    <div class="settings-toggles">
+        <label>
+            <input type="checkbox" name="frozen" {% if guild.frozen %}checked{% endif %}>
+            🧊 Freeze Automatic Posting
+        </label>
+        <br><br>
+        <label>
+            <input type="checkbox" name="allow_nsfw" {% if guild.allow_nsfw %}checked{% endif %}>
+            🔞 NSFW Enabled
+        </label>
+        <br><br>
+        <label>
+            <input type="checkbox" name="enable_dlp" {% if guild.enable_dlp %}checked{% endif %}>
+            🔒 DLP (Download & Reposting)
+        </label>
+    </div>
+    <br>
+    <button type="submit" name="update_settings" class="btn btn-primary">Save Settings</button>
+</form>
 <h2>Guild Subscriptions</h2>
 {% if subscriptions %}
 <table>
@@ -83,8 +73,7 @@
             <th>Service</th>
             <th>Search Criteria</th>
             <th>Channel</th>
-            <th>PM</th>
-            <th>Subscribed</th>
+            <th>Last Ran</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -93,9 +82,21 @@
         <tr>
             <td>{{ sub.service_type }}</td>
             <td>{{ sub.search_criteria }}</td>
-            <td>{{ sub.channel_id }}</td>
-            <td>{{ sub.is_pm|yesno:"Yes,No" }}</td>
-            <td>{{ sub.subscribed_at }}</td>
+            <td>
+                {% if sub.channel_name %}
+                <a target="_blank" rel="noopener noreferrer"
+                    href="https://discord.com/channels/{{ guild.guild_id }}/{{ sub.channel_id }}">#{{ sub.channel_name }}</a>
+                {% else %}
+                {{ sub.channel_id }}
+                {% endif %}
+            </td>
+            <td>
+                {% if sub.last_ran_ago %}
+                {{ sub.last_ran_ago }}
+                {% else %}
+                Never
+                {% endif %}
+            </td>
             <td>
                 <a href="{% url 'bot_manager_edit_subscription' sub.id %}">Edit</a> |
                 <a href="{% url 'bot_manager_delete_subscription' sub.id %}"

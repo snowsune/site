@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.conf import settings
+import requests
 
 from ..models import Subscription
 from ..utils import has_fops_admin_access, get_user_fops_guilds, get_fops_connection
@@ -20,10 +22,11 @@ def add_subscription(request):
 
     if request.method == "POST":
         try:
+            guild_id = request.POST.get("guild_id")
             subscription = Subscription(
                 service_type=request.POST.get("service_type"),
                 user_id=request.POST.get("user_id"),
-                guild_id=request.POST.get("guild_id"),
+                guild_id=guild_id,
                 channel_id=request.POST.get("channel_id"),
                 search_criteria=request.POST.get("search_criteria"),
                 filters=request.POST.get("filters", ""),
@@ -32,13 +35,39 @@ def add_subscription(request):
             subscription.clean()  # Validate
             subscription.save_to_fops()
             messages.success(request, "Subscription added successfully!")
-            return redirect("bot_manager_dashboard")
+            return redirect("bot_manager_guild", guild_id=guild_id)
         except Exception as e:
             messages.error(request, f"Error adding subscription: {str(e)}")
 
+    # Get channels for all shared guilds
+    shared_guilds = get_user_fops_guilds(request.user)
+    bot_token = settings.DISCORD_BOT_TOKEN
+    headers = {"Authorization": f"Bot {bot_token}"}
+
+    # Fetch channels for each guild
+    guild_channels = {}
+    for guild in shared_guilds:
+        try:
+            channels_response = requests.get(
+                f"https://discord.com/api/guilds/{guild['id']}/channels",
+                headers=headers,
+            )
+            if channels_response.status_code == 200:
+                channels = channels_response.json()
+                guild_channels[str(guild["id"])] = sorted(
+                    [c for c in channels if c["type"] in [0, 5]],
+                    key=lambda x: x.get("position", 0),
+                )
+        except Exception:
+            guild_channels[str(guild["id"])] = []
+
+    import json
+
     context = {
         "service_choices": Subscription.SERVICE_CHOICES,
-        "shared_guilds": get_user_fops_guilds(request.user),
+        "shared_guilds": shared_guilds,
+        "guild_channels": guild_channels,
+        "guild_channels_json": json.dumps(guild_channels),
     }
     return render(request, "bot_manager/add_subscription.html", context)
 
@@ -66,6 +95,7 @@ def edit_subscription(request, subscription_id):
 
     if request.method == "POST":
         try:
+            guild_id = request.POST.get("guild_id")
             # Update subscription in database
             with get_fops_connection() as conn:
                 with conn.cursor() as cur:
@@ -80,7 +110,7 @@ def edit_subscription(request, subscription_id):
                         (
                             request.POST.get("service_type"),
                             request.POST.get("user_id"),
-                            request.POST.get("guild_id"),
+                            guild_id,
                             request.POST.get("channel_id"),
                             request.POST.get("search_criteria"),
                             request.POST.get("filters", ""),
@@ -90,14 +120,35 @@ def edit_subscription(request, subscription_id):
                     )
                     conn.commit()
                     messages.success(request, "Subscription updated successfully!")
-                    return redirect("bot_manager_dashboard")
+                    return redirect("bot_manager_guild", guild_id=guild_id)
         except Exception as e:
             messages.error(request, f"Error updating subscription: {str(e)}")
+
+    # Get channels for the subscription's guild
+    guild_id = str(subscription_data["guild_id"])
+    bot_token = settings.DISCORD_BOT_TOKEN
+    headers = {"Authorization": f"Bot {bot_token}"}
+
+    try:
+        channels_response = requests.get(
+            f"https://discord.com/api/guilds/{guild_id}/channels", headers=headers
+        )
+        if channels_response.status_code == 200:
+            channels = channels_response.json()
+            guild_channels = sorted(
+                [c for c in channels if c["type"] in [0, 5]],
+                key=lambda x: x.get("position", 0),
+            )
+        else:
+            guild_channels = []
+    except Exception:
+        guild_channels = []
 
     context = {
         "subscription": subscription_data,
         "service_choices": Subscription.SERVICE_CHOICES,
         "shared_guilds": get_user_fops_guilds(request.user),
+        "guild_channels": guild_channels,
     }
     return render(request, "bot_manager/edit_subscription.html", context)
 
@@ -116,13 +167,24 @@ def delete_subscription(request, subscription_id):
 
     if request.method == "POST":
         try:
+            # Get the guild_id before deleting
             with get_fops_connection() as conn:
                 with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT guild_id FROM subscriptions WHERE id = %s",
+                        (subscription_id,),
+                    )
+                    result = cur.fetchone()
+                    guild_id = result["guild_id"] if result else None
+
                     cur.execute(
                         "DELETE FROM subscriptions WHERE id = %s", (subscription_id,)
                     )
                     conn.commit()
                     messages.success(request, "Subscription deleted successfully!")
+
+                    if guild_id:
+                        return redirect("bot_manager_guild", guild_id=guild_id)
         except Exception as e:
             messages.error(request, f"Error deleting subscription: {str(e)}")
 

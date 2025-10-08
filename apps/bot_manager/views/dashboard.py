@@ -41,19 +41,13 @@ def dashboard(request):
         return render(request, "bot_manager/dashboard.html", context)
 
     try:
-        tables = FopsDatabase.get_tables()
         shared_guilds = get_user_fops_guilds(request.user)
-        subscriptions = Subscription.get_all()
     except Exception as e:
-        tables = []
         shared_guilds = []
-        subscriptions = []
         error = str(e)
 
     context = {
-        "tables": tables,
         "shared_guilds": shared_guilds,
-        "subscriptions": subscriptions,
         "error": locals().get("error", None),
     }
     return render(request, "bot_manager/dashboard.html", context)

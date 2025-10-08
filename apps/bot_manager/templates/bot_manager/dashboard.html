@@ -67,49 +67,4 @@
 <p>No shared guilds found.</p>
 {% endif %}
 
-<h2>Active Subscriptions</h2>
-{% if subscriptions %}
-<table>
-    <thead>
-        <tr>
-            <th>Service</th>
-            <th>Search Criteria</th>
-            <th>Guild</th>
-            <th>Channel</th>
-            <th>PM</th>
-            <th>Subscribed</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for sub in subscriptions %}
-        <tr>
-            <td>{{ sub.service_type }}</td>
-            <td>{{ sub.search_criteria }}</td>
-            <td>{{ sub.guild_id }}</td>
-            <td>{{ sub.channel_id }}</td>
-            <td>{{ sub.is_pm|yesno:"Yes,No" }}</td>
-            <td>{{ sub.subscribed_at }}</td>
-            <td>
-                <a href="{% url 'bot_manager_edit_subscription' sub.id %}">Edit</a> |
-                <a href="{% url 'bot_manager_delete_subscription' sub.id %}"
-                    onclick="return confirm('Delete this subscription?')">Delete</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No subscriptions found.</p>
-{% endif %}
-
-<a href="{% url 'bot_manager_add_subscription' %}">Add New Subscription</a>
-
-<h2>Database Tables</h2>
-<ul>
-    {% for table in tables %}
-    <li><a href="{% url 'bot_manager_table' table_name=table %}">{{ table }}</a></li>
-    {% endfor %}
-</ul>
-
 {% endblock %}

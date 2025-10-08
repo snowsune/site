@@ -1,5 +1,6 @@
 import requests
 import logging
+import time
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -21,6 +22,30 @@ def guild_detail(request, guild_id):
 
     elif not request.user.discord_access_token or not admin_access:
         return redirect("bot_manager_dashboard")
+
+    # Handle settings update
+    if request.method == "POST" and "update_settings" in request.POST:
+        try:
+            with get_fops_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        UPDATE guilds 
+                        SET frozen = %s, allow_nsfw = %s, enable_dlp = %s
+                        WHERE guild_id = %s
+                        """,
+                        (
+                            request.POST.get("frozen") == "on",
+                            request.POST.get("allow_nsfw") == "on",
+                            request.POST.get("enable_dlp") == "on",
+                            guild_id,
+                        ),
+                    )
+                    conn.commit()
+                    messages.success(request, "Guild settings updated successfully!")
+                    return redirect("bot_manager_guild", guild_id=guild_id)
+        except Exception as e:
+            messages.error(request, f"Error updating settings: {str(e)}")
 
     try:
         # Get guild data from Fops database
@@ -58,11 +83,39 @@ def guild_detail(request, guild_id):
         # Get guild-specific subscriptions
         guild_subscriptions = Subscription.get_by_guild(guild_id)
 
+        # Create channel ID to name mapping and enrich subscriptions with channel names
+        channel_map = {str(channel["id"]): channel["name"] for channel in channels}
+
+        # Add channel names and calculate last_ran time to subscriptions
+        current_time = int(time.time())
+        for sub in guild_subscriptions:
+            sub["channel_name"] = channel_map.get(str(sub["channel_id"]), None)
+
+            # Really qucik and dirty calculate time since last_ran
+            if sub.get("last_ran"):
+                seconds_ago = current_time - int(sub["last_ran"])
+                if seconds_ago < 60:
+                    sub["last_ran_ago"] = f"{seconds_ago} seconds ago"
+                elif seconds_ago < 3600:
+                    minutes = seconds_ago // 60
+                    sub["last_ran_ago"] = (
+                        f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+                    )
+                elif seconds_ago < 86400:
+                    hours = seconds_ago // 3600
+                    sub["last_ran_ago"] = f"{hours} hour{'s' if hours != 1 else ''} ago"
+                else:
+                    days = seconds_ago // 86400
+                    sub["last_ran_ago"] = f"{days} day{'s' if days != 1 else ''} ago"
+            else:
+                sub["last_ran_ago"] = None
+
         context = {
             "guild": guild_data,
             "guild_id": guild_id,
             "channels": channels,
             "subscriptions": guild_subscriptions,
+            "channel_map": channel_map,
         }
         return render(request, "bot_manager/guild_detail.html", context)
     except Exception as e:
