@@ -23,7 +23,7 @@ def discord_login(request):
         f"?client_id={settings.DISCORD_CLIENT_ID}"
         f"&redirect_uri={settings.DISCORD_REDIRECT_URI}"
         f"&response_type=code"
-        f"&scope=identify%20guilds"
+        f"&scope=identify%20guilds"  # Just the two we need.
     )
     return redirect(discord_url)
 
