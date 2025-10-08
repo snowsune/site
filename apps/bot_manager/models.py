@@ -1,20 +1,15 @@
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
-import psycopg2
-from psycopg2.extras import RealDictCursor
 
 
 class FopsDatabase:
     @staticmethod
-    def get_connection():
-        return psycopg2.connect(settings.FOPS_DATABASE, cursor_factory=RealDictCursor)
-
-    @staticmethod
     def get_tables():
         """Get list of tables in Fops database"""
-        conn = FopsDatabase.get_connection()
-        try:
+        from .utils import get_fops_connection
+
+        with get_fops_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     """
@@ -24,8 +19,6 @@ class FopsDatabase:
                 """
                 )
                 return [row["table_name"] for row in cur.fetchall()]
-        finally:
-            conn.close()
 
 
 class Subscription(models.Model):
@@ -68,32 +61,31 @@ class Subscription(models.Model):
     @classmethod
     def get_all(cls):
         """Get all subscriptions from Fops database"""
-        conn = FopsDatabase.get_connection()
-        try:
+        from .utils import get_fops_connection
+
+        with get_fops_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT * FROM subscriptions ORDER BY subscribed_at DESC")
                 return cur.fetchall()
-        finally:
-            conn.close()
 
     @classmethod
     def get_by_guild(cls, guild_id):
         """Get subscriptions for a specific guild"""
-        conn = FopsDatabase.get_connection()
-        try:
+        from .utils import get_fops_connection
+
+        with get_fops_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     "SELECT * FROM subscriptions WHERE guild_id = %s ORDER BY subscribed_at DESC",
                     (guild_id,),
                 )
                 return cur.fetchall()
-        finally:
-            conn.close()
 
     def save_to_fops(self):
         """Save subscription to Fops database"""
-        conn = FopsDatabase.get_connection()
-        try:
+        from .utils import get_fops_connection
+
+        with get_fops_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     """
@@ -115,15 +107,12 @@ class Subscription(models.Model):
                     ),
                 )
                 conn.commit()
-        finally:
-            conn.close()
 
     def delete_from_fops(self):
         """Delete subscription from Fops database"""
-        conn = FopsDatabase.get_connection()
-        try:
+        from .utils import get_fops_connection
+
+        with get_fops_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("DELETE FROM subscriptions WHERE id = %s", (self.id,))
                 conn.commit()
-        finally:
-            conn.close()

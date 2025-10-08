@@ -36,7 +36,7 @@
         <tr>
             <th>Server</th>
             <th>Admin Status</th>
-            <th>Fops Joined</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -47,7 +47,7 @@
                 <img src="https://cdn.discordapp.com/icons/{{ guild.id }}/{{ guild.icon }}.png" width="32" height="32"
                     style="border-radius: 50%; margin-right: 8px;">
                 {% endif %}
-                {{ guild.name }}
+                <a href="{% url 'bot_manager_guild' guild_id=guild.id %}">{{ guild.name }}</a>
             </td>
             <td>
                 {% if guild.is_admin %}
@@ -56,7 +56,9 @@
                 <span style="color: red;">✗ Not Admin</span>
                 {% endif %}
             </td>
-            <td>{{ guild.fops_joined_at }}</td>
+            <td>
+                <a href="{% url 'bot_manager_guild' guild_id=guild.id %}">Configure →</a>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
