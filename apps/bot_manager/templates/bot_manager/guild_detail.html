@@ -49,8 +49,31 @@
 </table>
 
 <h2>Bot Configuration</h2>
+
+{% if not guild.admin_channel_id %}
+<div class="admin-channel-warning">
+    ⚠️ You should configure an admin channel for Fops to post admin information in!
+</div>
+{% endif %}
+
 <form method="post">
     {% csrf_token %}
+
+    <!-- Admin Channel - Top priority -->
+    <div class="admin-channel-config">
+        <label for="admin_channel_id">
+            📢 Admin Notification Channel:
+            <select name="admin_channel_id" id="admin_channel_id">
+                <option value="">None</option>
+                {% for channel in channels %}
+                <option value="{{ channel.id }}"
+                    {% if guild.admin_channel_id|stringformat:"s" == channel.id|stringformat:"s" %}selected{% endif %}>
+                    #{{ channel.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
 
     <!-- Freeze Button - Prominent panic button -->
     <div class="freeze-toggle">
