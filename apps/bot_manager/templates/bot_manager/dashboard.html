@@ -11,24 +11,40 @@
 {% block content %}
 <h1>Fops Bot Manager</h1>
 
-{% if user.is_authenticated %}
-<p>Welcome, {{ user.username }}!</p>
-{% else %}
-<p>You must be logged in to access Fops Bot Manager.</p>
-<a href="{% url 'login' %}">Login to Snowsune.net</a>
-{% endif %}
+{% if not user.is_authenticated %}
+<div class="info-box">
+    <h2>About Fops Bot</h2>
+    <p>Fops is my discord bot! Packed with foxy tools and utilities for your server!~</p>
 
-{% if error %}
-<div class="error">
-    {% if error == "discord_auth_expired" %}
-    Your Discord authentication has expired. Please log in again to access Fops Bot Manager.
-    {% else %}
-    {{ error }}
-    {% endif %}
+    <h3>Supported Subscription Systems</h3>
+    <ul>
+        <li><strong>BixiBooru</strong> - Follow tags and subscriptions on my booru</li>
+        <li><strong>FurAffinity</strong> - Monitor your favorite FA artists!</li>
+    </ul>
+
+    <h3>Get Started</h3>
+    <ol>
+        <li><a href="{% url 'login' %}" class="button">Login to Snowsune.net</a></li>
+        <li>Connect your Discord account</li>
+        <li>Invite Fops Bot to your server</li>
+        <li>Configure subscriptions, holes, features and whatever else!</li>
+    </ol>
+
+    <p><strong>Invite Fops Bot:</strong> <a
+            href="https://discord.com/oauth2/authorize?client_id=983461462896963744&scope=bot&permissions=412384378880"
+            target="_blank">Click here to invite</a></p>
+
+    If you need help, contact me on Discord or email me at <a href="mailto:vixi@snowsune.net">vixi@snowsune.net</a>!
 </div>
+{% else %}
+<p>Welcome, {{ user.username }}!</p>
+
 {% if show_discord_login %}
-<a href="{% url 'bot_manager_discord_login' %}">Connect Discord Account</a>
-{% endif %}
+<div class="alert alert-info">
+    <strong>Connect Discord:</strong> You need to connect your Discord account to manage Fops Bot.
+    <br>
+    <a href="{% url 'bot_manager_discord_login' %}" class="button">Connect Discord Account</a>
+</div>
 {% endif %}
 
 <h2>Your Shared Guilds with Fops Bot</h2>
@@ -83,6 +99,7 @@
 </table>
 {% else %}
 <p>No shared guilds found. If you share a server with fops bot, try refreshing this page in a few seconds!</p>
+{% endif %}
 {% endif %}
 
 {% endblock %}
