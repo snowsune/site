@@ -111,37 +111,20 @@ def edit_subscription(request, subscription_id):
 
     if request.method == "POST":
         try:
-            new_guild_id = request.POST.get("guild_id")
-
-            # If moving to a different guild, check admin there too
-            if str(new_guild_id) != guild_id:
-                new_admin_access = has_guild_admin_access(request.user, new_guild_id)
-                if new_admin_access == "DECRYPTION_FAILED":
-                    messages.error(
-                        request,
-                        "Your Discord authentication has expired. Please log in again.",
-                    )
-                    return redirect("bot_manager_dashboard")
-                elif not new_admin_access:
-                    messages.error(
-                        request, "You must have admin rights in the destination server."
-                    )
-                    return redirect("bot_manager_dashboard")
-
+            # Guild cannot be changed in edit mode - use the original guild_id
             # Update subscription in database
             with get_fops_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute(
                         """
                         UPDATE subscriptions 
-                        SET service_type = %s, guild_id = %s, 
+                        SET service_type = %s, 
                             channel_id = %s, search_criteria = %s, 
                             filters = %s, is_pm = %s
                         WHERE id = %s
                         """,
                         (
                             request.POST.get("service_type"),
-                            new_guild_id,
                             request.POST.get("channel_id"),
                             request.POST.get("search_criteria"),
                             request.POST.get("filters", ""),
@@ -151,7 +134,7 @@ def edit_subscription(request, subscription_id):
                     )
                     conn.commit()
                     messages.success(request, "Subscription updated successfully!")
-                    return redirect("bot_manager_guild", guild_id=new_guild_id)
+                    return redirect("bot_manager_guild", guild_id=guild_id)
         except Exception as e:
             messages.error(request, f"Error updating subscription: {str(e)}")
 

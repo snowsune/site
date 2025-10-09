@@ -25,13 +25,13 @@
     </div>
 
     <div class="form-group">
-        <label for="guild_id">Guild ID:</label>
-        <select name="guild_id" id="guild_id" required>
-            {% for guild in shared_guilds %}
-            <option value="{{ guild.id }}" {% if subscription.guild_id == guild.id %}selected{% endif %}>
-                {{ guild.name }}</option>
-            {% endfor %}
-        </select>
+        <label for="guild_display">Guild:</label>
+        <input type="text" id="guild_display"
+            value="{% for guild in shared_guilds %}{% if guild.id|stringformat:"s" == subscription.guild_id|stringformat:"s" %}{{ guild.name }}{% endif %}{% endfor %}"
+            disabled>
+        <input type="hidden" name="guild_id" value="{{ subscription.guild_id }}">
+        <small style="color: gray;">Guild cannot be changed when editing. Delete and recreate to move to a different
+            guild.</small>
     </div>
 
     <div class="form-group">
