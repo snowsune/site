@@ -28,10 +28,27 @@ class CustomUser(AbstractUser):
         "Discord Token Expires", blank=True, null=True
     )
 
-    def get_discord_access_token(self):
-        """Get decrypted Discord access token with caching"""
+    def get_discord_access_token(self, auto_refresh=True):
+        """
+        Get decrypted Discord access token.
+
+        Args:
+            auto_refresh: If this is true, we'll also do the auro-refresh thing
+
+        Returns:
+            Decrypted access token or None
+        """
         if not self.discord_access_token:
             return None
+
+        # Check if token is expired and refresh if needed
+        if auto_refresh and self.is_discord_token_expired():
+            if self.refresh_discord_token():
+                # Token refreshed successfully, continue with new token
+                pass
+            else:
+                # Refresh failed, return None
+                return None
 
         # Check cache first to avoid repeated decryption
         cache_key = f"user_{self.id}_discord_access_token"
@@ -73,6 +90,76 @@ class CustomUser(AbstractUser):
         from snowsune.encryption import encrypt_token
 
         self.discord_refresh_token = encrypt_token(token)
+
+    def is_discord_token_expired(self):
+        """Check if Discord access token is expired or about to expire"""
+        if not self.discord_token_expires:
+            return True  # No expiry set, assume expired
+
+        from django.utils import timezone
+        from datetime import timedelta
+
+        # Consider expired if less than 5 minutes remaining
+        buffer = timedelta(minutes=5)
+        return timezone.now() >= (self.discord_token_expires - buffer)
+
+    def refresh_discord_token(self):
+        """
+        Refresh Discord access token using refresh token.
+
+        Returns:
+            True if refresh successful, False otherwise
+        """
+        import requests
+        import logging
+        from django.conf import settings
+        from django.utils import timezone
+        from datetime import timedelta
+
+        logger = logging.getLogger(__name__)
+
+        refresh_token = self.get_discord_refresh_token()
+        if not refresh_token:
+            logger.warning(f"User {self.id} has no refresh token")
+            return False
+
+        try:
+            # Exchange refresh token for new access token
+            data = {
+                "client_id": settings.DISCORD_CLIENT_ID,
+                "client_secret": settings.DISCORD_CLIENT_SECRET,
+                "grant_type": "refresh_token",
+                "refresh_token": refresh_token,
+            }
+
+            response = requests.post(
+                "https://discord.com/api/oauth2/token",
+                data=data,
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+            )
+
+            if response.status_code != 200:
+                logger.error(
+                    f"Failed to refresh token for user {self.id}: {response.status_code} - {response.text}"
+                )
+                return False
+
+            token_data = response.json()
+
+            # Update tokens
+            self.set_discord_access_token(token_data["access_token"])
+            self.set_discord_refresh_token(token_data["refresh_token"])
+            self.discord_token_expires = timezone.now() + timedelta(
+                seconds=token_data["expires_in"]
+            )
+            self.save()
+
+            logger.info(f"Successfully refreshed Discord token for user {self.id}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Exception refreshing token for user {self.id}: {e}")
+            return False
 
     # Content
     bio = models.TextField("User Bio", blank=True, null=True)

@@ -201,12 +201,12 @@ LOGIN_REDIRECT_URL = "home"  # Where to redirect after successful login
 LOGOUT_REDIRECT_URL = "home"  # Where to redirect after logout
 
 # HTTPS and security settings (adjust for production)
-SESSION_COOKIE_SECURE = False  # Set to True in production
-CSRF_COOKIE_SECURE = False  # Set to True in production
-SECURE_SSL_REDIRECT = False  # Set to True in production
-SECURE_HSTS_SECONDS = 0  # Enable HSTS in production
-SECURE_HSTS_PRELOAD = False
-SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SESSION_COOKIE_SECURE = not DEBUG  # Cookies only over HTTPS in production
+CSRF_COOKIE_SECURE = not DEBUG  # CSRF cookies only over HTTPS in production
+SECURE_SSL_REDIRECT = not DEBUG  # Redirect HTTP to HTTPS in production
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0  # 1 year HSTS in production
+SECURE_HSTS_PRELOAD = not DEBUG
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
 
 # If we're testing
 if "test" in sys.argv:
