@@ -214,3 +214,5 @@ if "test" in sys.argv:
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": ":memory:",
     }
+    # Disable HTTPS redirect during testing/ci/local dev
+    SECURE_SSL_REDIRECT = False
