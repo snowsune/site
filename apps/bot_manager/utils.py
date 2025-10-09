@@ -1,6 +1,7 @@
 import logging
 from django.conf import settings
 from contextlib import contextmanager
+from datetime import datetime
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from . import discord_api
@@ -99,3 +100,29 @@ def get_user_fops_guilds(user):
         f"User {user.id} shares {len(shared_guilds)} guilds with Fops (admin in {admin_count})"
     )
     return shared_guilds
+
+
+def convert_subscription_timestamps(subscription_data):
+    """
+    Convert subscription timestamp fields to datetime objects for templating in django.
+    I could have done this by just pre-rendering the text but django already has
+    shortand for time since, it just takes a timezone input so. Converting the fops
+    epoch-timezone became something i wanted to do more often.
+
+    Args:
+        subscription_data: Dict-like object containing subscription data
+
+    Returns:
+        Dict with timestamp fields converted to datetime objects
+    """
+    subscription_dict = dict(subscription_data)
+
+    # Convert Unix timestamps to datetime objects
+    timestamp_fields = ["last_ran", "subscribed_at"]
+    for field in timestamp_fields:
+        if subscription_dict.get(field) and isinstance(
+            subscription_dict[field], (int, float)
+        ):
+            subscription_dict[field] = datetime.fromtimestamp(subscription_dict[field])
+
+    return subscription_dict

@@ -25,16 +25,6 @@
     </div>
 
     <div class="form-group">
-        <label for="guild_display">Guild:</label>
-        <input type="text" id="guild_display"
-            value="{% for guild in shared_guilds %}{% if guild.id|stringformat:"s" == subscription.guild_id|stringformat:"s" %}{{ guild.name }}{% endif %}{% endfor %}"
-            disabled>
-        <input type="hidden" name="guild_id" value="{{ subscription.guild_id }}">
-        <small style="color: gray;">Guild cannot be changed when editing. Delete and recreate to move to a different
-            guild.</small>
-    </div>
-
-    <div class="form-group">
         <label for="channel_id">Channel:</label>
         <select name="channel_id" id="channel_id" required>
             {% for channel in guild_channels %}
@@ -61,16 +51,9 @@
     </div>
 
     <div class="form-group">
-        <label>
-            <input type="checkbox" name="is_pm" {% if subscription.is_pm %}checked{% endif %}> Send as PM
-        </label>
-    </div>
-
-    <div class="form-group">
-        <small>Read-only fields:</small><br>
         <strong>Subscribed:</strong> {{ subscription.subscribed_at }}<br>
         <strong>Last Reported ID:</strong> {{ subscription.last_reported_id }}<br>
-        <strong>Last Ran:</strong> {{ subscription.last_ran }}
+        <strong>Last Ran:</strong> {{ subscription.last_ran|timesince }} ago
     </div>
 
     <button type="submit">Update Subscription</button>

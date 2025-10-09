@@ -4,13 +4,19 @@ from django.contrib import messages
 import json
 
 from ..models import Subscription
-from ..utils import has_guild_admin_access, get_user_fops_guilds, get_fops_connection
+from ..utils import (
+    has_guild_admin_access,
+    get_user_fops_guilds,
+    get_fops_connection,
+    convert_subscription_timestamps,
+)
 from .. import discord_api
 
 
 @login_required
-def add_subscription(request):
+def add_subscription(request, guild_id=None):
     """Add a new subscription"""
+
     # Check Discord token on GET, guild-specific admin on POST
     if not request.user.discord_access_token:
         messages.error(request, "You must connect your Discord account first.")
@@ -70,9 +76,20 @@ def add_subscription(request):
 
     context = {
         "service_choices": Subscription.SERVICE_CHOICES,
-        "shared_guilds": shared_guilds,
-        "guild_channels": guild_channels,
-        "guild_channels_json": json.dumps(guild_channels),
+        "shared_guilds": [guild for guild in shared_guilds if guild["is_admin"]],
+        "guild_channels": {
+            str(guild["id"]): guild_channels[str(guild["id"])]
+            for guild in shared_guilds
+            if guild["is_admin"]
+        },
+        "guild_channels_json": json.dumps(
+            {
+                str(guild["id"]): guild_channels[str(guild["id"])]
+                for guild in shared_guilds
+                if guild["is_admin"]
+            }
+        ),
+        "preselected_guild_id": guild_id,  # Pass the guild_id to pre-select
     }
     response = render(request, "bot_manager/add_subscription.html", context)
     response["Vary"] = "Cookie"
@@ -142,8 +159,11 @@ def edit_subscription(request, subscription_id):
     guild_id = str(subscription_data["guild_id"])
     guild_channels = discord_api.get_guild_channels(guild_id)
 
+    # Convert timestamp fields to datetime objects for template filters
+    subscription_dict = convert_subscription_timestamps(subscription_data)
+
     context = {
-        "subscription": subscription_data,
+        "subscription": subscription_dict,
         "service_choices": Subscription.SERVICE_CHOICES,
         "shared_guilds": get_user_fops_guilds(request.user),
         "guild_channels": guild_channels,

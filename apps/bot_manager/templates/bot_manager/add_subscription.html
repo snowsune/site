@@ -25,11 +25,13 @@
     </div>
 
     <div class="form-group">
-        <label for="guild_id">Guild ID:</label>
+        <label for="guild_id">Guild:</label>
         <select name="guild_id" id="guild_id" required>
             <option value="">Select a guild</option>
             {% for guild in shared_guilds %}
-            <option value="{{ guild.id }}">{{ guild.name }}</option>
+            <option value="{{ guild.id }}"
+                {% if preselected_guild_id and guild.id|stringformat:"s" == preselected_guild_id|stringformat:"s" %}selected{% endif %}>
+                {{ guild.name }}</option>
             {% endfor %}
         </select>
     </div>
@@ -45,8 +47,8 @@
             const channelSelect = document.getElementById('channel_id');
             const guildChannels = {{ guild_channels_json| safe }};
 
-            guildSelect.addEventListener('change', function () {
-                const guildId = this.value;
+            function updateChannels() {
+                const guildId = guildSelect.value;
                 channelSelect.innerHTML = '<option value="">Select a channel</option>';
 
                 if (guildId && guildChannels[guildId]) {
@@ -57,7 +59,14 @@
                         channelSelect.appendChild(option);
                     });
                 }
-            });
+            }
+
+            guildSelect.addEventListener('change', updateChannels);
+
+            // If guild is pre-selected, load its channels on page load
+            if (guildSelect.value) {
+                updateChannels();
+            }
         </script>
     </div>
 
@@ -69,12 +78,6 @@
     <div class="form-group">
         <label for="filters">Filters (optional):</label>
         <textarea name="filters" id="filters" rows="3"></textarea>
-    </div>
-
-    <div class="form-group">
-        <label>
-            <input type="checkbox" name="is_pm"> Send as PM
-        </label>
     </div>
 
     <button type="submit">Add Subscription</button>

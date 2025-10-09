@@ -16,6 +16,11 @@ urlpatterns = [
         name="bot_manager_add_subscription",
     ),
     path(
+        "subscriptions/add/<str:guild_id>/",
+        views.add_subscription,
+        name="bot_manager_add_subscription_for_guild",
+    ),
+    path(
         "subscriptions/<int:subscription_id>/edit/",
         views.edit_subscription,
         name="bot_manager_edit_subscription",

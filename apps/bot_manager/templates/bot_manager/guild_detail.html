@@ -65,7 +65,7 @@
     <!-- Admin Channel - Top priority -->
     <div class="admin-channel-config">
         <label for="admin_channel_id">
-            📢 Admin Notification Channel:
+            Admin Notification Channel:
             <select name="admin_channel_id" id="admin_channel_id">
                 <option value="">None</option>
                 {% for channel in channels %}
@@ -168,5 +168,5 @@
 <p>No subscriptions for this guild.</p>
 {% endif %}
 
-<a href="{% url 'bot_manager_add_subscription' %}">Add New Subscription</a>
+<a href="{% url 'bot_manager_add_subscription_for_guild' guild_id=guild_id %}">Add New Subscription</a>
 {% endblock %}
