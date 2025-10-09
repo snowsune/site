@@ -108,8 +108,8 @@
     visibility: visible;
 }
 
-/* Mobile responsiveness - hide quotes on small screens */
-@media (max-width: 768px) {
+/* Mobile responsiveness - hide quotes when things get cramped */
+@media (max-width: 1280px) {
     #quotes-scroller {
         display: none;
     }

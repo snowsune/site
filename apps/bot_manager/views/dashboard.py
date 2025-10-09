@@ -52,4 +52,6 @@ def dashboard(request):
         "guilds_error": guilds_error,
         "error": locals().get("error", None),
     }
-    return render(request, "bot_manager/dashboard.html", context)
+    response = render(request, "bot_manager/dashboard.html", context)
+    response["Vary"] = "Cookie"
+    return response

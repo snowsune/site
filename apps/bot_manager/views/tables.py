@@ -30,7 +30,9 @@ def table_data(request, table_name):
             "columns": columns,
             "rows": rows,
         }
-        return render(request, "bot_manager/table_data.html", context)
+        response = render(request, "bot_manager/table_data.html", context)
+        response["Vary"] = "Cookie"
+        return response
     except Exception as e:
         messages.error(request, f"Error loading table data: {str(e)}")
         return redirect("bot_manager_dashboard")

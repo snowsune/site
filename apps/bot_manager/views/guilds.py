@@ -89,9 +89,9 @@ def guild_detail(request, guild_id):
                     sub["last_ran_ago"] = f"{seconds_ago} seconds ago"
                 elif seconds_ago < 3600:
                     minutes = seconds_ago // 60
-                    sub[
-                        "last_ran_ago"
-                    ] = f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+                    sub["last_ran_ago"] = (
+                        f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+                    )
                 elif seconds_ago < 86400:
                     hours = seconds_ago // 3600
                     sub["last_ran_ago"] = f"{hours} hour{'s' if hours != 1 else ''} ago"
@@ -108,7 +108,9 @@ def guild_detail(request, guild_id):
             "subscriptions": guild_subscriptions,
             "channel_map": channel_map,
         }
-        return render(request, "bot_manager/guild_detail.html", context)
+        response = render(request, "bot_manager/guild_detail.html", context)
+        response["Vary"] = "Cookie"
+        return response
     except Exception as e:
         messages.error(request, f"Error loading guild data: {str(e)}")
         return redirect("bot_manager_dashboard")

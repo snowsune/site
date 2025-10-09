@@ -63,7 +63,9 @@ def add_subscription(request):
         "guild_channels": guild_channels,
         "guild_channels_json": json.dumps(guild_channels),
     }
-    return render(request, "bot_manager/add_subscription.html", context)
+    response = render(request, "bot_manager/add_subscription.html", context)
+    response["Vary"] = "Cookie"
+    return response
 
 
 @login_required
@@ -127,7 +129,9 @@ def edit_subscription(request, subscription_id):
         "shared_guilds": get_user_fops_guilds(request.user),
         "guild_channels": guild_channels,
     }
-    return render(request, "bot_manager/edit_subscription.html", context)
+    response = render(request, "bot_manager/edit_subscription.html", context)
+    response["Vary"] = "Cookie"
+    return response
 
 
 @login_required

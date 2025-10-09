@@ -361,8 +361,8 @@ a:visited {
 
 /* === Responsive Sidebar Fix === */
 
-/* Completely hide sidebar on very small screens (phones) */
-@media (max-width: 900px) {
+/* Completely hide sidebar when things get tight */
+@media (max-width: 1280px) {
   .sidebar {
     display: none;
   }

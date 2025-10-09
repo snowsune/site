@@ -1,5 +1,3 @@
-"""Centralized Discord API calls with caching"""
-
 import requests
 import logging
 from django.conf import settings
@@ -9,14 +7,17 @@ logger = logging.getLogger(__name__)
 
 
 def get_bot_guilds():
-    """Get Fops Bot's guilds with caching"""
+    """
+    Discord kept rate limiting me >.<
+
+    Anytime we want to grab the guilds we can hit this.
+    """
+
     cache_key = "fops_bot_guilds"
     cached = cache.get(cache_key)
-    if cached is not None:
-        logger.info("Using cached Fops Bot guilds")
-        return cached
 
-    logger.info("Fetching Fops Bot guilds from Discord API")
+    if cached is not None:
+        return cached
 
     bot_token = getattr(settings, "DISCORD_BOT_TOKEN", None)
     if not bot_token:
@@ -46,7 +47,10 @@ def get_bot_guilds():
 
 
 def get_user_guilds(user):
-    """Get user's Discord guilds with caching"""
+    """
+    This is every guild a user is in.
+    """
+
     cache_key = f"user_{user.id}_discord_guilds"
     cached = cache.get(cache_key)
     if cached is not None:
@@ -83,7 +87,10 @@ def get_user_guilds(user):
 
 
 def get_guild_channels(guild_id):
-    """Get channels for a guild with caching"""
+    """
+    This is every channel in a guild.
+    """
+
     cache_key = f"guild_{guild_id}_channels"
     cached = cache.get(cache_key)
     if cached is not None:
@@ -127,7 +134,10 @@ def get_guild_channels(guild_id):
 
 
 def get_user_info(user_id):
-    """Get Discord user info with caching"""
+    """
+    This is the user info for a user.
+    """
+
     cache_key = f"discord_user_{user_id}"
     cached = cache.get(cache_key)
     if cached is not None:
