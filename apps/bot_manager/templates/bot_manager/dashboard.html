@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block og_image %}{% static 'bot_manager/images/FopsCard.png' %}{% endblock %}
+{% block twitter_image %}{% static 'bot_manager/images/FopsCard.png' %}{% endblock %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/bot_manager.css' %}">
+<link rel="stylesheet" href="{% static 'bot_manager/bot_manager.css' %}">
 {% endblock %}
 
 {% block content %}
