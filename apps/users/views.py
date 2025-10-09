@@ -4,6 +4,8 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django import forms
+from django.conf import settings
+import logging
 from .models import CustomUser
 
 
@@ -26,6 +28,44 @@ class CustomRegisterForm(UserCreationForm):
         }
 
 
+def send_new_user_webhook(user):
+    """New user ping!"""
+    try:
+        # Get webhook URL from site settings
+        from snowsune.models import SiteSetting
+
+        webhook_setting = SiteSetting.objects.filter(key="moderator_webhook").first()
+        if not webhook_setting or not webhook_setting.value:
+            return  # No webhook configured
+
+        webhook_url = webhook_setting.value.strip()
+        if not webhook_url:
+            return
+
+        # Import here to avoid circular imports
+        from apps.commorganizer.utils import send_discord_webhook
+
+        # Create notification message
+        display_name = user.first_name or user.username
+        message = f"**New User Registered!**\n\n"
+        message += f"**Username:** {user.username}\n"
+        if user.first_name:
+            message += f"**Name:** {user.first_name}"
+            if user.last_name:
+                message += f" {user.last_name}"
+            message += "\n"
+        message += f"\n**Profile:** {settings.SITE_URL}/user/{user.username}"
+
+        # Send webhook
+        send_discord_webhook(webhook_url, message)
+
+    except Exception as e:
+        # Log error but don't break the registration process
+        logging.error(
+            f"Failed to send Discord webhook for new user {user.username}: {e}"
+        )
+
+
 # Profile editing form
 class ProfileEditForm(forms.ModelForm):
     class Meta:
@@ -42,6 +82,8 @@ def register_view(request):
         form = CustomRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
+            # Send webhook notification for new user
+            send_new_user_webhook(user)
             login(request, user)
             return redirect("/")
     else:
