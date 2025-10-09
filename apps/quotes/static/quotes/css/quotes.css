@@ -109,7 +109,7 @@
 }
 
 /* Mobile responsiveness - hide quotes when things get cramped */
-@media (max-width: 1280px) {
+@media (max-width: 1400px) {
     #quotes-scroller {
         display: none;
     }

@@ -11,7 +11,10 @@ from .. import discord_api
 
 @login_required
 def guild_detail(request, guild_id):
-    """Display guild configuration page"""
+    """
+    Display guild configuration page
+    """
+
     admin_access = has_fops_admin_access(request.user)
     if admin_access == "DECRYPTION_FAILED":
         messages.error(
@@ -20,6 +23,9 @@ def guild_detail(request, guild_id):
         return redirect("bot_manager_dashboard")
 
     elif not request.user.discord_access_token or not admin_access:
+        messages.error(
+            request, "You must have admin rights in this server to configure it."
+        )
         return redirect("bot_manager_dashboard")
 
     # Handle settings update

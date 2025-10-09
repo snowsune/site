@@ -68,7 +68,11 @@
                 {% endif %}
             </td>
             <td>
+                {% if guild.is_admin %}
                 <a href="{% url 'bot_manager_guild' guild_id=guild.id %}">Configure →</a>
+                {% else %}
+                <span style="color: gray;">No Access</span>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}

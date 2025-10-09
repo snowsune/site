@@ -22,24 +22,7 @@ def dashboard(request):
         }
         return render(request, "bot_manager/dashboard.html", context)
 
-    # Check if user has admin rights in any Fops guild
-    admin_access = has_fops_admin_access(request.user)
-    if admin_access == "DECRYPTION_FAILED":
-        messages.error(
-            request, "Your Discord authentication has expired. Please log in again."
-        )
-        context = {
-            "error": "discord_auth_expired",
-            "show_discord_login": True,
-        }
-        return render(request, "bot_manager/dashboard.html", context)
-    elif not admin_access:
-        context = {
-            "error": "You must have admin rights in a server where Fops Bot is present to access this dashboard",
-            "show_discord_login": False,
-        }
-        return render(request, "bot_manager/dashboard.html", context)
-
+    # Get shared guilds
     try:
         shared_guilds = get_user_fops_guilds(request.user)
         guilds_error = None

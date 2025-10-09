@@ -95,5 +95,8 @@ def get_user_fops_guilds(user):
                 }
             )
 
-    logger.info(f"User {user.id} has {len(shared_guilds)} shared guilds with Fops")
+    admin_count = sum(1 for g in shared_guilds if g["is_admin"])
+    logger.info(
+        f"User {user.id} shares {len(shared_guilds)} guilds with Fops (admin in {admin_count})"
+    )
     return shared_guilds
