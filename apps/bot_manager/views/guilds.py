@@ -95,9 +95,9 @@ def guild_detail(request, guild_id):
                     sub["last_ran_ago"] = f"{seconds_ago} seconds ago"
                 elif seconds_ago < 3600:
                     minutes = seconds_ago // 60
-                    sub["last_ran_ago"] = (
-                        f"{minutes} minute{'s' if minutes != 1 else ''} ago"
-                    )
+                    sub[
+                        "last_ran_ago"
+                    ] = f"{minutes} minute{'s' if minutes != 1 else ''} ago"
                 elif seconds_ago < 86400:
                     hours = seconds_ago // 3600
                     sub["last_ran_ago"] = f"{hours} hour{'s' if hours != 1 else ''} ago"
