@@ -39,13 +39,14 @@ def guild_detail(request, guild_id):
                     cur.execute(
                         """
                         UPDATE guilds 
-                        SET frozen = %s, allow_nsfw = %s, enable_dlp = %s, admin_channel_id = %s
+                        SET frozen = %s, allow_nsfw = %s, enable_dlp = %s, twitter_obfuscate = %s, admin_channel_id = %s
                         WHERE guild_id = %s
                         """,
                         (
                             request.POST.get("frozen") == "on",
                             request.POST.get("allow_nsfw") == "on",
                             request.POST.get("enable_dlp") == "on",
+                            request.POST.get("twitter_obfuscate") == "on",
                             admin_channel if admin_channel else None,
                             guild_id,
                         ),
