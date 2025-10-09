@@ -116,12 +116,8 @@ def user_commission_select(request):
         try:
             commission = Commission.objects.get(id=commission_id)
 
-            # Security check: user must own the commission or be staff/moderator
-            if (
-                commission.user == request.user
-                or request.user.is_staff
-                or getattr(request.user, "is_moderator", False)
-            ):
+            # Security check: user must own the commission or be staff
+            if commission.user == request.user or request.user.is_staff:
                 commission_name = commission.name
                 commission.delete()
                 messages.success(
@@ -150,9 +146,9 @@ def user_commission_select(request):
             draft__commission=commission, resolved=True
         ).count()
 
-    # For moderators/admins, show all commissions
+    # For staff/admins, show all commissions
     all_commissions = None
-    if request.user.is_staff or getattr(request.user, "is_moderator", False):
+    if request.user.is_staff:
         all_commissions = Commission.objects.all().order_by("-created_at")
 
         # Add comment counts to all commissions
@@ -206,7 +202,6 @@ def artist_dashboard(request, commission_name):
             and request.POST.get("password") == commission.artist_password
         )
         or request.user.is_staff
-        or getattr(request.user, "is_moderator", False)
     ):
         # If user is logged in but doesn't own this commission, redirect to selection
         if request.user.is_authenticated:

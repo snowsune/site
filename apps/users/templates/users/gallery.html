@@ -14,7 +14,7 @@
     <h3>{{ u.first_name|default:u.username }}</h3>
 
     <div class="badge-row">
-      {% if u.is_moderator %}
+      {% if u.is_staff %}
       <img src="{% static 'badges/mod.png' %}" alt="Moderator" class="badge" />
       {% endif %} {% for badge in u.badges %}
       <img src="{% static 'badges/'|add:badge|add:'.png' %}" alt="{{ badge }}" class="badge" />

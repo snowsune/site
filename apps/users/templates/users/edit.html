@@ -118,11 +118,11 @@
         <img src="/static/badges/verified.png" alt="Verified Badge" class="badge-image" title="Verified">
         {% endif %}
 
-        {% if user.is_moderator %}
+        {% if user.is_staff %}
         <img src="/static/badges/mod.png" alt="Moderator Badge" class="badge-image" title="Moderator">
         {% endif %}
 
-        {% if not user.badges and not user.is_verified and not user.is_moderator %}
+        {% if not user.badges and not user.is_verified and not user.is_staff %}
         <p>No badges yet!</p>
         {% endif %}
     </div>
