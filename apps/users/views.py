@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django import forms
 from .models import CustomUser
 
 
@@ -24,6 +26,16 @@ class CustomRegisterForm(UserCreationForm):
         }
 
 
+# Profile editing form
+class ProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ["bio", "profile_picture", "fa_url", "flist_url"]
+        widgets = {
+            "bio": forms.Textarea(attrs={"rows": 4, "cols": 50}),
+        }
+
+
 # Registration view
 def register_view(request):
     if request.method == "POST":
@@ -37,10 +49,41 @@ def register_view(request):
     return render(request, "users/register.html", {"form": form})
 
 
-# Account editing (placeholder for now)
+# Account editing
 @login_required
 def edit_account_view(request):
-    return render(request, "users/edit.html")
+    if request.method == "POST":
+        if "disconnect_discord" in request.POST:
+            # Disconnect Discord account
+            request.user.discord_id = None
+            request.user.discord_username = None
+            request.user.discord_access_token = None
+            request.user.discord_refresh_token = None
+            request.user.discord_token_expires = None
+            request.user.save()
+            messages.success(request, "Discord account disconnected successfully.")
+            return redirect("account-edit")
+
+        elif "save_profile" in request.POST:
+            # Save profile changes
+            form = ProfileEditForm(request.POST, request.FILES, instance=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Profile updated successfully!")
+                return redirect("account-edit")
+            else:
+                messages.error(request, "Please correct the errors below.")
+        else:
+            form = ProfileEditForm(instance=request.user)
+    else:
+        form = ProfileEditForm(instance=request.user)
+
+    context = {
+        "user": request.user,
+        "has_discord": bool(request.user.discord_access_token),
+        "form": form,
+    }
+    return render(request, "users/edit.html", context)
 
 
 # User Gallery!

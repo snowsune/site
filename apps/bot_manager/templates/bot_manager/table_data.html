@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ table_name }} - Fops Bot Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ table_name }}</h1>
+
+    <p><a href="{% url 'bot_manager_dashboard' %}">← Back to Dashboard</a></p>
+
+    {% if rows %}
+    <table>
+        <thead>
+            <tr>
+                {% for column in columns %}
+                <th>{{ column }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                {% for value in row %}
+                <td>{{ value|default:"—" }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No data found in {{ table_name }}.</p>
+    {% endif %}
+</div>
+{% endblock %}

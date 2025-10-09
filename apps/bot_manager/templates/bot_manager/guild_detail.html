@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ guild.name }} - Fops Bot Manager{% endblock %}
+
+{% block og_image %}{% static 'bot_manager/images/FopsCard.png' %}{% endblock %}
+{% block twitter_image %}{% static 'bot_manager/images/FopsCard.png' %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bot_manager/bot_manager.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>{{ guild.name }}</h1>
+
+<p><a href="{% url 'bot_manager_dashboard' %}">← Back to Dashboard</a></p>
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<h2>Guild Info</h2>
+<table>
+    <tr>
+        <th>Guild ID</th>
+        <td>{{ guild.guild_id }}</td>
+    </tr>
+    <tr>
+        <th>Name</th>
+        <td>{{ guild.name }}</td>
+    </tr>
+    <tr>
+        <th>Joined At</th>
+        <td>{{ guild.joined_at }}</td>
+    </tr>
+    {% if guild.settings %}
+    <tr>
+        <th>Settings</th>
+        <td>
+            <pre>{{ guild.settings }}</pre>
+        </td>
+    </tr>
+    {% endif %}
+    {% if guild.features %}
+    <tr>
+        <th>Features</th>
+        <td>{{ guild.features }}</td>
+    </tr>
+    {% endif %}
+</table>
+
+<h2>Bot Configuration</h2>
+
+{% if not guild.admin_channel_id %}
+<div class="admin-channel-warning">
+    ⚠️ You should configure an admin channel for Fops to post admin information in!
+</div>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Admin Channel - Top priority -->
+    <div class="admin-channel-config">
+        <label for="admin_channel_id">
+            📢 Admin Notification Channel:
+            <select name="admin_channel_id" id="admin_channel_id">
+                <option value="">None</option>
+                {% for channel in channels %}
+                <option value="{{ channel.id }}"
+                    {% if guild.admin_channel_id|stringformat:"s" == channel.id|stringformat:"s" %}selected{% endif %}>
+                    #{{ channel.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+
+    <!-- Freeze Button - Prominent panic button -->
+    <div class="freeze-toggle">
+        <label>
+            <input type="checkbox" name="frozen" {% if guild.frozen %}checked{% endif %}>
+            ! PAWS! (Stop the bot from automatic posting) !
+        </label>
+    </div>
+
+    <!-- Other Settings -->
+    <div class="settings-toggles">
+        <label>
+            <input type="checkbox" name="allow_nsfw" {% if guild.allow_nsfw %}checked{% endif %}>
+            🔞 NSFW Enabled
+        </label>
+        <label>
+            <input type="checkbox" name="enable_dlp" {% if guild.enable_dlp %}checked{% endif %}>
+            🔒 DLP (Download & Reposting)
+        </label>
+    </div>
+
+    <button type="submit" name="update_settings" class="btn btn-primary">Save Settings</button>
+</form>
+
+<small>🐁 ⬅ I put this mouse here for Tyro~</small>
+
+<h2>Guild Subscriptions</h2>
+{% if subscriptions %}
+<table>
+    <thead>
+        <tr>
+            <th>Service</th>
+            <th>Search Criteria</th>
+            <th>Filters</th>
+            <th>Channel</th>
+            <th>Added By</th>
+            <th>Last Ran</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sub in subscriptions %}
+        <tr>
+            <td>{{ sub.service_type }}</td>
+            <td>{{ sub.search_criteria }}</td>
+            <td>{{ sub.filters|default:"--" }}</td>
+            <td>
+                {% if sub.channel_name %}
+                <a target="_blank" rel="noopener noreferrer"
+                    href="https://discord.com/channels/{{ guild.guild_id }}/{{ sub.channel_id }}">#{{ sub.channel_name }}</a>
+                {% else %}
+                {{ sub.channel_id }}
+                {% endif %}
+            </td>
+            <td>
+                {% if sub.user_info %}
+                {% if sub.user_info.avatar %}
+                <img src="https://cdn.discordapp.com/avatars/{{ sub.user_info.id }}/{{ sub.user_info.avatar }}.png"
+                    width="24" height="24" style="border-radius: 50%; vertical-align: middle; margin-right: 4px;">
+                {% endif %}
+                {{ sub.user_info.username }}
+                {% else %}
+                {{ sub.user_id }}
+                {% endif %}
+            </td>
+            <td>
+                {% if sub.last_ran_ago %}
+                {{ sub.last_ran_ago }}
+                {% else %}
+                Never
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'bot_manager_edit_subscription' sub.id %}">Edit</a> |
+                <form method="post" action="{% url 'bot_manager_delete_subscription' sub.id %}"
+                    style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('U sure you wanna delete this?')"
+                        style="background: none; border: none; color: var(--link-default); cursor: pointer; padding: 0; text-decoration: underline;">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No subscriptions for this guild.</p>
+{% endif %}
+
+<a href="{% url 'bot_manager_add_subscription' %}">Add New Subscription</a>
+{% endblock %}

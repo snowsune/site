@@ -67,6 +67,19 @@
                 </div>
             </div>
 
+            <!-- Fops Bot -->
+            <div class="tool-card">
+                <div class="tool-image">
+                    <img src="{% static 'bot_manager/images/FopsCard.png' %}" alt="Fops Discord Bot" loading="lazy">
+                </div>
+                <div class="tool-content">
+                    <h3>Fops Discord Bot</h3>
+                    <p>My discord bot! All kinds of tools and utlities! FA polling, automatic media extraction and more!
+                    </p>
+                    <a href="{% url 'bot_manager_dashboard' %}" class="tool-button">Manage Fops Bot</a>
+                </div>
+            </div>
+
             <!-- Minecraft Server -->
             <div class="tool-card">
                 <div class="tool-image">
@@ -136,6 +149,7 @@
     <div class="sidebar-section">
         <h3>Development Tools</h3>
         <ul class="sidebar-links">
+            <li><a href="{% url 'bot_manager_dashboard' %}">Fops Discord Bot</a></li>
             <li><a href="{% url 'commorganizer' %}">Commission Organizer</a></li>
             <li><a href="https://booru.kitsunehosting.net/">BixiBooru</a></li>
             <li><a href="https://size-diff.snowsune.net/">Size-Diff Calculator</a></li>

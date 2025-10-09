@@ -1,0 +1,163 @@
+/* Bot Manager Styles */
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-md) 0;
+    background: var(--tile-background);
+    border-radius: var(--border-radius-small);
+    overflow: hidden;
+}
+
+table thead {
+    background: var(--accent-color);
+    color: var(--navbar-text);
+}
+
+table th,
+table td {
+    padding: var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+table tbody tr:hover {
+    background: var(--background-color);
+}
+
+/* Admin Channel Warning */
+.admin-channel-warning {
+    background: #ff9800;
+    color: white;
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    border-radius: var(--border-radius-small);
+    font-weight: bold;
+    text-align: center;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Admin Channel Config */
+.admin-channel-config {
+    margin: var(--spacing-lg) 0;
+    padding: var(--spacing-md);
+    background: var(--tile-background);
+    border: 2px solid var(--accent-color);
+    border-radius: var(--border-radius-small);
+}
+
+.admin-channel-config label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: var(--spacing-sm);
+}
+
+.admin-channel-config select {
+    width: 100%;
+    max-width: 400px;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+}
+
+/* Freeze Button - Big and Prominent */
+.freeze-toggle {
+    text-align: center;
+    margin: var(--spacing-lg) 0;
+    padding: var(--spacing-lg);
+    background: var(--tile-background);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.freeze-toggle label {
+    display: block;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: var(--spacing-md);
+}
+
+.freeze-toggle input[type="checkbox"] {
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+    margin-right: var(--spacing-sm);
+}
+
+/* Other Settings - Smaller, Grouped */
+.settings-toggles label {
+    display: block;
+    margin: var(--spacing-sm) 0;
+    cursor: pointer;
+}
+
+.settings-toggles input[type="checkbox"] {
+    margin-right: var(--spacing-sm);
+}
+
+/* Buttons */
+.btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--border-radius-small);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background: var(--accent-color);
+    color: var(--navbar-text);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+}
+
+.btn-secondary {
+    background: var(--border-color);
+    color: var(--text-color);
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+/* Messages */
+.alert {
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    border-radius: var(--border-radius-small);
+    border: 1px solid var(--border-color);
+}
+
+.alert-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.alert-error {
+    background: #dc3545;
+    color: white;
+}
+
+/* Account sections */
+.account-section {
+    margin: var(--spacing-lg) 0;
+    padding: var(--spacing-md);
+    background: var(--tile-background);
+    border-radius: var(--border-radius-small);
+    border: 1px solid var(--border-color);
+}

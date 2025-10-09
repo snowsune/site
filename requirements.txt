@@ -3,6 +3,7 @@ django
 whitenoise
 markdown
 requests
+cryptography
 
 # App (graphics)
 pillow

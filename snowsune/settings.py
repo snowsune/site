@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "apps.notifications",  # Centralized notification system
     "apps.thank_yous",  # Thank yous management app
     "apps.quotes",  # Quotes scroller app
+    "apps.bot_manager",  # Fops Bot management app
 ]
 
 MIDDLEWARE = [
@@ -140,6 +141,17 @@ if DATABASE_URL:
 
     parsed = dj_database_url.parse(DATABASE_URL)
     DATABASES["default"] = cast(Dict[str, Any], parsed)
+
+# Fops Bot database configuration
+FOPS_DATABASE = os.getenv("FOPS_DATABASE")
+
+# Discord OAuth configuration
+DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
+DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET")
+DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+DISCORD_REDIRECT_URI = os.getenv(
+    "DISCORD_REDIRECT_URI", f"{SITE_URL}/fops/discord/callback"
+)
 
 # I'll use a custom user model for user-storage
 AUTH_USER_MODEL = "users.CustomUser"

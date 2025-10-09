@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block og_image %}{% static 'bot_manager/images/FopsCard.png' %}{% endblock %}
+{% block twitter_image %}{% static 'bot_manager/images/FopsCard.png' %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bot_manager/bot_manager.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>Fops Bot Manager</h1>
+
+{% if user.is_authenticated %}
+<p>Welcome, {{ user.username }}!</p>
+{% else %}
+<p>You must be logged in to access Fops Bot Manager.</p>
+<a href="{% url 'login' %}">Login to Snowsune.net</a>
+{% endif %}
+
+{% if error %}
+<div class="error">
+    {% if error == "discord_auth_expired" %}
+    Your Discord authentication has expired. Please log in again to access Fops Bot Manager.
+    {% else %}
+    {{ error }}
+    {% endif %}
+</div>
+{% if show_discord_login %}
+<a href="{% url 'bot_manager_discord_login' %}">Connect Discord Account</a>
+{% endif %}
+{% endif %}
+
+<h2>Your Shared Guilds with Fops Bot</h2>
+{% if guilds_error %}
+<div class="alert alert-error">
+    <strong>Error loading guilds:</strong> {{ guilds_error }}
+    <br>
+    <small>Try refreshing the page or <a href="{% url 'bot_manager_discord_login' %}">reconnecting Discord</a>.</small>
+</div>
+{% elif shared_guilds is None %}
+<div class="alert alert-error">
+    <strong>Unable to fetch your guilds.</strong>
+    <br>
+    <small>Try refreshing the page or <a href="{% url 'bot_manager_discord_login' %}">reconnecting Discord</a>.</small>
+</div>
+{% elif shared_guilds %}
+<table>
+    <thead>
+        <tr>
+            <th>Server</th>
+            <th>Admin Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for guild in shared_guilds %}
+        <tr>
+            <td>
+                {% if guild.icon %}
+                <img src="https://cdn.discordapp.com/icons/{{ guild.id }}/{{ guild.icon }}.png" width="32" height="32"
+                    style="border-radius: 50%; margin-right: 8px;">
+                {% endif %}
+                <a href="{% url 'bot_manager_guild' guild_id=guild.id %}">{{ guild.name }}</a>
+            </td>
+            <td>
+                {% if guild.is_admin %}
+                <span style="color: green;">✓ Admin</span>
+                {% else %}
+                <span style="color: red;">✗ Not Admin</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if guild.is_admin %}
+                <a href="{% url 'bot_manager_guild' guild_id=guild.id %}">Configure →</a>
+                {% else %}
+                <span style="color: gray;">No Access</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No shared guilds found. If you share a server with fops bot, try refreshing this page in a few seconds!</p>
+{% endif %}
+
+{% endblock %}
