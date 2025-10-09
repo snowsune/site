@@ -5,24 +5,26 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from ..models import Subscription
-from ..utils import has_fops_admin_access, get_fops_connection
+from ..utils import has_guild_admin_access, get_fops_connection
 from .. import discord_api
 
 
 @login_required
 def guild_detail(request, guild_id):
     """
-    Display guild configuration page
+    Display guild configuration page - ADMIN ONLY for THIS specific guild
     """
 
-    admin_access = has_fops_admin_access(request.user)
+    # Check if user has admin access to THIS SPECIFIC guild
+    admin_access = has_guild_admin_access(request.user, guild_id)
+
     if admin_access == "DECRYPTION_FAILED":
         messages.error(
             request, "Your Discord authentication has expired. Please log in again."
         )
         return redirect("bot_manager_dashboard")
 
-    elif not request.user.discord_access_token or not admin_access:
+    elif not admin_access:
         messages.error(
             request, "You must have admin rights in this server to configure it."
         )
@@ -95,9 +97,9 @@ def guild_detail(request, guild_id):
                     sub["last_ran_ago"] = f"{seconds_ago} seconds ago"
                 elif seconds_ago < 3600:
                     minutes = seconds_ago // 60
-                    sub[
-                        "last_ran_ago"
-                    ] = f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+                    sub["last_ran_ago"] = (
+                        f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+                    )
                 elif seconds_ago < 86400:
                     hours = seconds_ago // 3600
                     sub["last_ran_ago"] = f"{hours} hour{'s' if hours != 1 else ''} ago"

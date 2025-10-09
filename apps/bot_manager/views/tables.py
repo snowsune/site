@@ -2,19 +2,14 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-from ..utils import has_fops_admin_access, get_fops_connection
+from ..utils import get_fops_connection
 
 
 @login_required
 def table_data(request, table_name):
-    """Display data from a specific table"""
-    admin_access = has_fops_admin_access(request.user)
-    if admin_access == "DECRYPTION_FAILED":
-        messages.error(
-            request, "Your Discord authentication has expired. Please log in again."
-        )
-        return redirect("bot_manager_dashboard")
-    elif not request.user.discord_access_token or not admin_access:
+    """Display data from a specific table - requires login only"""
+    if not request.user.discord_access_token:
+        messages.error(request, "You must connect your Discord account first.")
         return redirect("bot_manager_dashboard")
 
     try:

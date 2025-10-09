@@ -4,25 +4,36 @@ from django.contrib import messages
 import json
 
 from ..models import Subscription
-from ..utils import has_fops_admin_access, get_user_fops_guilds, get_fops_connection
+from ..utils import has_guild_admin_access, get_user_fops_guilds, get_fops_connection
 from .. import discord_api
 
 
 @login_required
 def add_subscription(request):
     """Add a new subscription"""
-    admin_access = has_fops_admin_access(request.user)
-    if admin_access == "DECRYPTION_FAILED":
-        messages.error(
-            request, "Your Discord authentication has expired. Please log in again."
-        )
-        return redirect("bot_manager_dashboard")
-    elif not request.user.discord_access_token or not admin_access:
+    # Check Discord token on GET, guild-specific admin on POST
+    if not request.user.discord_access_token:
+        messages.error(request, "You must connect your Discord account first.")
         return redirect("bot_manager_dashboard")
 
     if request.method == "POST":
         try:
             guild_id = request.POST.get("guild_id")
+
+            # Check admin access for the specific guild
+            admin_access = has_guild_admin_access(request.user, guild_id)
+            if admin_access == "DECRYPTION_FAILED":
+                messages.error(
+                    request,
+                    "Your Discord authentication has expired. Please log in again.",
+                )
+                return redirect("bot_manager_dashboard")
+            elif not admin_access:
+                messages.error(
+                    request,
+                    "You must have admin rights in this server to add subscriptions.",
+                )
+                return redirect("bot_manager_dashboard")
 
             # Use the logged-in user's Discord ID
             user_discord_id = request.user.discord_id
@@ -71,13 +82,8 @@ def add_subscription(request):
 @login_required
 def edit_subscription(request, subscription_id):
     """Edit an existing subscription"""
-    admin_access = has_fops_admin_access(request.user)
-    if admin_access == "DECRYPTION_FAILED":
-        messages.error(
-            request, "Your Discord authentication has expired. Please log in again."
-        )
-        return redirect("bot_manager_dashboard")
-    elif not request.user.discord_access_token or not admin_access:
+    if not request.user.discord_access_token:
+        messages.error(request, "You must connect your Discord account first.")
         return redirect("bot_manager_dashboard")
 
     # Get subscription from database
@@ -89,9 +95,39 @@ def edit_subscription(request, subscription_id):
                 messages.error(request, "Subscription not found")
                 return redirect("bot_manager_dashboard")
 
+    # Check admin access for the subscription's guild
+    guild_id = str(subscription_data["guild_id"])
+    admin_access = has_guild_admin_access(request.user, guild_id)
+    if admin_access == "DECRYPTION_FAILED":
+        messages.error(
+            request, "Your Discord authentication has expired. Please log in again."
+        )
+        return redirect("bot_manager_dashboard")
+    elif not admin_access:
+        messages.error(
+            request, "You must have admin rights in this server to edit subscriptions."
+        )
+        return redirect("bot_manager_dashboard")
+
     if request.method == "POST":
         try:
-            guild_id = request.POST.get("guild_id")
+            new_guild_id = request.POST.get("guild_id")
+
+            # If moving to a different guild, check admin there too
+            if str(new_guild_id) != guild_id:
+                new_admin_access = has_guild_admin_access(request.user, new_guild_id)
+                if new_admin_access == "DECRYPTION_FAILED":
+                    messages.error(
+                        request,
+                        "Your Discord authentication has expired. Please log in again.",
+                    )
+                    return redirect("bot_manager_dashboard")
+                elif not new_admin_access:
+                    messages.error(
+                        request, "You must have admin rights in the destination server."
+                    )
+                    return redirect("bot_manager_dashboard")
+
             # Update subscription in database
             with get_fops_connection() as conn:
                 with conn.cursor() as cur:
@@ -105,7 +141,7 @@ def edit_subscription(request, subscription_id):
                         """,
                         (
                             request.POST.get("service_type"),
-                            guild_id,
+                            new_guild_id,
                             request.POST.get("channel_id"),
                             request.POST.get("search_criteria"),
                             request.POST.get("filters", ""),
@@ -115,7 +151,7 @@ def edit_subscription(request, subscription_id):
                     )
                     conn.commit()
                     messages.success(request, "Subscription updated successfully!")
-                    return redirect("bot_manager_guild", guild_id=guild_id)
+                    return redirect("bot_manager_guild", guild_id=new_guild_id)
         except Exception as e:
             messages.error(request, f"Error updating subscription: {str(e)}")
 
@@ -137,18 +173,13 @@ def edit_subscription(request, subscription_id):
 @login_required
 def delete_subscription(request, subscription_id):
     """Delete a subscription"""
-    admin_access = has_fops_admin_access(request.user)
-    if admin_access == "DECRYPTION_FAILED":
-        messages.error(
-            request, "Your Discord authentication has expired. Please log in again."
-        )
-        return redirect("bot_manager_dashboard")
-    elif not request.user.discord_access_token or not admin_access:
+    if not request.user.discord_access_token:
+        messages.error(request, "You must connect your Discord account first.")
         return redirect("bot_manager_dashboard")
 
     if request.method == "POST":
         try:
-            # Get the guild_id before deleting
+            # Get the guild_id and check admin access before deleting
             with get_fops_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute(
@@ -156,7 +187,26 @@ def delete_subscription(request, subscription_id):
                         (subscription_id,),
                     )
                     result = cur.fetchone()
-                    guild_id = result["guild_id"] if result else None
+                    if not result:
+                        messages.error(request, "Subscription not found")
+                        return redirect("bot_manager_dashboard")
+
+                    guild_id = result["guild_id"]
+
+                    # Check admin access for this guild
+                    admin_access = has_guild_admin_access(request.user, str(guild_id))
+                    if admin_access == "DECRYPTION_FAILED":
+                        messages.error(
+                            request,
+                            "Your Discord authentication has expired. Please log in again.",
+                        )
+                        return redirect("bot_manager_dashboard")
+                    elif not admin_access:
+                        messages.error(
+                            request,
+                            "You must have admin rights in this server to delete subscriptions.",
+                        )
+                        return redirect("bot_manager_dashboard")
 
                     cur.execute(
                         "DELETE FROM subscriptions WHERE id = %s", (subscription_id,)

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from ..models import FopsDatabase, Subscription
-from ..utils import has_fops_admin_access, get_user_fops_guilds
+from ..utils import get_user_fops_guilds
 
 
 @login_required

@@ -18,9 +18,10 @@ def get_fops_connection():
         conn.close()
 
 
-def has_fops_admin_access(user):
-    """Check if user has admin rights in any guild where Fops Bot is present"""
-    logger.info(f"Checking admin access for user {user.id} ({user.username})")
+def has_guild_admin_access(user, guild_id):
+    """
+    Check if a user has admin rights in a guild
+    """
 
     # Check if user has a Discord token stored
     if not user.discord_access_token:
@@ -42,24 +43,22 @@ def has_fops_admin_access(user):
     # Get Fops Bot guilds directly from Discord API
     fops_guilds = discord_api.get_bot_guilds()
     fops_guild_ids = {str(guild["id"]) for guild in fops_guilds}
-    logger.info(f"Comparing with {len(fops_guild_ids)} Fops guilds")
 
-    # Check if user has admin rights in any Fops guild
+    # First check if the guild is even a Fops guild
+    if str(guild_id) not in fops_guild_ids:
+        logger.warning(f"Guild {guild_id} is not a Fops guild")
+        return False
+
+    # Check if user has admin rights in THIS specific guild
     for guild in user_guilds:
-        guild_id = str(guild["id"])
-        if guild_id in fops_guild_ids:
+        if str(guild["id"]) == str(guild_id):
             permissions = int(guild.get("permissions", 0))
             is_admin = bool(permissions & 0x8)
-            logger.info(
-                f"User {user.id} in shared guild {guild['name']} - Admin: {is_admin}"
-            )
-            if is_admin:
-                logger.info(
-                    f"User {user.id} has admin access via guild {guild['name']}"
-                )
-                return True
+            logger.info(f"User {user.id} in guild {guild_id} - Admin: {is_admin}")
+            return is_admin
 
-    logger.warning(f"User {user.id} has no admin access in any Fops guild")
+    # User is not in this guild at all
+    logger.warning(f"User {user.id} is not a member of guild {guild_id}")
     return False
 
 
