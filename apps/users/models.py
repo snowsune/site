@@ -173,5 +173,18 @@ class CustomUser(AbstractUser):
     # Badges! (Not really implemented yet but~)
     badges = models.JSONField(default=list, blank=True)
 
+    def get_profile_picture_url(self):
+        """
+        Just because some ppl dont set theirs and I always wanna draw something valid
+        for their PFP (even if its just a placeholder).
+        """
+
+        try:
+            if self.profile_picture and self.profile_picture.name:
+                return self.profile_picture.url
+        except (ValueError, AttributeError):
+            pass
+        return None
+
     def __str__(self):
         return self.username

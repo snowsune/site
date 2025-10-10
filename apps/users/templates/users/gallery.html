@@ -1,28 +1,50 @@
-{% extends "base.html" %} {% load static %} {% block header %}
-<link rel="stylesheet" href="{% static 'css/gallery.css' %}" />
-{% endblock %} {% block title %}Profile Gallery{% endblock %} {% block content %}
-<h1>Profile Gallery</h1>
+{% extends "base.html" %}
+{% load static %}
 
-<div class="user-gallery">
-  {% for u in users %}
-  <div class="user-card">
-    {% if u.profile_picture %}
-    <img src="{{ u.profile_picture.url }}" alt="{{ u.username }}" class="user-avatar-large" />
-    {% else %}
-    <div class="user-avatar-placeholder">🦊</div>
-    {% endif %}
-    <h3>{{ u.first_name|default:u.username }}</h3>
+{% block title %}User Gallery - Snowsune.net{% endblock %}
 
-    <div class="badge-row">
-      {% if u.is_staff %}
-      <img src="{% static 'badges/mod.png' %}" alt="Moderator" class="badge" />
-      {% endif %} {% for badge in u.badges %}
-      <img src="{% static 'badges/'|add:badge|add:'.png' %}" alt="{{ badge }}" class="badge" />
-      {% endfor %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/users.css' %}">
+{% endblock %}
+
+{% block meta_description %}Snowsune.net user gallery.{% endblock %}
+
+{% block og_title %}User Gallery - Snowsune.net{% endblock %}
+{% block og_description %}Snowsune.net user gallery.{% endblock %}
+
+{% block content %}
+<div class="users-container">
+  <div class="user-gallery">
+    {% for u in users %}
+    <a href="{% url 'user-profile' u.username %}" class="user-card">
+      <div class="user-avatar-container">
+        {% if u.get_profile_picture_url %}
+        <img src="{{ u.get_profile_picture_url }}" alt="{{ u.first_name|default:u.username }}" loading="lazy" />
+        {% else %}
+        <img src="{% static 'stickers/foxi-sticker-ERROR.png' %}" alt="No profile picture" loading="lazy" />
+        {% endif %}
+      </div>
+      <div class="user-card-content">
+        <h3>{{ u.first_name|default:u.username }}</h3>
+        <div class="user-username">@{{ u.username }}</div>
+
+        <div class="badge-row">
+          {% if u.is_staff %}
+          <img src="{% static 'badges/mod.png' %}" alt="Moderator" class="badge" title="Moderator" />
+          {% endif %}
+          {% for badge in u.badges %}
+          <img src="{% static 'badges/'|add:badge|add:'.png' %}" alt="{{ badge }}" class="badge"
+            title="{{ badge|title }}" />
+          {% endfor %}
+        </div>
+      </div>
+    </a>
+    {% empty %}
+    <div class="empty-gallery">
+      <p>No verified users found. 🦊</p>
+      <p>Check back later!</p>
     </div>
+    {% endfor %}
   </div>
-  {% empty %}
-  <p>No verified users found.</p>
-  {% endfor %}
 </div>
 {% endblock %}

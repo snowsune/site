@@ -130,5 +130,15 @@ def edit_account_view(request):
 
 # User Gallery!
 def user_gallery(request):
-    verified_users = CustomUser.objects.filter(is_verified=True)
+    verified_users = CustomUser.objects.filter(is_verified=True).order_by(
+        "-date_joined"
+    )
     return render(request, "users/gallery.html", {"users": verified_users})
+
+
+# User Profile Page
+def user_profile(request, username):
+    from django.shortcuts import get_object_or_404
+
+    profile_user = get_object_or_404(CustomUser, username=username, is_verified=True)
+    return render(request, "users/profile.html", {"profile_user": profile_user})

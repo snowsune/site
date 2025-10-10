@@ -28,7 +28,6 @@ class BlogPostAdmin(admin.ModelAdmin):
         "published_at",
         "created_at",
         "tag_list",
-        "webhook_status",
         "comment_count",
     ]
     list_filter = ["status", "created_at", "published_at", "author", "tags"]
@@ -65,26 +64,12 @@ class BlogPostAdmin(admin.ModelAdmin):
                 "classes": ("collapse",),
             },
         ),
-        (
-            "Webhook",
-            {"fields": ("webhook_url", "webhook_enabled"), "classes": ("collapse",)},
-        ),
     )
 
     def tag_list(self, obj):
         return ", ".join([tag.name for tag in obj.tags.all()])
 
     tag_list.short_description = "Tags"
-
-    def webhook_status(self, obj):
-        if obj.webhook_url and obj.webhook_enabled:
-            return format_html('<span style="color: green;">✓ Enabled</span>')
-        elif obj.webhook_url:
-            return format_html('<span style="color: orange;">⚠ Disabled</span>')
-        else:
-            return format_html('<span style="color: gray;">— Not set</span>')
-
-    webhook_status.short_description = "Webhook"
 
     def comment_count(self, obj):
         approved_count = obj.comments.filter(status="approved").count()

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ profile_user.first_name|default:profile_user.username }} - Snowsune.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/users.css' %}">
+{% endblock %}
+
+{% block meta_description %}{{ profile_user.first_name|default:profile_user.username }}'s profile on Snowsune.net.
+{% if profile_user.bio %}{{ profile_user.bio|truncatewords:30 }}{% endif %}{% endblock %}
+
+{% block og_title %}{{ profile_user.first_name|default:profile_user.username }} - Snowsune.net{% endblock %}
+{% block og_description %}View {{ profile_user.first_name|default:profile_user.username }}'s profile on
+Snowsune.net{% endblock %}
+{% if profile_user.get_profile_picture_url %}
+{% block og_image %}{{ profile_user.get_profile_picture_url }}{% endblock %}
+{% endif %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {% if profile_user.get_profile_picture_url %}
+            <img src="{{ profile_user.get_profile_picture_url }}"
+                alt="{{ profile_user.first_name|default:profile_user.username }}" />
+            {% else %}
+            <img src="{% static 'stickers/foxi-sticker-ERROR.png' %}" alt="No profile picture" />
+            {% endif %}
+        </div>
+
+        <div class="profile-info">
+            <h1 class="profile-name">
+                {{ profile_user.first_name|default:profile_user.username }}
+                {% if profile_user.last_name %}{{ profile_user.last_name }}{% endif %}
+            </h1>
+            <div class="profile-username">@{{ profile_user.username }}</div>
+
+            {% if profile_user.is_staff or profile_user.badges %}
+            <div class="profile-badges">
+                {% if profile_user.is_staff %}
+                <img src="{% static 'badges/mod.png' %}" alt="Moderator" class="badge" title="Moderator" />
+                {% endif %}
+                {% for badge in profile_user.badges %}
+                <img src="{% static 'badges/'|add:badge|add:'.png' %}" alt="{{ badge }}" class="badge"
+                    title="{{ badge|title }}" />
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if profile_user.bio %}
+            <div class="profile-bio">
+                <h3>About</h3>
+                <p>{{ profile_user.bio }}</p>
+            </div>
+            {% endif %}
+
+            {% if user.is_authenticated and user.id == profile_user.id %}
+            <a href="{% url 'account-edit' %}" class="edit-profile-btn">Edit Profile</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- External Links -->
+    {% if profile_user.fa_url or profile_user.flist_url %}
+    <div class="profile-section">
+        <h2>Links & Socials</h2>
+        <div class="profile-links">
+            {% if profile_user.fa_url %}
+            <div class="profile-link-card">
+                <h3>🎨 FurAffinity</h3>
+                <a href="{{ profile_user.fa_url }}" target="_blank" rel="noopener">{{ profile_user.fa_url }}</a>
+            </div>
+            {% endif %}
+
+            {% if profile_user.flist_url %}
+            <div class="profile-link-card">
+                <h3>📋 F-List</h3>
+                <a href="{{ profile_user.flist_url }}" target="_blank" rel="noopener">{{ profile_user.flist_url }}</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Size Diff Image -->
+    {% if profile_user.size_diff_image %}
+    <div class="profile-section">
+        <h2>Size Comparison</h2>
+        <img src="{{ profile_user.size_diff_image.url }}" alt="Size comparison" class="size-diff-image" />
+    </div>
+    {% endif %}
+
+    <!-- Back to Gallery -->
+    <div style="text-align: center; margin-top: 2rem;">
+        <a href="{% url 'user-gallery' %}" class="edit-profile-btn">← Back to Gallery</a>
+    </div>
+</div>
+{% endblock %}
