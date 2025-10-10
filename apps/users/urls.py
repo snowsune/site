@@ -7,6 +7,6 @@ urlpatterns = [
     path("logout/", auth_views.LogoutView.as_view(next_page="/"), name="logout"),
     path("register/", views.register_view, name="register"),
     path("edit/", views.edit_account_view, name="account-edit"),
-    path("gallery/", views.user_gallery, name="user-gallery"),
+    path("", views.user_gallery, name="user-gallery"),
     path("<str:username>/", views.user_profile, name="user-profile"),
 ]

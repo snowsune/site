@@ -264,6 +264,39 @@ a:visited {
   background: #ff616f;
 }
 
+/* User Info Widget */
+.user-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5em;
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.4em 0.6em;
+  margin-bottom: 0.5em;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+}
+
+.user-greeting {
+  font-size: 0.9em;
+  color: var(--text-color);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.user-actions {
+  display: flex;
+  gap: 0.4em;
+}
+
 /* =======================
  * Footer
  * ======================= */

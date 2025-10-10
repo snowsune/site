@@ -1,18 +1,18 @@
 <div class="user-widget">
   {% if user.is_authenticated %}
   <div class="user-info">
-    {% if user.profile_picture %}
-    <img src="{{ user.profile_picture.url }}" alt="" class="user-avatar" />
+    {% if user.get_profile_picture_url %}
+    <img src="{{ user.get_profile_picture_url }}" alt="" class="user-avatar" />
     {% endif %}
-
-    <!-- Long but awesome conditional -->
-    <span>Welcome, {% if user.first_name %} {{ user.first_name }} {% else %} {{ user.username }} {% endif %}</span>
-
-    <a href="{% url 'account-edit' %}">Edit</a>
-    <form action="{% url 'logout' %}" method="post" style="display: inline">
-      {% csrf_token %}
-      <button type="submit" class="user-auth-btn">Log out</button>
-    </form>
+    <span class="user-greeting">Welcome,
+      {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}</span>
+    <div class="user-actions">
+      <a href="{% url 'account-edit' %}" class="user-auth-btn">Edit</a>
+      <form action="{% url 'logout' %}" method="post" style="display: inline">
+        {% csrf_token %}
+        <button type="submit" class="user-auth-btn">Log out</button>
+      </form>
+    </div>
   </div>
   {% else %}
   <a href="{% url 'login' %}" class="user-auth-btn">Log In</a>
