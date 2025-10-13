@@ -4,6 +4,7 @@ from .guilds import guild_detail
 from .subscriptions import add_subscription, edit_subscription, delete_subscription
 from .debug import debug_clear_discord, debug_secret_key
 from .tables import table_data
+from .redirect import fops_redirect_view
 
 __all__ = [
     "dashboard",
@@ -16,4 +17,5 @@ __all__ = [
     "debug_clear_discord",
     "debug_secret_key",
     "table_data",
+    "fops_redirect_view",
 ]

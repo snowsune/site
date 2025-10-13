@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% if google_tag %}
+    <!-- Google Analytics -->
+    {{ google_tag|safe }}
+    {% endif %}
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+
+    <!-- Prevent any preview/crawling -->
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Instant redirect -->
+    <meta http-equiv="refresh" content="0; url=/fops/">
+
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>I'm just redirecting you to FOPS...</h1>
+    <p>If you are not redirected automatically, <a href="/fops/">click this ^.^</a>.</p>
+
+    <script>
+        // Backup JavaScript redirect in case meta refresh doesn't work
+        window.location.href = '/fops/';
+    </script>
+</body>
+
+</html>
