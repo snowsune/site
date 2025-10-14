@@ -1,9 +1,77 @@
+// Vixi wrote this! Dont yell at me!
+
+// Position makers!
+function positionMarkers() {
+    // Get the image
+    const img = document.getElementById('main-draft-img');
+
+    // Oops :P
+    if (!img || !img.complete) return;
+
+    // Get the natural width and height
+    const naturalWidth = img.naturalWidth;
+    const naturalHeight = img.naturalHeight;
+
+    // Get the markers
+    const markers = document.querySelectorAll('.comment-marker');
+
+    // For each marker, get x and y
+    markers.forEach(marker => {
+        const x = parseInt(marker.getAttribute('data-x'));
+        const y = parseInt(marker.getAttribute('data-y'));
+
+        // Calculate percentage position relative to natural image size
+        const xPercent = (x / naturalWidth) * 100;
+        const yPercent = (y / naturalHeight) * 100;
+
+        // Position using percentages so they scale with the image
+        marker.style.left = xPercent + '%';
+        marker.style.top = yPercent + '%';
+    });
+}
+
+// This is so you can toggle on and off the annotations!
+function toggleAnnotations() {
+    const markers = document.querySelectorAll('.comment-marker');
+    const btn = document.getElementById('toggle-annotations-btn'); // the template adds this
+    const isHidden = markers[0]?.classList.contains('hidden');
+
+    // For each marker, add or remove the hidden class
+    markers.forEach(marker => {
+        if (isHidden) {
+            marker.classList.remove('hidden');
+        } else {
+            marker.classList.add('hidden');
+        }
+    });
+
+    // If the button exists, change the text and add or remove the annotations-hidden class
+    if (btn) {
+        if (isHidden) {
+            btn.textContent = 'Hide Annotations';
+            btn.classList.remove('annotations-hidden');
+        } else {
+            btn.textContent = 'Show Annotations';
+            btn.classList.add('annotations-hidden');
+        }
+    }
+}
+
 // Show comment form at click location
 function showCommentForm(event) {
     const img = event.target;
     const rect = img.getBoundingClientRect();
-    const x = Math.round(event.clientX - rect.left);
-    const y = Math.round(event.clientY - rect.top);
+
+    // Calculate position relative to the displayed image
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+
+    // Convert to natural image coordinates
+    const scaleX = img.naturalWidth / rect.width;
+    const scaleY = img.naturalHeight / rect.height;
+    const x = Math.round(clickX * scaleX);
+    const y = Math.round(clickY * scaleY);
+
     // Try to get name from cookie
     let commenterName = '';
     document.cookie.split(';').forEach(function (c) {
@@ -85,4 +153,17 @@ function commorgSetupAcknowledgeBtn() {
 document.addEventListener('DOMContentLoaded', function () {
     commorgSetupCommentCookie();
     commorgSetupAcknowledgeBtn();
+
+    // Position markers when image loads
+    const img = document.getElementById('main-draft-img');
+    if (img) {
+        if (img.complete) {
+            positionMarkers();
+        } else {
+            img.addEventListener('load', positionMarkers);
+        }
+
+        // Reposition markers on window resize
+        window.addEventListener('resize', positionMarkers);
+    }
 }); 

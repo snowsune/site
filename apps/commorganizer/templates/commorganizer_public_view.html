@@ -57,7 +57,12 @@
     <div style="flex: 1;">
 
         {% if current_draft %}
-        <div style="position: relative; display: inline-block;">
+        <div style="margin-bottom: 1em;">
+            <button id="toggle-annotations-btn" class="toggle-annotations-btn" onclick="toggleAnnotations()">
+                Hide Annotations
+            </button>
+        </div>
+        <div id="draft-image-container" style="position: relative; display: inline-block;">
             <img id="main-draft-img" src="{{ current_draft.image.url }}" alt="Current Draft"
                 style="max-width: 100%; border: 2px solid #00bcd4; cursor: crosshair;"
                 onclick="showCommentForm(event)" />
@@ -75,10 +80,13 @@
             <!-- Render comment markers -->
             {% for comment in comments %}
             {% if comment.x != 0 or comment.y != 0 %}
-            <div class="comment-marker{% if comment.resolved %} resolved{% endif %}"
-                style="left: {{ comment.x }}px; top: {{ comment.y }}px;" data-commenter="{{ comment.commenter_name }}"
-                data-content="{{ comment.content }}">
-                <div class="marker-text">{{ comment.commenter_name }}: {{ comment.content }}</div>
+            <div class="comment-marker{% if comment.resolved %} resolved{% endif %}" data-x="{{ comment.x }}"
+                data-y="{{ comment.y }}" data-commenter="{{ comment.commenter_name }}"
+                data-content="{{ comment.content|escapejs }}">
+                <div class="marker-tooltip">
+                    <span class="marker-tooltip-name">{{ comment.commenter_name }}</span>
+                    <span class="marker-tooltip-content">{{ comment.content }}</span>
+                </div>
             </div>
             {% endif %}
             {% endfor %}
