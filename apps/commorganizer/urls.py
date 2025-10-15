@@ -18,9 +18,4 @@ urlpatterns = [
         views.public_commission_view,
         name="commorganizer-public-view",
     ),
-    path(
-        "api/new_comments/",
-        views.api_new_comments,
-        name="commorganizer-api-new-comments",
-    ),
 ]

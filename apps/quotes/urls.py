@@ -4,6 +4,5 @@ from . import views
 app_name = "quotes"
 
 urlpatterns = [
-    path("webhook/", views.webhook_receive, name="webhook_receive"),
-    path("api/quotes/", views.get_quotes, name="get_quotes"),
+    # No URLs here - vixi moved them to api_urls.py
 ]

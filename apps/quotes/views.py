@@ -49,7 +49,7 @@ def webhook_receive(request):
     Bot can send a post here to add a quote from discord
 
     For testing you can curl like this though!
-    curl -X POST -H "Content-Type: application/json" -d '{"content": "You sent a test qoute!", "user": "test user", "discord_id": "1234567890", "key": "iamnotacrook"}' http://localhost:8000/quotes/webhook/
+    curl -X POST -H "Content-Type: application/json" -d '{"content": "You sent a test qoute!", "user": "test user", "discord_id": "1234567890", "key": "iamnotacrook"}' http://localhost:8000/api/quotes/webhook/
     """
 
     try:

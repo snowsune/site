@@ -33,7 +33,7 @@ class QuotesScroller {
     async loadQuotes() {
         try {
             // Fetch the quotes (in urls.py)
-            const response = await fetch('/quotes/api/quotes/');
+            const response = await fetch('/api/quotes/');
             const data = await response.json();
             this.quotes = data.quotes || []; // If there are no quotes, show a message
 

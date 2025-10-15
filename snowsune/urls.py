@@ -27,6 +27,8 @@ urlpatterns = [
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     # API endpoints
     path("api/live/", live_status_view, name="live_status_api"),
+    path("api/quotes/", include("apps.quotes.api_urls")),
+    path("api/commorganizer/", include("apps.commorganizer.api_urls")),
     # Image formatting for social media previews
     path(
         "format_preview/<path:image_path>", format_preview_view, name="format_preview"

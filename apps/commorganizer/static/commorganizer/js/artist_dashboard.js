@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var lastCheckId = null; // Start as null, not 0
 
     function checkForNewComments() {
-        let url = `/commorganizer/api/new_comments/?commission_name=${encodeURIComponent(commissionName)}`;
+        let url = `/api/commorganizer/new_comments/?commission_name=${encodeURIComponent(commissionName)}`;
         if (lastCheckId !== null) {
             url += `&since_id=${encodeURIComponent(lastCheckId)}`;
         }
