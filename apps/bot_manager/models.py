@@ -25,6 +25,7 @@ class Subscription(models.Model):
     SERVICE_CHOICES = [
         ("BixiBooru", "BixiBooru"),
         ("FurAffinity", "FurAffinity"),
+        ("e621", "e621"),
     ]
 
     # Editable fields
