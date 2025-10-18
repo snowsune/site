@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     "apps.thank_yous",  # Thank yous management app
     "apps.quotes",  # Quotes scroller app
     "apps.bot_manager",  # Fops Bot management app
+    "apps.moji_maker",  # Emoji coloring tool
 ]
 
 MIDDLEWARE = [

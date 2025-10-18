@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Moji Maker{% endblock %}
+
+{% block content %}
+<div id="moji-maker-app" data-heart-url="{% static 'moji_maker/base_heart.png' %}">
+    <!-- Svelte app will mount here -->
+</div>
+
+<link rel="stylesheet" href="{% static 'moji_maker/css/bundle.css' %}">
+<script defer src="{% static 'moji_maker/js/bundle.js' %}"></script>
+{% endblock %}
