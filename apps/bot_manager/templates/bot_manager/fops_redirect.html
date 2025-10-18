@@ -14,8 +14,8 @@
     <!-- Prevent any preview/crawling -->
     <meta name="robots" content="noindex, nofollow">
 
-    <!-- Instant redirect -->
-    <meta http-equiv="refresh" content="0; url=/fops/">
+    <!-- Instant redirect with tracking parameters -->
+    <meta http-equiv="refresh" content="0; url={{ redirect_url }}">
 
     <style>
         body {
@@ -30,11 +30,11 @@
 
 <body>
     <h1>I'm just redirecting you to FOPS...</h1>
-    <p>If you are not redirected automatically, <a href="/fops/">click this ^.^</a>.</p>
+    <p>If you are not redirected automatically, <a href="{{ redirect_url }}">click this ^.^</a>.</p>
 
     <script>
         // Backup JavaScript redirect in case meta refresh doesn't work
-        window.location.href = '/fops/';
+        window.location.href = '{{ redirect_url }}';
     </script>
 </body>
 
