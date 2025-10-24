@@ -1,96 +1,7 @@
 {% load static %}
 
 <div class="comic-frame size-{{ size|default:'medium' }}" data-current-page="{{ current_page.page_number|default:1 }}">
-    <div class="comic-navigation-controls">
-        <div class="nav-left">
-            <div class="nav-btn-group">
-                <!-- First Page Button -->
-                {% if current_page and current_page.page_number > 1 %}
-                <a href="{% url 'comics:page_detail' 1 %}" class="nav-btn nav-btn-small" title="First Page">
-                    <img src="{% static 'nav/activated.png' %}" alt="First"
-                        class="nav-icon nav-icon-activated nav-icon-rotated">
-                    <img src="{% static 'nav/deactivated.png' %}" alt="First"
-                        class="nav-icon nav-icon-deactivated nav-icon-rotated">
-                    <span class="nav-label">First</span>
-                </a>
-                {% else %}
-                <span class="nav-btn nav-btn-small disabled" title="First Page">
-                    <img src="{% static 'nav/deactivated.png' %}" alt="First"
-                        class="nav-icon nav-icon-deactivated nav-icon-rotated">
-                    <span class="nav-label">First</span>
-                </span>
-                {% endif %}
-
-                {% if current_page and current_page.has_previous %}
-                <a href="{% url 'comics:page_detail' current_page.get_previous_page.page_number %}" class="nav-btn"
-                    title="Previous Page">
-                    <img src="{% static 'nav/activated.png' %}" alt="Previous" class="nav-icon nav-icon-activated">
-                    <img src="{% static 'nav/deactivated.png' %}" alt="Previous" class="nav-icon nav-icon-deactivated">
-                    <span class="nav-label">Previous</span>
-                </a>
-                {% else %}
-                <span class="nav-btn disabled" title="Previous Page">
-                    <img src="{% static 'nav/deactivated.png' %}" alt="Previous" class="nav-icon nav-icon-deactivated">
-                    <span class="nav-label">Previous</span>
-                </span>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="nav-center">
-            <div class="page-selector">
-                <select id="page-selector" onchange="goToPage(this.value)">
-                    {% for page in available_pages %}
-                    <option value="{{ page.page_number }}"
-                        {% if current_page and current_page.page_number == page.page_number %}selected{% endif %}>
-                        Page {{ page.page_number }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            {% if current_page %}
-            <div class="page-info">
-                {% if current_page.title %}
-                <span class="page-title">{{ current_page.title }}</span>
-                {% endif %}
-            </div>
-            {% endif %}
-        </div>
-
-        <div class="nav-right">
-            <div class="nav-btn-group">
-                {% if current_page and current_page.has_next %}
-                <a href="{% url 'comics:page_detail' current_page.get_next_page.page_number %}" class="nav-btn"
-                    title="Next Page">
-                    <img src="{% static 'nav/activated.png' %}" alt="Next" class="nav-icon nav-icon-activated">
-                    <img src="{% static 'nav/deactivated.png' %}" alt="Next" class="nav-icon nav-icon-deactivated">
-                    <span class="nav-label">Next</span>
-                </a>
-                {% else %}
-                <span class="nav-btn disabled" title="Next Page">
-                    <img src="{% static 'nav/deactivated.png' %}" alt="Next" class="nav-icon nav-icon-deactivated">
-                    <span class="nav-label">Next</span>
-                </span>
-                {% endif %}
-
-                <!-- Latest Page Button -->
-                {% if current_page and current_page.page_number < available_pages|length %}
-                <a href="{% url 'comics:page_detail' available_pages|length %}" class="nav-btn nav-btn-small"
-                    title="Latest Page">
-                    <img src="{% static 'nav/activated.png' %}" alt="Latest" class="nav-icon nav-icon-activated">
-                    <img src="{% static 'nav/deactivated.png' %}" alt="Latest" class="nav-icon nav-icon-deactivated">
-                    <span class="nav-label">Latest</span>
-                </a>
-                {% else %}
-                <span class="nav-btn nav-btn-small disabled" title="Latest Page">
-                    <img src="{% static 'nav/deactivated.png' %}" alt="Latest" class="nav-icon nav-icon-deactivated">
-                    <span class="nav-label">Latest</span>
-                </span>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+    {% include 'comics/comic_navigation.html' %}
 
     <div class="comic-display">
         {% if current_page %}
@@ -139,6 +50,8 @@
         </div>
         {% endif %}
     </div>
+
+    {% include 'comics/comic_navigation.html' %}
 </div>
 
 <script>
