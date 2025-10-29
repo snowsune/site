@@ -62,6 +62,10 @@ class BlogPost(models.Model):
         upload_to="blog/featured/", blank=True, null=True
     )
 
+    # Poll fields
+    is_poll = models.BooleanField(default=False)
+    poll_expires_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         ordering = ["-published_at", "-created_at"]
         indexes = [
@@ -105,6 +109,36 @@ class BlogPost(models.Model):
         # Send Discord webhook notification when post is newly published
         if is_now_published and not was_published:
             self.send_discord_notification()
+
+    def send_vote_webhook(self, user, vote_value):
+        """Send Discord webhook notification when someone votes"""
+        try:
+            from snowsune.models import SiteSetting
+            from apps.commorganizer.utils import send_discord_webhook
+
+            webhook_setting = SiteSetting.objects.filter(
+                key="moderator_webhook"
+            ).first()
+            if not webhook_setting or not webhook_setting.value:
+                return
+
+            webhook_url = webhook_setting.value.strip()
+            if not webhook_url:
+                return
+
+            vote_emoji = "👍" if vote_value == 1 else "👎" if vote_value == -1 else "➖"
+            vote_text = (
+                "Thumbs Up"
+                if vote_value == 1
+                else "Thumbs Down" if vote_value == -1 else "No Vote"
+            )
+
+            message = f"{vote_emoji} **{user.username}** voted **{vote_text}** on poll: [{self.title}](<{settings.SITE_URL}{self.get_absolute_url()}>)"
+
+            send_discord_webhook(webhook_url, message)
+
+        except Exception as e:
+            print(f"Failed to send vote webhook: {e}")
 
     def send_discord_notification(self):
         """Send Discord webhook notification for newly published blog post"""
@@ -178,6 +212,44 @@ class BlogPost(models.Model):
     def display_date(self):
         """Return the date to display (original posting date if available, otherwise published date)"""
         return self.original_posting_date or self.published_at or self.created_at
+
+    @property
+    def is_poll_expired(self):
+        """Check if the poll has expired"""
+        if not self.is_poll or not self.poll_expires_at:
+            return False
+        return timezone.now() > self.poll_expires_at
+
+    @property
+    def thumbs_up_count(self):
+        """Get count of thumbs up votes"""
+        if not self.is_poll:
+            return 0
+        return self.votes.filter(vote_value=1).count()
+
+    @property
+    def thumbs_down_count(self):
+        """Get count of thumbs down votes"""
+        if not self.is_poll:
+            return 0
+        return self.votes.filter(vote_value=-1).count()
+
+    @property
+    def no_vote_count(self):
+        """Get count of no-vote entries"""
+        if not self.is_poll:
+            return 0
+        return self.votes.filter(vote_value=0).count()
+
+    def get_user_vote(self, user):
+        """Get the current user's vote value"""
+        if not user.is_authenticated or not self.is_poll:
+            return None
+        try:
+            vote = self.votes.get(user=user)
+            return vote.vote_value
+        except Exception:
+            return None
 
 
 class BlogImage(models.Model):
@@ -375,3 +447,25 @@ class Comment(models.Model):
             print(
                 f"Failed to send blogpost webhook for comment on {self.post.title}: {e}"
             )
+
+
+class Vote(models.Model):
+    """Model for voting on blog posts that are polls"""
+
+    VOTE_CHOICES = [
+        (-1, "Thumbs Down"),
+        (0, "No Vote"),
+        (1, "Thumbs Up"),
+    ]
+
+    post = models.ForeignKey(BlogPost, on_delete=models.CASCADE, related_name="votes")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blog_votes")
+    vote_value = models.IntegerField(choices=VOTE_CHOICES, default=0)
+    voted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ["post", "user"]
+        ordering = ["-voted_at"]
+
+    def __str__(self):
+        return f"{self.user.username} voted {self.get_vote_value_display()} on {self.post.title}"

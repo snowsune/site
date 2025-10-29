@@ -21,7 +21,7 @@ from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Rss201rev2Feed
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from .models import BlogPost, Tag, BlogImage, Comment
+from .models import BlogPost, Tag, BlogImage, Comment, Vote
 from .forms import BlogPostForm, BlogPostCreateForm, TagForm, CommentForm
 from apps.notifications.utils import (
     show_success_notification,
@@ -382,6 +382,54 @@ def upload_image(request):
                 "url": blog_image.image.url,
                 "markdown_link": blog_image.markdown_link,
                 "filename": blog_image.filename,
+            }
+        )
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@login_required
+def submit_vote(request, post_id, vote_value):
+    """Handle voting on blog posts"""
+    try:
+        post = get_object_or_404(BlogPost, pk=post_id)
+
+        # Validate vote value
+        vote_value = int(vote_value)
+        if vote_value not in [-1, 0, 1]:
+            return JsonResponse({"error": "Invalid vote value"}, status=400)
+
+        # Check if post is a poll
+        if not post.is_poll:
+            return JsonResponse({"error": "This post is not a poll"}, status=400)
+
+        # Check if poll is expired
+        if post.is_poll_expired:
+            return JsonResponse({"error": "This poll has expired"}, status=400)
+
+        # Get or create vote
+        vote, created = Vote.objects.get_or_create(
+            post=post, user=request.user, defaults={"vote_value": vote_value}
+        )
+
+        # If vote already exists, update it
+        if not created:
+            vote.vote_value = vote_value
+            vote.save()
+
+        # Send webhook notification for votes
+        post.send_vote_webhook(request.user, vote_value)
+
+        return JsonResponse(
+            {
+                "success": True,
+                "thumbs_up": post.thumbs_up_count,
+                "thumbs_down": post.thumbs_down_count,
+                "no_vote": post.no_vote_count,
+                "user_vote": vote_value,
             }
         )
 

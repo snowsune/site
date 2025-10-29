@@ -1,0 +1,8 @@
+name = "cf-viewers"
+main = "worker.js"
+compatibility_date = "2025-10-25"
+
+routes = [{ pattern = "snowsune.net/api/cf*", zone_name = "snowsune.net" }]
+
+[vars]
+SITE_NAME = "snowsune.net"

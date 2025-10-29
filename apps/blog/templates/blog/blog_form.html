@@ -156,10 +156,49 @@
                     <div class="error-message">{{ form.original_posting_date.errors.0 }}</div>
                     {% endif %}
                 </div>
+
+                <!-- Poll Options -->
+                <div class="form-group">
+                    <label for="{{ form.is_poll.id_for_label }}">
+                        {{ form.is_poll }} Make this a poll
+                    </label>
+                    <small class="form-help">Enable voting on this post</small>
+                    {% if form.is_poll.errors %}
+                    <div class="error-message">{{ form.is_poll.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group" id="poll-expiry-group">
+                    <label for="{{ form.poll_expires_at.id_for_label }}">Poll Expiry Date</label>
+                    {{ form.poll_expires_at }}
+                    <small class="form-help">When should voting end? (optional)</small>
+                    {% if form.poll_expires_at.errors %}
+                    <div class="error-message">{{ form.poll_expires_at.errors.0 }}</div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </form>
 </div>
+
+<script>
+    // Show/hide poll expiry based on is_poll checkbox
+    document.addEventListener('DOMContentLoaded', function () {
+        const isPollCheckbox = document.querySelector('#{{ form.is_poll.id_for_label }}');
+        const pollExpiryGroup = document.getElementById('poll-expiry-group');
+
+        function togglePollExpiry() {
+            if (isPollCheckbox.checked) {
+                pollExpiryGroup.style.display = 'block';
+            } else {
+                pollExpiryGroup.style.display = 'none';
+            }
+        }
+
+        isPollCheckbox.addEventListener('change', togglePollExpiry);
+        togglePollExpiry(); // Initial call
+    });
+</script>
 {% endblock %}
 
 {% block sidebar %}

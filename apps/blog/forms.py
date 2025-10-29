@@ -30,6 +30,8 @@ class BlogPostForm(forms.ModelForm):
             "meta_description",
             "featured_image",
             "original_posting_date",
+            "is_poll",
+            "poll_expires_at",
         ]
         widgets = {
             "title": forms.TextInput(
@@ -65,6 +67,10 @@ class BlogPostForm(forms.ModelForm):
                 attrs={"class": "form-control", "accept": "image/*"}
             ),
             "original_posting_date": forms.DateTimeInput(
+                attrs={"class": "form-control", "type": "datetime-local"}
+            ),
+            "is_poll": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "poll_expires_at": forms.DateTimeInput(
                 attrs={"class": "form-control", "type": "datetime-local"}
             ),
         }

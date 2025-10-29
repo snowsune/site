@@ -19,4 +19,10 @@ urlpatterns = [
         views.moderate_comment,
         name="moderate_comment",
     ),
+    # Poll voting
+    path(
+        "post/<int:post_id>/vote/<int:vote_value>/",
+        views.submit_vote,
+        name="submit_vote",
+    ),
 ]

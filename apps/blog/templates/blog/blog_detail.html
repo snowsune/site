@@ -95,6 +95,58 @@
         </header>
 
 
+        <!-- Poll Voting Widget -->
+        {% if post.is_poll %}
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <div class="poll-widget" id="poll-widget-{{ post.id }}">
+            <h3>Vote on this Poll!</h3>
+
+            {% if post.is_poll_expired %}
+            <p class="poll-expired">Poll has expired</p>
+            {% endif %}
+
+            <div class="poll-controls">
+                <button class="vote-btn" data-vote="-1" onclick="votePoll({{ post.id }}, -1)">
+                    👎 Thumbs Down
+                </button>
+                <button class="vote-btn" data-vote="0" onclick="votePoll({{ post.id }}, 0)">
+                    ➖ No Vote
+                </button>
+                <button class="vote-btn" data-vote="1" onclick="votePoll({{ post.id }}, 1)">
+                    👍 Thumbs Up
+                </button>
+            </div>
+
+            <div class="poll-results">
+                <div class="poll-count">
+                    <span class="count-label">👍 Up:</span>
+                    <span class="count-value" id="thumbs-up-count-{{ post.id }}">{{ post.thumbs_up_count }}</span>
+                </div>
+                <div class="poll-count">
+                    <span class="count-label">👎 Down:</span>
+                    <span class="count-value" id="thumbs-down-count-{{ post.id }}">{{ post.thumbs_down_count }}</span>
+                </div>
+                <div class="poll-count">
+                    <span class="count-label">➖ No Vote:</span>
+                    <span class="count-value" id="no-vote-count-{{ post.id }}">{{ post.no_vote_count }}</span>
+                </div>
+            </div>
+
+            {% if post.poll_expires_at %}
+            <div class="poll-expiry">
+                <p><strong>Expires:</strong> {{ post.poll_expires_at|date:"M j, Y \a\t g:i A" }}</p>
+                <p class="time-remaining" id="time-remaining-{{ post.id }}"></p>
+            </div>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+            <p class="user-vote" id="user-vote-{{ post.id }}"></p>
+            {% else %}
+            <p><a href="{% url 'login' %}">Log in to vote</a></p>
+            {% endif %}
+        </div>
+        {% endif %}
+
         <!-- Post Content -->
         <div class="post-content markdown-content">
             {{ post.content_html|safe }}
@@ -368,4 +420,87 @@
 
 {% block extra_js %}
 <script src="{% static 'js/blog-comments.js' %}"></script>
+
+{% if post.is_poll %}
+<script>
+    function votePoll(postId, voteValue) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+        fetch("{% url 'blog:submit_vote' post_id=post.id vote_value=0 %}".replace('0', voteValue), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update vote counts
+                    document.getElementById(`thumbs-up-count-${postId}`).textContent = data.thumbs_up;
+                    document.getElementById(`thumbs-down-count-${postId}`).textContent = data.thumbs_down;
+                    document.getElementById(`no-vote-count-${postId}`).textContent = data.no_vote;
+
+                    // Update user vote display
+                    const userVoteEl = document.getElementById(`user-vote-${postId}`);
+                    if (userVoteEl) {
+                        let voteText = '';
+                        if (data.user_vote === 1) voteText = '👍 Thumbs Up';
+                        else if (data.user_vote === -1) voteText = '👎 Thumbs Down';
+                        else voteText = '➖ No Vote';
+                        userVoteEl.textContent = 'You voted: ' + voteText;
+                    }
+
+                    // Visual feedback
+                    const buttons = document.querySelectorAll(`#poll-widget-${postId} .vote-btn`);
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    buttons.forEach(btn => {
+                        if (parseInt(btn.dataset.vote) === data.user_vote) {
+                            btn.classList.add('active');
+                        }
+                    });
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to vote'));
+                }
+            })
+            .catch(error => {
+                console.error('Error voting:', error);
+                alert('Error voting: ' + error);
+            });
+    }
+
+    // Update time remaining countdown
+    {% if post.poll_expires_at %}
+    function updateTimeRemaining(postId) {
+        const expiryDate = new Date('{{ post.poll_expires_at|date:"c" }}');
+        const now = new Date();
+        const diff = expiryDate - now;
+
+        if (diff <= 0) {
+            document.getElementById(`time-remaining-${postId}`).textContent = 'Poll has expired';
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+        let timeStr = '';
+        if (days > 0) timeStr += days + 'd ';
+        if (hours > 0) timeStr += hours + 'h ';
+        if (minutes > 0) timeStr += minutes + 'm';
+
+        document.getElementById(`time-remaining-{{ post.id }}`).textContent = 'Time remaining: ' + timeStr;
+    }
+
+    setInterval(() => updateTimeRemaining({{ post.id }}), 60000); // Update every minute
+    updateTimeRemaining({{ post.id }}); // Initial call
+    {% endif %}
+</script>
+{% endif %}
 {% endblock %}

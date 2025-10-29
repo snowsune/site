@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .models import BlogPost, Tag, BlogImage, Comment
+from .models import BlogPost, Tag, BlogImage, Comment, Vote
 from django.utils import timezone
 
 
@@ -50,6 +50,16 @@ class BlogPostAdmin(admin.ModelAdmin):
                     "meta_description",
                     "featured_image",
                 )
+            },
+        ),
+        (
+            "Poll",
+            {
+                "fields": (
+                    "is_poll",
+                    "poll_expires_at",
+                ),
+                "classes": ("collapse",),
             },
         ),
         (
@@ -219,3 +229,21 @@ class CommentAdmin(admin.ModelAdmin):
         self.message_user(request, f"{updated} comments were marked as spam.")
 
     mark_as_spam.short_description = "Mark selected comments as spam"
+
+
+@admin.register(Vote)
+class VoteAdmin(admin.ModelAdmin):
+    list_display = ["post", "user", "vote_value_display", "voted_at"]
+    list_filter = ["vote_value", "voted_at", "post"]
+    search_fields = ["post__title", "user__username"]
+    readonly_fields = ["voted_at"]
+
+    def vote_value_display(self, obj):
+        if obj.vote_value == 1:
+            return "👍 Thumbs Up"
+        elif obj.vote_value == -1:
+            return "👎 Thumbs Down"
+        else:
+            return "➖ No Vote"
+
+    vote_value_display.short_description = "Vote"
