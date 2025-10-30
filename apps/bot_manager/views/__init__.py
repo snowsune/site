@@ -5,6 +5,7 @@ from .subscriptions import add_subscription, edit_subscription, delete_subscript
 from .debug import debug_clear_discord, debug_secret_key
 from .tables import table_data
 from .redirect import fops_redirect_view
+from .pop import pop_view
 
 __all__ = [
     "dashboard",
@@ -18,4 +19,5 @@ __all__ = [
     "debug_secret_key",
     "table_data",
     "fops_redirect_view",
+    "pop_view",
 ]

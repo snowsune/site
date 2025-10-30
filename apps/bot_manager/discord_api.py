@@ -147,6 +147,65 @@ def get_user_info(user_id):
     if not bot_token:
         return None
 
+
+def get_guild_members(guild_id, max_members=5000):
+    """
+    Fetch members for a guild via Discord API using the bot token.
+    Requires the bot to have the GUILD_MEMBERS intent enabled.
+    Paginates using the 'after' parameter.
+    Returns a list of member dicts, each containing 'user' and 'roles'.
+    """
+
+    cache_key = f"guild_{guild_id}_members"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        logger.info(f"Using cached members for guild {guild_id}")
+        return cached
+
+    bot_token = getattr(settings, "DISCORD_BOT_TOKEN", None)
+    if not bot_token:
+        logger.warning("Discord bot token not configured")
+        return []
+
+    headers = {"Authorization": f"Bot {bot_token}"}
+    members = []
+    after = 0
+
+    try:
+        while True:
+            params = {"limit": 1000}
+            if after:
+                params["after"] = after
+            response = requests.get(
+                f"https://discord.com/api/guilds/{guild_id}/members",
+                headers=headers,
+                params=params,
+            )
+            logger.info(
+                f"Guild {guild_id} members API response: {response.status_code} (after={after})"
+            )
+            if response.status_code != 200:
+                logger.error(
+                    f"Failed to fetch members for guild {guild_id}: {response.text}"
+                )
+                break
+
+            batch = response.json()
+            if not isinstance(batch, list):
+                break
+            members.extend(batch)
+
+            if len(batch) < 1000 or len(members) >= max_members:
+                break
+            after = int(batch[-1]["user"]["id"])
+
+        cache.set(cache_key, members, 300)
+    except Exception as e:
+        logger.error(f"Exception fetching members for guild {guild_id}: {e}")
+        return []
+
+    return members
+
     try:
         headers = {"Authorization": f"Bot {bot_token}"}
         response = requests.get(

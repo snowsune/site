@@ -12,6 +12,7 @@ qrcode
 # DB
 dj-database-url
 psycopg2
+pyyaml
 
 # WSGI
 gunicorn

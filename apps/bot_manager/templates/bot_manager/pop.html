@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bot_manager/bot_manager.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>Vixi counts species population!</h1>
+
+{% if errors %}
+<div class="alert alert-warning" style="margin: 0.5rem 0;">
+    <ul style="margin:0; padding-left: 1rem;">
+        {% for e in errors %}
+        <li>{{ e }}</li>
+        {% endfor %}
+    </ul>
+    <div style="font-size: 0.9rem; color:#555; margin-top: 0.25rem;">
+        Members fetched: {{ members_count }}{% if matched_members is not None %}, matched with species:
+        {{ matched_members }}{% endif %}
+    </div>
+    <div style="font-size: 0.85rem; color:#777;">If members is 0, enable the Guild Members intent for the bot.</div>
+    {% if not chart_labels or not chart_values %}
+    <div style="font-size: 0.85rem; color:#777;">Chart will appear once data is available.</div>
+    {% endif %}
+</div>
+{% endif %}
+
+<form method="get" style="margin-bottom: 1rem;">
+    <label>
+        <input type="checkbox" name="hybrid" value="1" {% if mode == 'hybrid' %}checked{% endif %}
+            onchange="this.form.submit()"> Count hybrids
+    </label>
+    <noscript>
+        <button type="submit" class="button">Apply</button>
+    </noscript>
+    <input type="hidden" name="guild" value="{{ guild_id }}">
+    <input type="hidden" name="_" value="1">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <input type="hidden" name="t" value="{{ now|date:'U' }}">
+    <input type="hidden" name="__cache_bust" value="1">
+    <input type="hidden" name="__mode" value="{{ mode }}">
+    <input type="hidden" name="__labels" value='{{ chart_labels|safe }}'>
+    <input type="hidden" name="__values" value='{{ chart_values|safe }}'>
+    <input type="hidden" name="__g" value='{{ guild_id }}'>
+    <input type="hidden" name="__m" value='{{ mode }}'>
+    <input type="hidden" name="__ts" value='{{ now|date:"U" }}'>
+    <input type="hidden" name="__v" value='1'>
+    <input type="hidden" name="__view" value='pop'>
+</form>
+
+<div style="max-width: 600px; margin: 0 auto;">
+    <canvas id="speciesPie"></canvas>
+    {% if chart_labels and chart_values %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        (function () {
+            const labels = JSON.parse('{{ chart_labels|escapejs }}');
+            const values = JSON.parse('{{ chart_values|escapejs }}');
+            const ctx = document.getElementById('speciesPie').getContext('2d');
+            const colors = [
+                '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6',
+                '#a3e635', '#f97316', '#22c55e', '#06b6d4', '#eab308', '#84cc16', '#d946ef',
+                '#6366f1', '#f43f5e', '#0ea5e9', '#059669', '#f59e0b', '#65a30d'
+            ];
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: labels.map((_, i) => colors[i % colors.length]),
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: { enabled: true }
+                    }
+                }
+            });
+        })();
+    </script>
+    {% else %}
+    <p style="text-align:center; color:#777;">No data available.</p>
+    {% endif %}
+</div>
+{% endblock %}
