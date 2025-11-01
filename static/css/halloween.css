@@ -21,21 +21,8 @@
   --shadow-hover: rgba(0, 0, 0, 0.6);
 }
 
-/* Recolor the paw tile to orange using a filtered pseudo-element */
 body {
-  background: var(--background-color);
-  position: relative;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: url("/static/background/tile.png") repeat;
-  pointer-events: none;
-  z-index: -1;
-  filter: hue-rotate(200deg) saturate(120%) brightness(1.05);
-  opacity: 1;
+  background: url("/static/background/tile_october.png") repeat, var(--background-color);
 }
 
 
