@@ -208,6 +208,39 @@ SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0  # 1 year HSTS in production
 SECURE_HSTS_PRELOAD = not DEBUG
 SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
 
+# Vixi's email configuration
+EMAIL_CONFIG = os.getenv("EMAIL_CONFIG")
+if EMAIL_CONFIG:
+    # I'm copying this format from danbooru just so its the same
+    # from config to config.
+    # Format: smtp://username:password@host:port
+    try:
+        match = re.match(r"smtps?://([^:]+):([^@]+)@([^:]+):(\d+)", EMAIL_CONFIG)
+        if match:
+            username, password, host, port = match.groups()
+            EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+            EMAIL_HOST = host
+            EMAIL_PORT = int(port)
+            EMAIL_USE_TLS = EMAIL_CONFIG.startswith("smtps://")
+            EMAIL_USE_SSL = False
+            # If it's port 465, use SSL instead of TLS
+            if int(port) == 465:
+                EMAIL_USE_SSL = True
+                EMAIL_USE_TLS = False
+            EMAIL_HOST_USER = username
+            EMAIL_HOST_PASSWORD = password
+        else:
+            logging.warning("EMAIL_CONFIG format invalid, ignoring")
+    except Exception as e:
+        logging.error(f"Error parsing EMAIL_CONFIG: {e}")
+else:
+    # Default email backend (console for development)
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# Default email sender
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@snowsune.net")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
 # If we're testing
 if "test" in sys.argv:
     DATABASES["default"] = {
@@ -216,3 +249,5 @@ if "test" in sys.argv:
     }
     # Disable HTTPS redirect during testing/ci/local dev
     SECURE_SSL_REDIRECT = False
+    # Use console email backend for tests
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

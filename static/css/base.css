@@ -117,6 +117,65 @@ a:visited {
   align-items: flex-end;
   gap: 0.5em;
 }
+
+/* Email Verification Banner */
+.email-verification-banner {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  border-left: 4px solid #ffc107;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  border-radius: var(--border-radius-small);
+  box-shadow: 0 3px 6px var(--shadow-color);
+}
+
+.email-verification-banner .banner-icon {
+  font-size: 1.5em;
+  flex-shrink: 0;
+}
+
+.email-verification-banner .banner-text {
+  flex: 1;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.email-verification-banner .banner-link {
+  color: var(--link-default);
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.email-verification-banner .banner-link:hover {
+  color: var(--link-hover);
+}
+
+.email-verification-banner .banner-close {
+  background: transparent;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 0;
+  width: 1.5em;
+  height: 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.email-verification-banner .banner-close:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .email-verification-banner {
+  background: linear-gradient(135deg, #3e2a00 0%, #7a5500 100%);
+  border-left-color: #ffc107;
+}
+
 .logo {
   display: flex;
   flex-direction: column;

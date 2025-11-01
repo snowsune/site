@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -7,6 +7,7 @@ from django import forms
 from django.conf import settings
 import logging
 from .models import CustomUser
+from .utils import send_verification_email, verify_email_token
 
 
 # For overlapping registration!
@@ -70,9 +71,10 @@ def send_new_user_webhook(user):
 class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ["bio", "profile_picture", "fa_url", "flist_url"]
+        fields = ["email", "bio", "profile_picture", "fa_url", "flist_url"]
         widgets = {
             "bio": forms.Textarea(attrs={"rows": 4, "cols": 50}),
+            "email": forms.EmailInput(attrs={"type": "email"}),
         }
 
 
@@ -106,11 +108,32 @@ def edit_account_view(request):
             messages.success(request, "Discord account disconnected successfully.")
             return redirect("account-edit")
 
+        elif "send_verification" in request.POST:
+            # Send verification email
+            if not request.user.email:
+                messages.error(request, "Please set your email address first.")
+            elif send_verification_email(request.user):
+                messages.success(
+                    request, "Verification email sent! Please check your inbox."
+                )
+            else:
+                messages.error(
+                    request,
+                    "Failed to send verification email. Please try again later.",
+                )
+            return redirect("account-edit")
+
         elif "save_profile" in request.POST:
             # Save profile changes
             form = ProfileEditForm(request.POST, request.FILES, instance=request.user)
             if form.is_valid():
+                # If email changed, mark as unverified
+                old_email = request.user.email
                 form.save()
+                new_email = form.cleaned_data.get("email")
+                if old_email != new_email and new_email:
+                    request.user.email_verified = False
+                    request.user.save()
                 messages.success(request, "Profile updated successfully!")
                 return redirect("account-edit")
             else:
@@ -130,7 +153,7 @@ def edit_account_view(request):
 
 # User Gallery!
 def user_gallery(request):
-    verified_users = CustomUser.objects.filter(is_verified=True).order_by(
+    verified_users = CustomUser.objects.filter(email_verified=True).order_by(
         "-date_joined"
     )
     return render(request, "users/gallery.html", {"users": verified_users})
@@ -138,7 +161,43 @@ def user_gallery(request):
 
 # User Profile Page
 def user_profile(request, username):
-    from django.shortcuts import get_object_or_404
-
-    profile_user = get_object_or_404(CustomUser, username=username, is_verified=True)
+    profile_user = get_object_or_404(CustomUser, username=username, email_verified=True)
     return render(request, "users/profile.html", {"profile_user": profile_user})
+
+
+# Email verification views
+def verify_email_view(request, user_id, token):
+    """
+    Handle email verification link clicks.
+    """
+    user = get_object_or_404(CustomUser, id=user_id)
+
+    if verify_email_token(user, token):
+        messages.success(request, "Email verified successfully!")
+    else:
+        messages.error(request, "Invalid or expired verification link.")
+
+    return redirect("account-edit")
+
+
+@login_required
+def resend_verification_email_view(request):
+    """
+    Resend verification email to the logged-in user.
+    """
+    if request.user.email_verified:
+        messages.info(request, "Your email is already verified.")
+        return redirect("account-edit")
+
+    if not request.user.email:
+        messages.error(request, "Please set your email address first.")
+        return redirect("account-edit")
+
+    if send_verification_email(request.user):
+        messages.success(request, "Verification email sent! Please check your inbox.")
+    else:
+        messages.error(
+            request, "Failed to send verification email. Please try again later."
+        )
+
+    return redirect("account-edit")

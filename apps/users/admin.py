@@ -21,9 +21,15 @@ class CustomUserAdmin(UserAdmin):
             },
         ),
         (
-            "Roles",
-            {"fields": ("is_verified",)},
+            "Email Verification",
+            {
+                "fields": (
+                    "email_verified",
+                    "email_verification_token",
+                    "email_verification_sent_at",
+                )
+            },
         ),
     )
 
-    list_display = ["username", "email", "is_staff", "is_verified"]
+    list_display = ["username", "email", "is_staff", "email_verified"]

@@ -114,7 +114,7 @@
         {% endfor %}
         {% endif %}
 
-        {% if user.is_verified %}
+        {% if user.email_verified %}
         <img src="/static/badges/verified.png" alt="Verified Badge" class="badge-image" title="Verified">
         {% endif %}
 
@@ -122,7 +122,7 @@
         <img src="/static/badges/mod.png" alt="Moderator Badge" class="badge-image" title="Moderator">
         {% endif %}
 
-        {% if not user.badges and not user.is_verified and not user.is_staff %}
+        {% if not user.badges and not user.email_verified and not user.is_staff %}
         <p>No badges yet!</p>
         {% endif %}
     </div>
@@ -154,6 +154,23 @@
 </div>
 
 <div class="account-section">
+    <h2>Email Verification</h2>
+    {% if user.email_verified %}
+    <p style="color: #28a745; font-weight: bold;">✓ Your email is verified!</p>
+    {% elif user.email %}
+    <p style="color: #ffc107; font-weight: bold;">⚠ Your email is not verified yet.</p>
+    <p>Click the button below to send a verification email to <strong>{{ user.email }}</strong></p>
+    <form method="post" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" name="send_verification" class="btn btn-primary">Send Verification Email</button>
+    </form>
+    {% else %}
+    <p style="color: #dc3545; font-weight: bold;">✗ No email address set.</p>
+    <p>Set your email address below to enable verification.</p>
+    {% endif %}
+</div>
+
+<div class="account-section">
     <h2>Profile Information</h2>
 
     <div class="profile-picture-section">
@@ -167,6 +184,16 @@
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">Email:</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+            <div class="error">{{ form.email.errors }}</div>
+            {% endif %}
+            <small class="form-text text-muted">
+                Dont worry! Your email address is private and won't be shown to other users <3 </small>
+        </div>
 
         <div class="form-group">
             <label for="{{ form.bio.id_for_label }}">Bio:</label>

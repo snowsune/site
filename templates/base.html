@@ -171,6 +171,16 @@
     </div>
   </header>
 
+  <!-- Email Verification Banner -->
+  {% if user.is_authenticated and not user.email_verified %}
+  <div class="email-verification-banner">
+    <span class="banner-icon">⚠️</span>
+    <span class="banner-text">Your email is not verified yet! <a href="{% url 'account-edit' %}"
+        class="banner-link">Click this to verify 🩵</a></span>
+    <button class="banner-close" onclick="this.parentElement.style.display='none'">✕</button>
+  </div>
+  {% endif %}
+
   <!-- The stuff in the center of the page basically -->
   <div class="main-layout">
     <!-- Main content -->
