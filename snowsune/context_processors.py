@@ -3,7 +3,7 @@ import os
 from django.conf import settings
 from django.utils.safestring import mark_safe
 
-from datetime import datetime, timezone
+from datetime import datetime, date
 from django.utils import timezone as django_timezone
 
 from .models import SiteSetting
@@ -66,3 +66,17 @@ def google_analytics_id(request):
         google_tag = None
 
     return {"google_tag": google_tag}
+
+
+def seasonal_css(request):
+    """Auto apply seasonable css stuff! Yay!"""
+
+    today = date.today()
+
+    seasonal_dates = {
+        (9, 17): "fox_day.css",  # National fox day!
+        (10,): "halloween.css",  # October (whole month counts~)
+    }
+
+    css_file = seasonal_dates.get((today.month,))
+    return {"seasonal_css": f"css/seasonal/{css_file}" if css_file else None}

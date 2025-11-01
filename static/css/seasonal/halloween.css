@@ -22,7 +22,7 @@
 }
 
 body {
-  background: url("/static/background/tile_october.png") repeat, var(--background-color);
+  background: url("/static/background/seasonal/tile_october.png") repeat, var(--background-color);
 }
 
 

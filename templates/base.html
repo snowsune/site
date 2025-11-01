@@ -78,8 +78,9 @@
   <!-- Favicon -->
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
   <link rel="stylesheet" href="{% static 'quotes/css/quotes.css' %}" />
-  {# Seasonal: enable for Halloween, remove/comment when done #}
-  <link rel="stylesheet" href="{% static 'css/halloween.css' %}" />
+  {% if seasonal_css %}
+  <link rel="stylesheet" href="{% static seasonal_css %}" />
+  {% endif %}
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}" />
 
   <!-- Extra CSS block for page-specific styles -->

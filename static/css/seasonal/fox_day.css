@@ -1,0 +1,29 @@
+/* Halloween theme overrides - include this after base.css to activate */
+
+:root {
+    --background-color: #0e0e0e;
+    --tile-background: #151515;
+    --text-color: #f7f3e9;
+    --invert-text-color: #0a0a0a;
+    --navbar-bg: #d35400; /* pumpkin */
+    --navbar-text: #ffffff;
+    --sidebar-bg: #1a1a1a;
+    --link-hover: #ffae42; /* soft orange */
+    --link-default: #ff8a00;
+    --link-visited: #cc6d00;
+    --accent-color: #ff8a00;
+    --accent-hover: #e67800;
+    --success-color: #43a047;
+    --success-hover: #388e3c;
+    --border-color: #333333;
+    --border-hover: #555555;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --shadow-hover: rgba(0, 0, 0, 0.6);
+  }
+  
+  body {
+    background: url("/static/background/seasonal/tile_fox_day.png") repeat, var(--background-color);
+  }
+  
+  
+  
