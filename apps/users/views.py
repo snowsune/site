@@ -108,6 +108,28 @@ def edit_account_view(request):
             messages.success(request, "Discord account disconnected successfully.")
             return redirect("account-edit")
 
+        elif "set_email_and_verify" in request.POST:
+            # So, if you're just setting your email
+            # the first time (from the popup box) this
+            # should kinda automate the, get email, send it
+            email = request.POST.get("email", "").strip()
+            if not email:
+                messages.error(request, "Please enter an email address.")
+            else:
+                request.user.email = email
+                request.user.save()
+                if send_verification_email(request.user):
+                    messages.success(
+                        request,
+                        "Email set and verification sent! Please check your inbox.",
+                    )
+                else:
+                    messages.warning(
+                        request,
+                        "Email set, but verification email failed to send :c You can resend it below.",
+                    )
+            return redirect("account-edit")
+
         elif "send_verification" in request.POST:
             # Send verification email
             if not request.user.email:

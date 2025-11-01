@@ -1,5 +1,6 @@
 import secrets
 import hashlib
+from urllib.parse import urlparse
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
@@ -45,12 +46,16 @@ def send_verification_email(user):
 
     # Send email
     try:
-        subject = "Verify your email address on Snowsune.net"
+        # Get the domain from SITE_URL for the subject
+        parsed_url = urlparse(settings.SITE_URL)
+        site_domain = parsed_url.netloc or parsed_url.path
+
+        subject = f"Verify your email address on {site_domain}"
 
         # You could make this a proper template later
         message = f"""Heyy {user.first_name or user.username}!
 
-Use the following link to verify your email address on Snowsune.net:
+Use the following link to verify your email address:
 
 {verification_url}
 
