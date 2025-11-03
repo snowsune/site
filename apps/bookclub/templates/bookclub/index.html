@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Comic Book Club - Snowsune{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/bookclub.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'bookclub/js/bookclub.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+{% if comic %}
+<div class="comic-info">
+    {% if comic.preview_image %}
+    <img src="{{ comic.preview_image.url }}" alt="Monthly Comic Preview" class="preview-image">
+    {% endif %}
+    <div class="blurb markdown-content">
+        {{ comic.blurb_html|safe }}
+    </div>
+</div>
+{% endif %}
+
+<div class="leaderboard">
+    <h2>Readers!</h2>
+    {% if comic %}
+    <div class="progress-timeline">
+        <div class="timeline-bar">
+            <div class="timeline-track">
+                {% for item in progress_list %}
+                <div class="progress-marker" style="left: {{ item.position }}%"
+                    title="{{ item.progress.user.username }} - Page {{ item.progress.page_number }}">
+                    {% if item.progress.user.get_profile_picture_url %}
+                    <img src="{{ item.progress.user.get_profile_picture_url }}" alt="{{ item.progress.user.username }}"
+                        class="marker-pfp">
+                    {% else %}
+                    <div class="marker-pfp placeholder"></div>
+                    {% endif %}
+                    <span class="marker-label">{{ item.progress.user.username }}</span>
+                    <span class="marker-page">Page {{ item.progress.page_number }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="timeline-labels">
+            <span class="timeline-start">{{ comic.start_page }}</span>
+            <span class="timeline-end">{{ comic.end_page }}</span>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="update-progress">
+        <p>Add your place to the bar!</p>
+        <form method="post" action="">
+            {% csrf_token %}
+            <label for="page_number">What page are you on?</label>
+            <input type="number" name="page_number" id="page_number" min="{{ comic.start_page }}"
+                max="{{ comic.end_page }}"
+                value="{% if user_progress %}{{ user_progress.page_number }}{% else %}{{ comic.start_page }}{% endif %}"
+                placeholder="Page number">
+            <button type="submit">Update</button>
+        </form>
+    </div>
+    {% else %}
+    <p class="login-prompt">Log in to add your place to the bar!</p>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

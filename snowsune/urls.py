@@ -41,6 +41,7 @@ urlpatterns = [
     path("quotes/", include("apps.quotes.urls")),
     path("users/", include("apps.users.urls")),
     path("fops/", include("apps.bot_manager.urls")),
+    path("bookclub/", include("apps.bookclub.urls")),
     # Hidden pages
     path("orfc/", RandalFanclubView.as_view(), name="randal_fanclub"),
     # SEO
