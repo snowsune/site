@@ -104,6 +104,16 @@
                     <a href="https://factorio.snowsune.net/" class="tool-button external">Play Factorio</a>
                 </div>
             </div>
+
+            <!-- Comic Book Club -->
+            <div class="tool-card">
+                <div class="tool-content">
+                    <h3>Comic Book Club</h3>
+                    <p>Read webcomics with friends! Low pressure, bi-monthly reads and a dedciated channel to talk all
+                        things webcomics!</p>
+                    <a href="{% url 'bookclub:index' %}" class="tool-button">Join the comic book club!</a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -159,6 +169,7 @@
     <div class="sidebar-section">
         <h3>Resources</h3>
         <ul class="sidebar-links">
+            <li><a href="{% url 'bookclub:index' %}">Comic Book Club</a></li>
             <li><a href="https://new.belfrycomics.net/">Belfry Webcomics</a></li>
             <li><a href="https://vixencontrolled.net/">Vixen Controlled Archive</a></li>
         </ul>

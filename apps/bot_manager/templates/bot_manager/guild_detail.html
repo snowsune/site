@@ -62,7 +62,7 @@
 <form method="post">
     {% csrf_token %}
 
-    <!-- Admin Channel - Top priority -->
+    <!-- Admin Channel -->
     <div class="admin-channel-config">
         <label for="admin_channel_id">
             Admin Notification Channel:
@@ -78,11 +78,11 @@
         </label>
     </div>
 
-    <!-- Freeze Button - Prominent panic button -->
+    <!-- Freeze Button! -->
     <div class="freeze-toggle">
         <label>
             <input type="checkbox" name="frozen" {% if guild.frozen %}checked{% endif %}>
-            ! PAWS! (Stop the bot from automatic posting) !
+            ! PAWS ! (Stop the bot from automatic posting) !
         </label>
     </div>
 
