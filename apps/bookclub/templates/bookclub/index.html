@@ -12,6 +12,12 @@
 {% endblock %}
 
 {% block content %}
+<div style="margin-bottom: 1rem; text-align: right;">
+    <a href="{% url 'bookclub:rss_feed' %}" style="text-decoration: none; color: var(--text-color);" title="RSS Feed">
+        📡 RSS Feed
+    </a>
+</div>
+
 {% if comic %}
 <div class="comic-info">
     {% if comic.preview_image %}
