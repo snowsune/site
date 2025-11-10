@@ -105,6 +105,36 @@ table tbody tr:hover {
     margin-right: var(--spacing-sm);
 }
 
+.settings-toggles label small {
+    display: block;
+    margin-left: calc(1.8rem);
+    font-size: 0.85rem;
+    color: var(--muted-text);
+}
+
+.settings-toggles label.text-input {
+    display: block;
+    margin-top: var(--spacing-md);
+}
+
+.settings-toggles label.text-input input[type="text"] {
+    display: block;
+    margin-top: var(--spacing-xs);
+    width: min(100%, 360px);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    background: var(--background-color);
+    color: var(--text-color);
+}
+
+.settings-toggles .settings-note {
+    display: block;
+    margin-top: var(--spacing-xs);
+    font-size: 0.85rem;
+    color: var(--muted-text);
+}
+
 /* Buttons */
 .btn {
     padding: var(--spacing-sm) var(--spacing-md);
@@ -160,4 +190,293 @@ table tbody tr:hover {
     background: var(--tile-background);
     border-radius: var(--border-radius-small);
     border: 1px solid var(--border-color);
+}
+
+/* Fops Bot Landing */
+.fops-hero {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    align-items: stretch;
+    padding: var(--spacing-lg);
+    background: var(--tile-background);
+    border-radius: var(--border-radius);
+    border: 1px solid color-mix(in srgb, var(--accent-color) 15%, var(--border-color));
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.fops-hero .hero-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.fops-hero .hero-text h1 {
+    font-size: 2.2rem;
+    margin: 0;
+}
+
+.fops-hero .hero-text p.lead {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.hero-actions .hero-invite {
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: 1.1rem;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hero-actions .hero-invite:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+}
+
+.hero-actions .btn-outline {
+    background: transparent;
+    border: 2px solid var(--accent-color);
+    color: var(--text-color);
+}
+
+.hero-highlights {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--spacing-sm);
+}
+
+.hero-highlights li {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: color-mix(in srgb, var(--accent-color) 10%, transparent);
+    border-radius: var(--border-radius-small);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.fops-hero .hero-media {
+    text-align: center;
+}
+
+.fops-hero .hero-media img {
+    width: min(100%, 320px);
+    border-radius: var(--border-radius);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.fops-hero .hero-media figcaption {
+    margin-top: var(--spacing-sm);
+    font-size: 0.85rem;
+    color: var(--muted-text);
+}
+
+/* Setup sections */
+.setup-sections {
+    display: grid;
+    gap: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    margin-bottom: var(--spacing-xl);
+}
+
+.setup-card {
+    background: var(--tile-background);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-lg);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.setup-card h2 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+}
+
+.setup-card ol,
+.setup-card ul {
+    padding-left: var(--spacing-lg);
+}
+
+.setup-card .btn {
+    margin-top: var(--spacing-md);
+}
+
+.setup-card ul.service-list {
+    list-style: none;
+    padding-left: 0;
+    display: grid;
+    gap: var(--spacing-sm);
+}
+
+.setup-card ul.service-list li {
+    background: color-mix(in srgb, var(--accent-color) 12%, transparent);
+    border-radius: var(--border-radius-small);
+    padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.setup-card ul.service-list li strong {
+    font-size: 1.05rem;
+}
+
+/* Feature tabs */
+.feature-tabs {
+    background: var(--tile-background);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+    margin-bottom: var(--spacing-xl);
+}
+
+.feature-tabs header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.feature-tabs header p {
+    margin: 0;
+    color: var(--muted-text);
+}
+
+.tab-button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.tab-button {
+    border: 0;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius-small);
+    cursor: pointer;
+    background: color-mix(in srgb, var(--accent-color) 15%, transparent);
+    color: var(--text-color);
+    font-weight: 600;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.tab-button:hover {
+    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--accent-color) 25%, transparent);
+}
+
+.tab-button[aria-selected="true"] {
+    background: var(--accent-color);
+    color: var(--navbar-text);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.tab-panels {
+    padding: var(--spacing-lg);
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+.tab-panel h2 {
+    margin-top: 0;
+}
+
+.tab-panel .tab-grid {
+    display: grid;
+    gap: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    align-items: start;
+}
+
+.tab-panel figure {
+    margin: 0;
+}
+
+.tab-panel img {
+    width: 100%;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+.tab-panel ul {
+    padding-left: var(--spacing-lg);
+}
+
+.tab-panel ul li {
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Guild management */
+.guild-management {
+    background: var(--tile-background);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-lg);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+}
+
+.guild-management header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.guild-management header h2 {
+    margin: 0;
+}
+
+.guild-management .guild-empty {
+    font-style: italic;
+    color: var(--muted-text);
+    margin: var(--spacing-md) 0;
+}
+
+@media (max-width: 768px) {
+    .fops-hero {
+        padding: var(--spacing-lg);
+    }
+
+    .fops-hero .hero-text h1 {
+        font-size: 2rem;
+    }
+
+    .hero-actions .hero-invite {
+        width: 100%;
+        text-align: center;
+    }
+
+    .tab-panel .tab-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 769px) {
+    .fops-hero {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .fops-hero .hero-text {
+        flex: 1 1 60%;
+    }
+
+    .fops-hero .hero-media {
+        flex: 1 1 40%;
+    }
 }

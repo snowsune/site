@@ -100,6 +100,12 @@
             <input type="checkbox" name="twitter_obfuscate" {% if guild.twitter_obfuscate %}checked{% endif %}>
             🔁 Twitter Obfuscate
         </label>
+        <label for="twitter_wrapper" class="text-input">
+            🐦 Twitter Wrapper
+            <input type="text" name="twitter_wrapper" id="twitter_wrapper"
+                value="{{ guild.twitter_wrapper|default_if_none:'' }}" placeholder="https://proxy.example/">
+        </label>
+        <small class="settings-note">Lili approved feature~</small>
     </div>
 
     <button type="submit" name="update_settings" class="btn btn-primary">Save Settings</button>

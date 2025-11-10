@@ -36,10 +36,20 @@ def guild_detail(request, guild_id):
             with get_fops_connection() as conn:
                 with conn.cursor() as cur:
                     admin_channel = request.POST.get("admin_channel_id")
+                    twitter_wrapper = request.POST.get("twitter_wrapper", "")
+                    twitter_wrapper = (
+                        twitter_wrapper.strip() if twitter_wrapper else None
+                    )
+
                     cur.execute(
                         """
                         UPDATE guilds 
-                        SET frozen = %s, allow_nsfw = %s, enable_dlp = %s, twitter_obfuscate = %s, admin_channel_id = %s
+                        SET frozen = %s,
+                            allow_nsfw = %s,
+                            enable_dlp = %s,
+                            twitter_obfuscate = %s,
+                            twitter_wrapper = %s,
+                            admin_channel_id = %s
                         WHERE guild_id = %s
                         """,
                         (
@@ -47,6 +57,7 @@ def guild_detail(request, guild_id):
                             request.POST.get("allow_nsfw") == "on",
                             request.POST.get("enable_dlp") == "on",
                             request.POST.get("twitter_obfuscate") == "on",
+                            twitter_wrapper,
                             admin_channel if admin_channel else None,
                             guild_id,
                         ),
