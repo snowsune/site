@@ -1,23 +1,33 @@
-import requests
 import logging
+from typing import List, Optional
+
+import requests
 from django.conf import settings
 from django.core.cache import cache
+
+from . import virtual_discord_api
 
 logger = logging.getLogger(__name__)
 
 
-def get_bot_guilds():
-    """
-    Discord kept rate limiting me >.<
+def virtual_mode_enabled() -> bool:
+    """Return True when the debug virtual dataset is active."""
+    return virtual_discord_api.is_available()
 
-    Anytime we want to grab the guilds we can hit this.
-    """
 
+def get_bot_guilds() -> List[dict]:
     cache_key = "fops_bot_guilds"
     cached = cache.get(cache_key)
 
     if cached is not None:
+        logger.debug("Returning cached bot guilds")
         return cached
+
+    if virtual_mode_enabled():
+        guilds = virtual_discord_api.get_bot_guilds()
+        cache.set(cache_key, guilds, 300)
+        logger.info("Loaded %d virtual bot guild(s)", len(guilds))
+        return guilds
 
     bot_token = getattr(settings, "DISCORD_BOT_TOKEN", None)
     if not bot_token:
@@ -38,7 +48,6 @@ def get_bot_guilds():
         guilds = response.json()
         logger.info(f"Fops Bot is in {len(guilds)} guilds")
 
-        # Cache for 5 minutes
         cache.set(cache_key, guilds, 300)
         return guilds
     except Exception as e:
@@ -46,16 +55,22 @@ def get_bot_guilds():
         return []
 
 
-def get_user_guilds(user):
-    """
-    This is every guild a user is in.
-    """
-
+def get_user_guilds(user) -> Optional[List[dict]]:
     cache_key = f"user_{user.id}_discord_guilds"
     cached = cache.get(cache_key)
     if cached is not None:
         logger.info(f"Using cached guilds for user {user.id}")
         return cached
+
+    if virtual_mode_enabled():
+        guilds = virtual_discord_api.get_user_guilds(user)
+        cache.set(cache_key, guilds, 300)
+        logger.info(
+            "Returning %d virtual guild(s) for user %s in debug mode",
+            len(guilds),
+            user.id,
+        )
+        return guilds
 
     logger.info(f"Fetching guilds for user {user.id} from Discord API")
 
@@ -78,7 +93,6 @@ def get_user_guilds(user):
         guilds = response.json()
         logger.info(f"User {user.id} is in {len(guilds)} guilds")
 
-        # Cache for 5 minutes
         cache.set(cache_key, guilds, 300)
         return guilds
     except Exception as e:
@@ -86,16 +100,26 @@ def get_user_guilds(user):
         return None
 
 
-def get_guild_channels(guild_id):
-    """
-    This is every channel in a guild.
-    """
-
+def get_guild_channels(guild_id) -> List[dict]:
     cache_key = f"guild_{guild_id}_channels"
     cached = cache.get(cache_key)
     if cached is not None:
         logger.info(f"Using cached channels for guild {guild_id}")
         return cached
+
+    if virtual_mode_enabled():
+        channels = virtual_discord_api.get_guild_channels(guild_id)
+        text_channels = sorted(
+            [c for c in channels if c.get("type") in [0, 5]],
+            key=lambda x: x.get("position", 0),
+        )
+        cache.set(cache_key, text_channels, 300)
+        logger.info(
+            "Loaded %d virtual text channels for guild %s in debug mode",
+            len(text_channels),
+            guild_id,
+        )
+        return text_channels
 
     logger.info(f"Fetching channels for guild {guild_id} from Discord API")
 
@@ -118,14 +142,12 @@ def get_guild_channels(guild_id):
             return []
 
         channels = response.json()
-        # Filter and sort text/announcement channels
         text_channels = sorted(
             [c for c in channels if c["type"] in [0, 5]],
             key=lambda x: x.get("position", 0),
         )
         logger.info(f"Guild {guild_id} has {len(text_channels)} text channels")
 
-        # Cache for 5 minutes
         cache.set(cache_key, text_channels, 300)
         return text_channels
     except Exception as e:
@@ -133,34 +155,64 @@ def get_guild_channels(guild_id):
         return []
 
 
-def get_user_info(user_id):
-    """
-    This is the user info for a user.
-    """
-
+def get_user_info(user_id) -> Optional[dict]:
     cache_key = f"discord_user_{user_id}"
     cached = cache.get(cache_key)
     if cached is not None:
         return cached
 
+    if virtual_mode_enabled():
+        user_info = virtual_discord_api.get_user_info(user_id)
+        if user_info:
+            cache.set(cache_key, user_info, 600)
+        return user_info
+
     bot_token = getattr(settings, "DISCORD_BOT_TOKEN", None)
     if not bot_token:
         return None
 
+    try:
+        headers = {"Authorization": f"Bot {bot_token}"}
+        response = requests.get(
+            f"https://discord.com/api/users/{user_id}", headers=headers
+        )
 
-def get_guild_members(guild_id, max_members=5000):
-    """
-    Fetch members for a guild via Discord API using the bot token.
-    Requires the bot to have the GUILD_MEMBERS intent enabled.
-    Paginates using the 'after' parameter.
-    Returns a list of member dicts, each containing 'user' and 'roles'.
-    """
+        if response.status_code != 200:
+            logger.error(f"Failed to fetch user {user_id}: {response.text}")
+            return None
 
+        user_data = response.json()
+        user_info = {
+            "username": user_data.get("username"),
+            "avatar": user_data.get("avatar"),
+            "id": str(user_id),
+        }
+
+        cache.set(cache_key, user_info, 600)
+        return user_info
+    except Exception as e:
+        logger.error(f"Exception fetching user {user_id}: {e}")
+        return None
+
+
+def get_guild_members(guild_id, max_members=5000) -> List[dict]:
     cache_key = f"guild_{guild_id}_members"
     cached = cache.get(cache_key)
     if cached is not None:
         logger.info(f"Using cached members for guild {guild_id}")
         return cached
+
+    if virtual_mode_enabled():
+        members = virtual_discord_api.get_guild_members(
+            guild_id, max_members=max_members
+        )
+        cache.set(cache_key, members, 300)
+        logger.info(
+            "Loaded %d virtual members for guild %s in debug mode",
+            len(members),
+            guild_id,
+        )
+        return members
 
     bot_token = getattr(settings, "DISCORD_BOT_TOKEN", None)
     if not bot_token:
@@ -168,7 +220,7 @@ def get_guild_members(guild_id, max_members=5000):
         return []
 
     headers = {"Authorization": f"Bot {bot_token}"}
-    members = []
+    members: List[dict] = []
     after = 0
 
     try:
@@ -205,27 +257,3 @@ def get_guild_members(guild_id, max_members=5000):
         return []
 
     return members
-
-    try:
-        headers = {"Authorization": f"Bot {bot_token}"}
-        response = requests.get(
-            f"https://discord.com/api/users/{user_id}", headers=headers
-        )
-
-        if response.status_code != 200:
-            logger.error(f"Failed to fetch user {user_id}: {response.text}")
-            return None
-
-        user_data = response.json()
-        user_info = {
-            "username": user_data.get("username"),
-            "avatar": user_data.get("avatar"),
-            "id": user_id,
-        }
-
-        # Cache for 10 minutes (user info changes rarely)
-        cache.set(cache_key, user_info, 600)
-        return user_info
-    except Exception as e:
-        logger.error(f"Exception fetching user {user_id}: {e}")
-        return None

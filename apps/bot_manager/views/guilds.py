@@ -1,12 +1,15 @@
+import json
 import logging
 import time
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
+from datetime import datetime
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+
+from .. import discord_api, virtual_discord_api
 from ..models import Subscription
-from ..utils import has_guild_admin_access, get_fops_connection
-from .. import discord_api
+from ..utils import get_fops_connection, has_guild_admin_access
 
 
 @login_required
@@ -69,20 +72,65 @@ def guild_detail(request, guild_id):
             messages.error(request, f"Error updating settings: {str(e)}")
 
     try:
-        # Get guild data from Fops database
-        with get_fops_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("SELECT * FROM guilds WHERE guild_id = %s", (guild_id,))
-                guild_data = cur.fetchone()
+        # Get guild data (virtual or real database)
+        if virtual_discord_api.is_available():
+            guild_data = virtual_discord_api.get_fops_guild(guild_id)
+            if not guild_data:
+                messages.error(request, "Guild not found in virtual dataset")
+                return redirect("bot_manager_dashboard")
+        else:
+            with get_fops_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT * FROM guilds WHERE guild_id = %s", (guild_id,))
+                    guild_data = cur.fetchone()
 
-                if not guild_data:
-                    messages.error(request, "Guild not found in Fops database")
-                    return redirect("bot_manager_dashboard")
+                    if not guild_data:
+                        messages.error(request, "Guild not found in Fops database")
+                        return redirect("bot_manager_dashboard")
 
-        # Get channels from Discord API (cached)
+        # Prepare recent logs (if available)
+        recent_logs = []
+        raw_logs = guild_data.get("recent_logs")
+        if isinstance(raw_logs, str):
+            try:
+                raw_logs = json.loads(raw_logs)
+            except json.JSONDecodeError:
+                raw_logs = []
+        if isinstance(raw_logs, list):
+            for entry in raw_logs:
+                if not isinstance(entry, dict):
+                    continue
+                level = str(entry.get("level", "INFO") or "INFO").upper()
+                message = entry.get("message") or ""
+                ts_raw = entry.get("ts") or entry.get("timestamp")
+                timestamp = None
+                sort_key = 0.0
+                if ts_raw:
+                    try:
+                        timestamp = datetime.fromisoformat(
+                            str(ts_raw).replace("Z", "+00:00")
+                        )
+                        sort_key = timestamp.timestamp()
+                    except ValueError:
+                        timestamp = None
+                recent_logs.append(
+                    {
+                        "timestamp": timestamp,
+                        "ts": ts_raw,
+                        "level": level,
+                        "level_lower": level.lower(),
+                        "message": message,
+                        "sort_key": sort_key,
+                    }
+                )
+            recent_logs.sort(key=lambda log: log["sort_key"], reverse=True)
+            for entry in recent_logs:
+                entry.pop("sort_key", None)
+
+        # Get channels from Discord API (cached or virtual)
         channels = discord_api.get_guild_channels(guild_id)
 
-        # Get guild-specific subscriptions
+        # Get guild-specific subscriptions (virtual module handles debug mode)
         guild_subscriptions = Subscription.get_by_guild(guild_id)
 
         # Create channel ID to name mapping and enrich subscriptions with channel names
@@ -127,6 +175,7 @@ def guild_detail(request, guild_id):
             "channels": channels,
             "subscriptions": guild_subscriptions,
             "channel_map": channel_map,
+            "recent_logs": recent_logs,
         }
         response = render(request, "bot_manager/guild_detail.html", context)
         response["Vary"] = "Cookie"

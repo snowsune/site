@@ -1,0 +1,65 @@
+{
+  "guild_id": "1239663510808563822",
+  "created_at": "2025-10-08 13:08:04.128854",
+  "name": "Vixi's Dev",
+  "frozen": false,
+  "allow_nsfw": true,
+  "enable_dlp": true,
+  "admin_channel_id": "1425590780331819090",
+  "twitter_wrapper": [],
+  "twitter_obfuscate": true,
+  "custom_domain": "girlcockx.com",
+  "recent_logs": [
+    {
+      "ts": "2025-11-10T22:05:27.841639+00:00",
+      "level": "INFO",
+      "message": "Skipping 17883 due to excluded tags (found {'vore'} in {'size_difference', 'implied_vore', 'tails', 'thicc', 'fennec', 'sitting', 'budget_magician', 'anal_vore', 'highres', 'vore', 'sunlight', 'rating:safe', 'belly', 'sitting_on_another', 'rock', 'kitsune', 'butt'})"
+    },
+    {
+      "ts": "2025-11-10T22:05:27.941113+00:00",
+      "level": "WARNING",
+      "message": "Failed to post 17883 for sub 9"
+    },
+    {
+      "ts": "2025-11-10T22:05:32.249044+00:00",
+      "level": "INFO",
+      "message": "Subscription 1: new_subscription - processing 1 posts"
+    },
+    {
+      "ts": "2025-11-10T22:05:32.370445+00:00",
+      "level": "INFO",
+      "message": "Processing post 5956593 for sub 1"
+    },
+    {
+      "ts": "2025-11-10T22:05:33.718747+00:00",
+      "level": "INFO",
+      "message": "Posted 5956593 to channel 1425148110820348025"
+    },
+    {
+      "ts": "2025-11-10T22:05:33.833564+00:00",
+      "level": "INFO",
+      "message": "Successfully processed 5956593 for sub 1"
+    },
+    {
+      "ts": "2025-11-10T22:05:38.986261+00:00",
+      "level": "INFO",
+      "message": "Subscription 8: new_subscription - processing 1 posts"
+    },
+    {
+      "ts": "2025-11-10T22:05:39.086926+00:00",
+      "level": "INFO",
+      "message": "Processing post 62862956 for sub 8"
+    },
+    {
+      "ts": "2025-11-10T22:05:39.611064+00:00",
+      "level": "INFO",
+      "message": "Posted 62862956 to channel 1412230130893455391"
+    },
+    {
+      "ts": "2025-11-10T22:05:39.754707+00:00",
+      "level": "INFO",
+      "message": "Successfully processed 62862956 for sub 8"
+    }
+  ]
+}
+

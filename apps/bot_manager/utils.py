@@ -24,16 +24,18 @@ def has_guild_admin_access(user, guild_id):
     Check if a user has admin rights in a guild
     """
 
+    virtual_mode = discord_api.virtual_mode_enabled()
+
     # Check if user has a Discord token stored
-    if not user.discord_access_token:
+    if not user.discord_access_token and not virtual_mode:
         logger.warning(f"User {user.id} has no Discord token stored")
         return False
 
-    # Try to decrypt the token
-    access_token = user.get_discord_access_token()
-    if not access_token:
-        logger.error(f"User {user.id} - token decryption failed")
-        return "DECRYPTION_FAILED"
+    if user.discord_access_token and not virtual_mode:
+        # Try to decrypt the token
+        if not user.get_discord_access_token():
+            logger.error(f"User {user.id} - token decryption failed")
+            return "DECRYPTION_FAILED"
 
     # Get user's guilds (cached to avoid rate limiting)
     user_guilds = discord_api.get_user_guilds(user)

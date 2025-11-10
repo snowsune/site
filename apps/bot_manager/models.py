@@ -2,13 +2,14 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
+from . import virtual_discord_api
+from .utils import get_fops_connection
+
 
 class FopsDatabase:
     @staticmethod
     def get_tables():
         """Get list of tables in Fops database"""
-        from .utils import get_fops_connection
-
         with get_fops_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
@@ -61,7 +62,8 @@ class Subscription(models.Model):
     @classmethod
     def get_all(cls):
         """Get all subscriptions from Fops database"""
-        from .utils import get_fops_connection
+        if virtual_discord_api.is_available():
+            return virtual_discord_api.get_all_fops_subscriptions()
 
         with get_fops_connection() as conn:
             with conn.cursor() as cur:
@@ -71,7 +73,8 @@ class Subscription(models.Model):
     @classmethod
     def get_by_guild(cls, guild_id):
         """Get subscriptions for a specific guild"""
-        from .utils import get_fops_connection
+        if virtual_discord_api.is_available():
+            return virtual_discord_api.get_fops_subscriptions(guild_id)
 
         with get_fops_connection() as conn:
             with conn.cursor() as cur:

@@ -8,12 +8,107 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'bot_manager/bot_manager.css' %}">
+<style>
+    .log-box {
+        background: #191a24;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 16px 18px;
+        margin-bottom: 28px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+    }
+
+    .log-box h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 1.25rem;
+    }
+
+    .log-entries {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-height: 260px;
+        overflow-y: auto;
+    }
+
+    .log-entry {
+        display: flex;
+        gap: 14px;
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        align-items: flex-start;
+        font-size: 0.95rem;
+    }
+
+    .log-entry:last-child {
+        border-bottom: none;
+    }
+
+    .log-time {
+        font-family: var(--mono-font, 'Fira Code', 'Source Code Pro', monospace);
+        color: rgba(255, 255, 255, 0.7);
+        min-width: 185px;
+    }
+
+    .log-level {
+        font-weight: 600;
+        text-transform: uppercase;
+        min-width: 80px;
+    }
+
+    .log-message {
+        flex: 1;
+        white-space: pre-wrap;
+    }
+
+    .log-entry.log-info .log-level {
+        color: #33b5e5;
+    }
+
+    .log-entry.log-warning .log-level {
+        color: #ffb74d;
+    }
+
+    .log-entry.log-error .log-level,
+    .log-entry.log-critical .log-level {
+        color: #ff6b6b;
+    }
+
+    .log-entry.log-debug .log-level,
+    .log-entry.log-trace .log-level {
+        color: #9fa6b2;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <h1>{{ guild.name }}</h1>
 
 <p><a href="{% url 'bot_manager_dashboard' %}">← Back to Dashboard</a></p>
+
+{% if recent_logs %}
+<div class="log-box">
+    <h2>Recent Logs</h2>
+    <ul class="log-entries">
+        {% for log in recent_logs %}
+        <li class="log-entry log-{{ log.level_lower }}">
+            <span class="log-time">
+                {% if log.timestamp %}
+                {{ log.timestamp|date:"Y-m-d H:i:s T" }}
+                {% elif log.ts %}
+                {{ log.ts }}
+                {% else %}
+                --
+                {% endif %}
+            </span>
+            <span class="log-level">{{ log.level }}</span>
+            <span class="log-message">{{ log.message }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 
 {% if messages %}
 {% for message in messages %}
@@ -179,4 +274,16 @@
 {% endif %}
 
 <a href="{% url 'bot_manager_add_subscription_for_guild' guild_id=guild_id %}">Add New Subscription</a>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // This is to scroll the thing lol~
+    document.addEventListener("DOMContentLoaded", () => {
+        const logBox = document.querySelector(".log-entries");
+        if (logBox) {
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+    });
+</script>
 {% endblock %}

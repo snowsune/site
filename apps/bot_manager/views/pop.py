@@ -8,11 +8,15 @@ try:
 except Exception:  # pragma: no cover
     yaml = None
 
-from .. import discord_api
+from .. import discord_api, virtual_discord_api
 
 
 def pop_view(request):
-    guild_id = "1153521286086148156"  # Just for bixi
+    if virtual_discord_api.is_available():
+        virtual_guilds = virtual_discord_api.get_bot_guilds()
+        guild_id = virtual_guilds[0]["id"] if virtual_guilds else "1153521286086148156"
+    else:
+        guild_id = "1153521286086148156"  # Just for bixi
 
     # Load species mapping from YAML
     species_map_path = os.path.join(

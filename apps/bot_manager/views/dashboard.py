@@ -3,6 +3,7 @@ from django.contrib import messages
 
 from ..models import FopsDatabase, Subscription
 from ..utils import get_user_fops_guilds
+from .. import discord_api
 
 
 def dashboard(request):
@@ -21,7 +22,10 @@ def dashboard(request):
     # If user is logged in, check for Discord connection and guilds
     if request.user.is_authenticated:
         # Check if user has Discord connected
-        if not request.user.discord_access_token:
+        if (
+            not request.user.discord_access_token
+            and not discord_api.virtual_mode_enabled()
+        ):
             context["show_discord_login"] = True
         else:
             # Get shared guilds
