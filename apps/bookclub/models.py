@@ -1,8 +1,12 @@
-from django.db import models
-from django.contrib.auth import get_user_model
+import logging
 import markdown
 
+from django.db import models
+from django.contrib.auth import get_user_model
+
+
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 class MonthlyComic(models.Model):
@@ -67,3 +71,40 @@ class UserProgress(models.Model):
 
         percentage = int((position_in_range / range_size) * 100)
         return min(100, max(0, percentage))
+
+    def save(self, *args, **kwargs):
+        # Find and compare the old leader before this save <3
+        # This is just for fun! Just to trigger the webhook when the leader changes!
+
+        # Find the current leader (before this save)
+        old_leader_id = None
+        try:
+            all_before = UserProgress.objects.all()
+            if all_before.exists():
+                old_leader = all_before.order_by("-page_number", "-updated_at").first()
+                if old_leader:
+                    old_leader_id = old_leader.pk
+        except Exception as e:
+            logger.error(f"Error finding old leader: {e}")
+
+        super().save(*args, **kwargs)
+
+        # Determine who is the leader now (after save)
+        all_progress = UserProgress.objects.all()
+        if all_progress.exists():
+            new_leader = all_progress.order_by("-page_number", "-updated_at").first()
+
+            # Send if:
+            # - New leader is different from old leader
+            # - This user is the new leader
+            if (
+                new_leader
+                and new_leader.pk != old_leader_id
+                and new_leader.pk == self.pk
+            ):
+                # Leader changed and this user is the new leader! Send webhook
+                from .webhooks import send_leader_change_webhook
+
+                send_leader_change_webhook(
+                    new_leader.user.username, new_leader.page_number
+                )

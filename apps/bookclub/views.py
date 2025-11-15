@@ -18,7 +18,7 @@ def bookclub_view(request):
                 )
                 progress.page_number = page_number
                 progress.save()
-                messages.success(request, f"Updated to page {page_number}!")
+                messages.success(request, "Progress updated!")
             elif comic:
                 messages.error(
                     request,
