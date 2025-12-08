@@ -31,6 +31,15 @@ class MonthlyComic(models.Model):
         blank=True,
         help_text="URL format with {page_number} placeholder (e.g., https://example.com/page/{page_number})",
     )
+    use_date_format = models.BooleanField(
+        default=False,
+        help_text="If enabled, parse page_number as a date using the date_format pattern",
+    )
+    date_format = models.CharField(
+        max_length=20,
+        default="YYYYMMDD",
+        help_text="Date format pattern (e.g., YYYYMMDD for 20251206). Use YYYY, MM, DD as placeholders.",
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -42,10 +51,67 @@ class MonthlyComic(models.Model):
     def get_page_url(self, page_number):
         """Generate URL for a specific page number"""
         if self.page_format_url:
-            return self.page_format_url.format(page_number=page_number)
+            if self.use_date_format:
+                # Parse page_number as a date and format it
+                formatted_date = self._format_page_as_date(page_number)
+                return self.page_format_url.format(page_number=formatted_date)
+            else:
+                return self.page_format_url.format(page_number=page_number)
         elif self.url:
             return f"{self.url}#page-{page_number}"
         return None
+
+    def _format_page_as_date(self, page_number):
+        """Format page number as a date string based on date_format pattern"""
+        try:
+            # Convert page_number to string and pad with zeros if needed
+            page_str = str(page_number).zfill(8)  # Ensure at least 8 digits
+
+            # Parse as YYYYMMDD
+            if len(page_str) >= 8:
+                year = page_str[0:4]
+                month = page_str[4:6]
+                day = page_str[6:8]
+            else:
+                # If not enough digits, return as-is
+                return str(page_number)
+
+            # Replace format placeholders
+            formatted = self.date_format
+            formatted = formatted.replace("YYYY", year)
+            formatted = formatted.replace("MM", month)
+            formatted = formatted.replace("DD", day)
+
+            return formatted
+        except (ValueError, IndexError):
+            # If parsing fails, return page_number as-is
+            return str(page_number)
+
+    def format_page_as_readable_date(self, page_number):
+        """Format page number as a human-readable date (e.g., 'Dec 6, 2025')"""
+        if not self.use_date_format:
+            return None
+
+        try:
+            from datetime import datetime
+
+            # Convert page_number to string and pad with zeros if needed
+            page_str = str(page_number).zfill(8)  # Ensure at least 8 digits
+
+            # Parse as YYYYMMDD
+            if len(page_str) >= 8:
+                year = int(page_str[0:4])
+                month = int(page_str[4:6])
+                day = int(page_str[6:8])
+
+                # Create datetime object and format it
+                date_obj = datetime(year, month, day)
+                return date_obj.strftime("%b %d, %Y")  # e.g., "Dec 06, 2025"
+            else:
+                return None
+        except (ValueError, IndexError, TypeError):
+            # If parsing fails, return None
+            return None
 
     def save(self, *args, **kwargs):
         # Generate HTML content from markdown
@@ -57,8 +123,11 @@ class MonthlyComic(models.Model):
 
 
 class UserProgress(models.Model):
-    """User's reading progress - stores page number"""
+    """User's reading progress - stores page number per comic"""
 
+    comic = models.ForeignKey(
+        MonthlyComic, on_delete=models.CASCADE, related_name="user_progresses"
+    )
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="bookclub_progress"
     )
@@ -68,7 +137,7 @@ class UserProgress(models.Model):
 
     class Meta:
         ordering = ["-page_number", "-updated_at"]
-        unique_together = [["user"]]
+        unique_together = [["comic", "user"]]
 
     def __str__(self):
         return f"{self.user.username}: Page {self.page_number}"
@@ -93,10 +162,10 @@ class UserProgress(models.Model):
         # Find and compare the old leader before this save <3
         # This is just for fun! Just to trigger the webhook when the leader changes!
 
-        # Find the current leader (before this save)
+        # Find the current leader (before this save) for this comic
         old_leader_id = None
         try:
-            all_before = UserProgress.objects.all()
+            all_before = UserProgress.objects.filter(comic=self.comic)
             if all_before.exists():
                 old_leader = all_before.order_by("-page_number", "-updated_at").first()
                 if old_leader:
@@ -106,8 +175,8 @@ class UserProgress(models.Model):
 
         super().save(*args, **kwargs)
 
-        # Determine who is the leader now (after save)
-        all_progress = UserProgress.objects.all()
+        # Determine who is the leader now (after save) for this comic
+        all_progress = UserProgress.objects.filter(comic=self.comic)
         if all_progress.exists():
             new_leader = all_progress.order_by("-page_number", "-updated_at").first()
 
@@ -128,8 +197,11 @@ class UserProgress(models.Model):
 
 
 class Comment(models.Model):
-    """Individual comment entries - stores comment history"""
+    """Individual comment entries - stores comment history per comic"""
 
+    comic = models.ForeignKey(
+        MonthlyComic, on_delete=models.CASCADE, related_name="comments"
+    )
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="bookclub_comments"
     )

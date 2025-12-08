@@ -16,7 +16,7 @@ def bookclub_view(request):
             comment = request.POST.get("comment", "").strip()
             if comic and comic.start_page <= page_number <= comic.end_page:
                 progress, created = UserProgress.objects.get_or_create(
-                    user=request.user
+                    comic=comic, user=request.user
                 )
                 progress.page_number = page_number
                 progress.comment = comment
@@ -25,7 +25,10 @@ def bookclub_view(request):
                 # Create a new comment entry if comment is provided
                 if comment:
                     Comment.objects.create(
-                        user=request.user, page_number=page_number, comment=comment
+                        comic=comic,
+                        user=request.user,
+                        page_number=page_number,
+                        comment=comment,
                     )
 
                 messages.success(request, "Progress updated!")
@@ -45,15 +48,21 @@ def bookclub_view(request):
     # Calculate positions for leaderboard
     progress_list = []
     if comic:
-        all_progress = UserProgress.objects.select_related("user").all()
+        all_progress = UserProgress.objects.select_related("user").filter(comic=comic)
         for progress in all_progress:
             position = progress.get_position_percentage(
                 comic.start_page, comic.end_page
+            )
+            formatted_date = (
+                comic.format_page_as_readable_date(progress.page_number)
+                if comic.use_date_format
+                else None
             )
             progress_list.append(
                 {
                     "progress": progress,
                     "position": position,
+                    "formatted_date": formatted_date,
                 }
             )
         # Sort by page number (descending)
@@ -63,18 +72,22 @@ def bookclub_view(request):
     user_progress = None
     user_position = None
     if request.user.is_authenticated:
-        user_progress_obj = UserProgress.objects.filter(user=request.user).first()
+        user_progress_obj = UserProgress.objects.filter(
+            comic=comic, user=request.user
+        ).first()
         if user_progress_obj and comic:
             user_progress = user_progress_obj
             user_position = user_progress.get_position_percentage(
                 comic.start_page, comic.end_page
             )
 
-    # Get all comments (from Comment model - shows history)
+    # Get all comments (from Comment model - shows history for this comic)
     comments = []
     if comic:
-        comments_queryset = Comment.objects.select_related("user").order_by(
-            "-created_at"
+        comments_queryset = (
+            Comment.objects.select_related("user")
+            .filter(comic=comic)
+            .order_by("-created_at")
         )
         # Add formatted page URLs to each comment
         for comment_obj in comments_queryset:
@@ -86,12 +99,21 @@ def bookclub_view(request):
                 }
             )
 
+    # Format start/end dates if using date format
+    comic_start_date = None
+    comic_end_date = None
+    if comic and comic.use_date_format:
+        comic_start_date = comic.format_page_as_readable_date(comic.start_page)
+        comic_end_date = comic.format_page_as_readable_date(comic.end_page)
+
     context = {
         "comic": comic,
         "progress_list": progress_list,
         "user_progress": user_progress,
         "user_position": user_position,
         "comments": comments,
+        "comic_start_date": comic_start_date,
+        "comic_end_date": comic_end_date,
     }
     return render(request, "bookclub/index.html", context)
 

@@ -32,7 +32,7 @@
             <div class="timeline-track">
                 {% for item in progress_list %}
                 <div class="progress-marker" style="left: {{ item.position }}%"
-                    title="{{ item.progress.user.username }} - Page {{ item.progress.page_number }}">
+                    title="{% if comic.use_date_format and item.formatted_date %}{{ item.progress.user.username }} - {{ item.formatted_date }}{% else %}{{ item.progress.user.username }} - Page {{ item.progress.page_number }}{% endif %}">
                     {% if item.progress.user.get_profile_picture_url %}
                     <img src="{{ item.progress.user.get_profile_picture_url }}" alt="{{ item.progress.user.username }}"
                         class="marker-pfp">
@@ -40,14 +40,18 @@
                     <div class="marker-pfp placeholder"></div>
                     {% endif %}
                     <span class="marker-label">{{ item.progress.user.username }}</span>
-                    <span class="marker-page">Page {{ item.progress.page_number }}</span>
+                    <span
+                        class="marker-page">{% if comic.use_date_format and item.formatted_date %}{{ item.formatted_date }}{% else %}Page
+                        {{ item.progress.page_number }}{% endif %}</span>
                 </div>
                 {% endfor %}
             </div>
         </div>
         <div class="timeline-labels">
-            <span class="timeline-start">{{ comic.start_page }}</span>
-            <span class="timeline-end">{{ comic.end_page }}</span>
+            <span
+                class="timeline-start">{% if comic.use_date_format and comic_start_date %}{{ comic_start_date }}{% else %}{{ comic.start_page }}{% endif %}</span>
+            <span
+                class="timeline-end">{% if comic.use_date_format and comic_end_date %}{{ comic_end_date }}{% else %}{{ comic.end_page }}{% endif %}</span>
         </div>
     </div>
 
@@ -56,7 +60,7 @@
         <p>Move your bookmark!</p>
         <form method="post" action="">
             {% csrf_token %}
-            <label for="page_number">Page Number (0-{{ comic.end_page }})</label>
+            <label for="page_number">Page Number ({{ comic.start_page }}-{{ comic.end_page }})</label>
             <input type="number" name="page_number" id="page_number" min="{{ comic.start_page }}"
                 max="{{ comic.end_page }}"
                 value="{% if user_progress %}{{ user_progress.page_number }}{% else %}{{ comic.start_page }}{% endif %}"
