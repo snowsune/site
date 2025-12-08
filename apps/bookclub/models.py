@@ -23,6 +23,14 @@ class MonthlyComic(models.Model):
     end_page = models.IntegerField(
         default=719, help_text="Ending page number (e.g., 719)"
     )
+    url = models.URLField(
+        blank=True, null=True, help_text="Base URL for the comic (optional)"
+    )
+    page_format_url = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="URL format with {page_number} placeholder (e.g., https://example.com/page/{page_number})",
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -30,6 +38,14 @@ class MonthlyComic(models.Model):
 
     def __str__(self):
         return f"Monthly Comic ({self.updated_at.date()})"
+
+    def get_page_url(self, page_number):
+        """Generate URL for a specific page number"""
+        if self.page_format_url:
+            return self.page_format_url.format(page_number=page_number)
+        elif self.url:
+            return f"{self.url}#page-{page_number}"
+        return None
 
     def save(self, *args, **kwargs):
         # Generate HTML content from markdown
@@ -47,6 +63,7 @@ class UserProgress(models.Model):
         User, on_delete=models.CASCADE, related_name="bookclub_progress"
     )
     page_number = models.IntegerField(default=0, help_text="Current page number")
+    comment = models.TextField(blank=True, help_text="Optional comment about progress")
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -108,3 +125,22 @@ class UserProgress(models.Model):
                 send_leader_change_webhook(
                     new_leader.user.username, new_leader.page_number
                 )
+
+
+class Comment(models.Model):
+    """Individual comment entries - stores comment history"""
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="bookclub_comments"
+    )
+    page_number = models.IntegerField(help_text="Page number when comment was made")
+    comment = models.TextField(help_text="Comment text")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return (
+            f"{self.user.username} - Page {self.page_number} ({self.created_at.date()})"
+        )

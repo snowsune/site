@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load bookclub_tags %}
 
 {% block title %}Comic Book Club - Snowsune{% endblock %}
 
@@ -51,20 +52,69 @@
     </div>
 
     {% if user.is_authenticated %}
-    <div class="update-progress">
-        <p>Add your place to the bar!</p>
+    <div class="move-bookmark">
+        <p>Move your bookmark!</p>
         <form method="post" action="">
             {% csrf_token %}
-            <label for="page_number">What page are you on?</label>
+            <label for="page_number">Page Number (0-{{ comic.end_page }})</label>
             <input type="number" name="page_number" id="page_number" min="{{ comic.start_page }}"
                 max="{{ comic.end_page }}"
                 value="{% if user_progress %}{{ user_progress.page_number }}{% else %}{{ comic.start_page }}{% endif %}"
                 placeholder="Page number">
+            <label for="comment">Comment (optional)</label>
+            <textarea name="comment" id="comment" rows="2" placeholder="Write whats on your mind!~"></textarea>
+            <p class="spoiler-note">Use ||...|| to mark spoilers!~</p>
             <button type="submit">Update</button>
         </form>
     </div>
     {% else %}
     <p class="login-prompt">Log in to add your place to the bar!</p>
+    {% endif %}
+
+    {% if comments %}
+    <div class="comments-section">
+        <h3>Comments</h3>
+        <div class="comments-list">
+            {% for comment_data in comments %}
+            <div class="comment-item">
+                <div class="comment-left">
+                    {% if comment_data.comment.user.get_profile_picture_url %}
+                    <img src="{{ comment_data.comment.user.get_profile_picture_url }}"
+                        alt="{{ comment_data.comment.user.username }}" class="comment-pfp">
+                    {% else %}
+                    <div class="comment-pfp placeholder"></div>
+                    {% endif %}
+                    <div class="comment-meta">
+                        <span class="comment-username">{{ comment_data.comment.user.username }}</span>
+                        {% if comment_data.page_url %}
+                        <a href="{{ comment_data.page_url }}" class="comment-page-link" target="_blank"
+                            rel="noopener noreferrer">
+                            Page {{ comment_data.comment.page_number }}
+                        </a>
+                        {% else %}
+                        <a href="#" class="comment-page-link" onclick="return false;" title="Page URL not configured">
+                            Page {{ comment_data.comment.page_number }}
+                        </a>
+                        {% endif %}
+                        <span class="comment-date">{{ comment_data.comment.created_at|date:"M d, Y" }}</span>
+                        {% if user.is_authenticated and user == comment_data.comment.user %}
+                        <form method="post" action="{% url 'bookclub:delete_comment' comment_data.comment.id %}"
+                            class="delete-comment-form">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-comment-btn"
+                                onclick="return confirm('Are you sure you want to delete this comment?');"
+                                title="Delete comment">×</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="comment-content">
+                    {{ comment_data.comment.comment|process_spoilers|linebreaks }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
     {% endif %}
     {% endif %}
 </div>
