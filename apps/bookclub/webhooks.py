@@ -177,22 +177,24 @@ def send_leader_change_webhook(new_leader_username, new_leader_page):
             logger.error(f"User {new_leader_username} not found for webhook")
             return
 
+        # Get the comic
+        comic = MonthlyComic.objects.first()
+        if not comic:
+            logger.error("No comic found for webhook")
+            return
+
         # Create the leader image
         img_bytes = create_leader_image(user, new_leader_page)
         if not img_bytes:
             logger.warning("Could not create leader image, sending text-only webhook")
-            message = (
-                f"{new_leader_username} is now in the lead at page {new_leader_page}!~"
-            )
+            message = f"{new_leader_username} is now in the lead at page [{new_leader_page}]({comic.get_page_url(new_leader_page)}) !~"
             payload = {"content": message}
             response = requests.post(webhook_url, json=payload, timeout=5)
             response.raise_for_status()
             return
 
         # Send webhook with image
-        message = (
-            f"{new_leader_username} is now in the lead at page {new_leader_page}!~"
-        )
+        message = f"{new_leader_username} is now in the lead at page {comic.get_page_url(new_leader_page)}!~"
 
         # Fingers crossed attach the data manually without having to save and load
         files = {"file": ("leader.png", img_bytes, "image/png")}
