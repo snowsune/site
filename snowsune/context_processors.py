@@ -76,6 +76,7 @@ def seasonal_css(request):
     seasonal_dates = {
         (9, 17): "fox_day.css",  # National fox day!
         (10,): "halloween.css",  # October (whole month counts~)
+        (12,): "christmas.css",  # December (whole month counts!)
     }
 
     css_file = seasonal_dates.get((today.month,))

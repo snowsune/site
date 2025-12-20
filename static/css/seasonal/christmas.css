@@ -1,0 +1,27 @@
+/* Christmas theme overrides <3 */
+
+:root {
+  --background-color: #0d1b0f;
+  --tile-background: #1a2e1f;
+  --text-color: #f0f8f0;
+  --invert-text-color: #0a0a0a;
+  --navbar-bg: #c41e3a; /* christmas red */
+  --navbar-text: #ffffff;
+  --sidebar-bg: #1a2e1f;
+  --link-hover: #90ee90; /* light green */
+  --link-default: #50c878; /* emerald green */
+  --link-visited: #228b22; /* forest green */
+  --accent-color: #ff6b6b; /* soft red */
+  --accent-hover: #ff5252;
+  --success-color: #4caf50;
+  --success-hover: #45a049;
+  --border-color: #2d4a35;
+  --border-hover: #3d5a45;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --shadow-hover: rgba(0, 0, 0, 0.6);
+}
+
+body {
+  background: url("/static/background/seasonal/tile_christmas.png") repeat, var(--background-color);
+}
+
