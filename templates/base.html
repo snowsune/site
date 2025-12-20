@@ -151,6 +151,12 @@
           <a href="{% url 'tools' %}">Apps/Tools</a>
           <a href="{% url 'blog:blog_list' %}">Blog</a>
           <a href="{% url 'comics:comic_home' %}">Webcomic</a>
+          {% if discord_invite %}
+          <a href="{{ discord_invite }}" target="_blank" rel="noopener" class="discord-navbar-btn">
+            <span class="discord-navbar-icon">💬</span> Join my Discord!
+          </a>
+          {% endif %}
+          {% include "users/widget.html" %}
         </div>
       </nav>
 

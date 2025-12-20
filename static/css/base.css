@@ -530,6 +530,55 @@ a:visited {
 .nav-mobile-links a:last-child {
   border-bottom: none;
 }
+/* Login buttons in mobile menu */
+.nav-mobile-links .user-auth-btn {
+  display: inline-block;
+  background: #1e6f9c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6em 1em;
+  font-size: 1em;
+  font-weight: 600;
+  margin: 0.5em 1em;
+  text-decoration: none;
+  width: calc(100% - 2em);
+  text-align: center;
+  box-sizing: border-box;
+}
+.nav-mobile-links .user-auth-btn:hover {
+  background: #155a7a;
+}
+.nav-mobile-links .user-auth-btn:last-of-type {
+  border-bottom: 1px solid #fff2;
+  margin-bottom: 0.5em;
+}
+/* Discord button in mobile menu */
+.nav-mobile-links .discord-navbar-btn {
+  display: inline-flex;
+  width: calc(100% - 2em);
+  margin: 0.5em 1em;
+  justify-content: center;
+  border-bottom: 1px solid #fff2;
+  padding: 0.6em 1em;
+}
+/* User info in mobile menu */
+.nav-mobile-links .user-info {
+  display: flex;
+  flex-direction: column;
+  padding: 1em;
+  border-bottom: 1px solid #fff2;
+  gap: 0.5em;
+}
+.nav-mobile-links .user-info .user-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.nav-mobile-links .user-info .user-actions .user-auth-btn {
+  width: 100%;
+  margin: 0;
+}
 
 @media (max-width: 1100px) {
   .header {
@@ -576,19 +625,20 @@ a:visited {
     margin-top: 0.5em;
     flex-wrap: wrap;
   }
-  .user-auth-btn {
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: 80px;
-    display: inline-block;
-    box-sizing: border-box;
-    padding-left: 0.4em;
-    padding-right: 0.4em;
-    font-size: 0.95em;
-    flex-shrink: 1;
+  .login {
+    display: flex; /* Keep visible for hamburger button */
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
   }
-  .user-auth-btn {
-    display: none !important;
+  .login .user-widget {
+    display: none !important; /* Hide login buttons - moved to menu */
+  }
+  .login .discord-navbar-btn {
+    display: none !important; /* Hide discord button - moved to menu */
+  }
+  .login .nav-hamburger {
+    display: block; /* Ensure hamburger is visible */
   }
   .content {
     width: 100vw;
