@@ -250,8 +250,10 @@
                     <!-- Moderation Actions (for staff/author) -->
                     {% if user.is_staff or user == post.author %}
                     <div class="moderation-actions">
+                        {% if comment.status != "approved" %}
                         <a href="{% url 'blog:moderate_comment' comment.id 'approve' %}" class="btn btn-sm btn-success"
                             data-action="approve">Approve</a>
+                        {% endif %}
                         <a href="{% url 'blog:moderate_comment' comment.id 'reject' %}" class="btn btn-sm btn-warning"
                             data-action="reject">Reject</a>
                         <a href="{% url 'blog:moderate_comment' comment.id 'spam' %}" class="btn btn-sm btn-danger"
@@ -321,8 +323,10 @@
                         {% if user.is_staff or user == post.author %}
                         <footer class="comment-actions">
                             <div class="moderation-actions">
+                                {% if reply.status != "approved" %}
                                 <a href="{% url 'blog:moderate_comment' reply.id 'approve' %}"
                                     class="btn btn-sm btn-success" data-action="approve">Approve</a>
+                                {% endif %}
                                 <a href="{% url 'blog:moderate_comment' reply.id 'reject' %}"
                                     class="btn btn-sm btn-warning" data-action="reject">Reject</a>
                                 <a href="{% url 'blog:moderate_comment' reply.id 'spam' %}"
