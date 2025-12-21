@@ -194,7 +194,7 @@ def send_leader_change_webhook(new_leader_username, new_leader_page):
             return
 
         # Send webhook with image
-        message = f"{new_leader_username} is now in the lead at page {comic.get_page_url(new_leader_page)}!~"
+        message = f"{new_leader_username} is now in the lead at page {comic.get_page_url(new_leader_page)} !~"
 
         # Fingers crossed attach the data manually without having to save and load
         files = {"file": ("leader.png", img_bytes, "image/png")}
