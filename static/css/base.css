@@ -14,6 +14,8 @@
   --accent-hover: #0099a8;
   --success-color: #28a745;
   --success-hover: #218838;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
   --border-color: #dee2e6;
   --border-hover: #adb5bd;
   --shadow-color: rgba(0, 0, 0, 0.1);
@@ -43,6 +45,8 @@
   --accent-hover: #00d4e6;
   --success-color: #00ff88;
   --success-hover: #00e676;
+  --warning-color: #ffb300;
+  --error-color: #ff5252;
   --border-color: #444;
   --border-hover: #666;
   --shadow-color: rgba(0, 0, 0, 0.3);
@@ -65,7 +69,7 @@ body {
 
 /* This could go somewhere else but, anything error-list can be styled with this */
 .errorlist {
-  color: red;
+  color: var(--error-color);
   font-weight: bold;
   margin-top: 0.25em;
 }

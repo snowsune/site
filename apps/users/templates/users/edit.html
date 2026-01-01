@@ -6,7 +6,7 @@
     .account-section {
         margin-bottom: 2rem;
         padding: 1rem;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color);
         border-radius: 5px;
     }
 
@@ -21,11 +21,11 @@
     }
 
     .badge.verified {
-        background-color: #28a745;
+        background-color: var(--success-color);
     }
 
     .badge.moderator {
-        background-color: #dc3545;
+        background-color: var(--error-color);
     }
 
     .badge-image {
@@ -55,7 +55,7 @@
         width: 100%;
         max-width: 500px;
         padding: 0.5rem;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color);
         border-radius: 3px;
     }
 
@@ -74,7 +74,7 @@
     }
 
     .btn-danger {
-        background-color: #dc3545;
+        background-color: var(--error-color);
         color: white;
     }
 
@@ -84,7 +84,7 @@
     }
 
     .error {
-        color: #dc3545;
+        color: var(--error-color);
         font-size: 0.875rem;
     }
 
@@ -238,16 +238,16 @@
 <div class="account-section">
     <h2>Email Verification</h2>
     {% if user.email_verified %}
-    <p style="color: #28a745; font-weight: bold;">✓ Your email is verified!</p>
+    <p style="color: var(--success-color); font-weight: bold;">✓ Your email is verified!</p>
     {% elif user.email %}
-    <p style="color: #ffc107; font-weight: bold;">⚠ Your email is not verified yet.</p>
+    <p style="color: var(--warning-color); font-weight: bold;">⚠ Your email is not verified yet.</p>
     <p>Click the button below to send a verification email to <strong>{{ user.email }}</strong></p>
     <form method="post" style="display: inline;">
         {% csrf_token %}
         <button type="submit" name="send_verification" class="btn btn-primary">Send Verification Email</button>
     </form>
     {% else %}
-    <p style="color: #dc3545; font-weight: bold;">✗ No email address set.</p>
+    <p style="color: var(--error-color); font-weight: bold;">✗ No email address set.</p>
     <p>Set your email address below to enable verification.</p>
     {% endif %}
 </div>
@@ -335,7 +335,7 @@
                 <div class="form-group">
                     <label for="email">Email address:</label>
                     <input type="email" id="email" name="email" required autofocus placeholder="your.email@example.com"
-                        style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 3px; font-size: 1rem;">
+                        style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 3px; font-size: 1rem;">
                 </div>
             </form>
         </div>
