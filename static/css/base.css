@@ -442,6 +442,23 @@ a:visited {
   word-wrap: break-word; /* Break long words */
 }
 
+.calendar-widget {
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.calendar-widget h2 {
+  margin-bottom: var(--spacing-sm);
+  font-size: 1.2rem;
+}
+
+.calendar-widget iframe {
+  width: 100%;
+  border: none;
+  border-radius: var(--border-radius-small);
+  overflow: hidden;
+}
+
 /*
  * Apps! not all apps need to register css here, some can use their own, but for some apps
  * its easy enough to just, squish in here
