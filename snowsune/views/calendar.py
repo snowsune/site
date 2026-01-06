@@ -7,6 +7,7 @@ import requests
 from icalendar import Calendar
 from datetime import datetime, date, timedelta
 import pytz
+import recurring_ical_events
 
 
 # Calendar configuration - easily extensible
@@ -58,8 +59,18 @@ class CalendarEventsAPIView(View):
                 # Parse the ICS file
                 cal = Calendar.from_ical(response.content)
 
-                # Extract events
-                for component in cal.walk("vevent"):
+                # For reoccuring events, have to look backwards and forwards in time
+                now = datetime.now(pytz.UTC)
+                start_date = now - timedelta(days=365)
+                end_date = now + timedelta(days=365)
+
+                # Use recurring_ical_events to expand recurring events
+                recurring_events = recurring_ical_events.of(cal).between(
+                    start_date.date(), end_date.date()
+                )
+
+                # Process each event occurrence (including expanded recurring events)
+                for component in recurring_events:
                     event = {
                         "title": str(component.get("summary", "No Title")),
                         "start": self._parse_datetime(component.get("dtstart")),
