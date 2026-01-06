@@ -14,5 +14,9 @@ dj-database-url
 psycopg2
 pyyaml
 
+# Calendar
+icalendar
+pytz
+
 # WSGI
 gunicorn

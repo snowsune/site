@@ -12,6 +12,7 @@ from snowsune.views.tools import ToolsView
 from snowsune.views.live_status import live_status_view
 from snowsune.views.image_utils import format_preview_view
 from snowsune.views.randal_fanclub import RandalFanclubView
+from snowsune.views.calendar import CalendarView, CalendarEventsAPIView
 from apps.thank_yous.views import thank_you_view
 
 
@@ -22,11 +23,17 @@ urlpatterns = [
     path("", HomeView.as_view(), name="home"),
     path("projects/", ProjectsView.as_view(), name="projects"),
     path("tools/", ToolsView.as_view(), name="tools"),
+    path("calendar/", CalendarView.as_view(), name="calendar"),
     path("thank-you/", thank_you_view, name="thank_you"),
     path("login/", HomeView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     # API endpoints
     path("api/live/", live_status_view, name="live_status_api"),
+    path(
+        "api/calendar/events/",
+        CalendarEventsAPIView.as_view(),
+        name="calendar_events_api",
+    ),
     path("api/quotes/", include("apps.quotes.api_urls")),
     path("api/commorganizer/", include("apps.commorganizer.api_urls")),
     # Image formatting for social media previews

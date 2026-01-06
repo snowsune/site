@@ -1,0 +1,111 @@
+#calendar-container {
+    margin: 2rem 0;
+}
+
+#calendar {
+    background: var(--bg-color, #ffffff);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+/* FullCalendar customizations */
+.fc {
+    font-family: inherit;
+}
+
+.fc-header-toolbar {
+    margin-bottom: 1.5rem;
+}
+
+.fc-button {
+    background-color: var(--accent-color, #00FFFF);
+    border-color: var(--accent-color, #00FFFF);
+    color: var(--text-color, #000000);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: normal;
+}
+
+.fc-button:hover {
+    background-color: var(--accent-hover-color, #00CCCC);
+    border-color: var(--accent-hover-color, #00CCCC);
+}
+
+.fc-button-active {
+    background-color: var(--accent-active-color, #009999);
+    border-color: var(--accent-active-color, #009999);
+}
+
+.fc-daygrid-day-number,
+.fc-col-header-cell-cushion,
+.fc-timegrid-slot-label-cushion {
+    color: var(--text-color, #000000);
+}
+
+.fc-day-today {
+    background-color: var(--highlight-color, rgba(0, 255, 255, 0.1));
+}
+
+.fc-event {
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.fc-event-title {
+    font-weight: 500;
+}
+
+/* Calendar legend */
+#calendar-legend {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: var(--bg-color, #ffffff);
+    border-radius: 8px;
+}
+
+#calendar-legend h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+#calendar-legend ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#calendar-legend li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    margin-right: 0.5rem;
+    display: inline-block;
+}
+
+/* Dark mode support */
+.dark-mode #calendar,
+.dark-mode #calendar-legend {
+    background: var(--bg-color-dark, #1a1a1a);
+}
+
+.dark-mode .fc-daygrid-day-number,
+.dark-mode .fc-col-header-cell-cushion,
+.dark-mode .fc-timegrid-slot-label-cushion {
+    color: var(--text-color-dark, #ffffff);
+}
+
+.dark-mode .fc-day-today {
+    background-color: var(--highlight-color-dark, rgba(0, 255, 255, 0.2));
+}
+
+.dark-mode .fc-button {
+    background-color: var(--accent-color-dark, #00FFFF);
+    color: var(--text-color-dark, #000000);
+}
+
