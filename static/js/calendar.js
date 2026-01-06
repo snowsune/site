@@ -133,7 +133,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 right: ''
             },
             height: 'auto',
-            aspectRatio: 1.35,
+            aspectRatio: 2.0,
+            slotMinTime: '08:00:00',  // Start at 8am
+            slotMaxTime: '24:15:00',  // End at midnight
+            slotDuration: '00:30:00',  // 30 minute slots for shorter bars
             filterFn: function (eventStart, viewStart, viewEnd) {
                 // Filter events for the visible day range
                 return eventStart >= viewStart && eventStart < viewEnd;

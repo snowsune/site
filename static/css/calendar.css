@@ -135,7 +135,23 @@
 }
 
 #homepage-calendar .fc-timegrid-slot {
-    height: 2.5em;
+    height: 1em;  /* Shorter slots for more compact display */
+}
+
+#homepage-calendar .fc-timegrid-col {
+    min-height: 0;  /* Allow calendar to shrink */
+}
+
+#homepage-calendar .fc-scroller {
+    overflow: hidden !important;  /* Disable scrolling */
+}
+
+#homepage-calendar .fc-timegrid-body {
+    height: auto;  /* Allow body to size naturally */
+}
+
+#homepage-calendar .fc-timegrid {
+    height: auto;  /* Let it size based on content */
 }
 
 .calendar-widget-footer {
