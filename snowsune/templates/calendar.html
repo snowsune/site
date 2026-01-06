@@ -31,71 +31,8 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const calendarEl = document.getElementById('calendar');
-
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-            },
-            events: function (fetchInfo, successCallback, failureCallback) {
-                // Fetch events from our API endpoint
-                fetch('{% url "calendar_events_api" %}')
-                    .then(response => response.json())
-                    .then(data => {
-                        // Transform events for FullCalendar
-                        const events = data.map(event => ({
-                            title: event.title,
-                            start: event.start,
-                            end: event.end,
-                            allDay: event.allDay || false,
-                            description: event.description,
-                            location: event.location,
-                            url: event.url,
-                            backgroundColor: event.color,
-                            borderColor: event.color,
-                            textColor: '#ffffff',
-                            extendedProps: {
-                                calendar: event.calendar,
-                                description: event.description,
-                                location: event.location,
-                            }
-                        }));
-                        successCallback(events);
-                    })
-                    .catch(error => {
-                        console.error('Error fetching calendar events:', error);
-                        failureCallback(error);
-                    });
-            },
-            eventClick: function (info) {
-                // Show event details
-                let details = '<strong>' + info.event.title + '</strong>';
-                if (info.event.extendedProps.description) {
-                    details += '<br>' + info.event.extendedProps.description;
-                }
-                if (info.event.extendedProps.location) {
-                    details += '<br><em>Location: ' + info.event.extendedProps.location + '</em>';
-                }
-                if (info.event.url) {
-                    details += '<br><a href="' + info.event.url + '" target="_blank">More info →</a>';
-                }
-
-                alert(details);
-
-                // If event has a URL, you could navigate there instead:
-                // if (info.event.url) {
-                //     window.open(info.event.url, '_blank');
-                // }
-            },
-            height: 'auto',
-            aspectRatio: 1.8,
-        });
-
-        calendar.render();
-    });
+    // Set the API URL for the calendar script
+    window.calendarEventsApiUrl = '{% url "calendar_events_api" %}';
 </script>
+<script src="{% static 'js/calendar.js' %}"></script>
 {% endblock %}

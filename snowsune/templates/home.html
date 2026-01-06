@@ -30,6 +30,8 @@ creative projects, furry community hub{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/comics.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/calendar.css' %}">
 {% endblock %}
 
 {% block extra_head %}
@@ -165,9 +167,18 @@ creative projects, furry community hub{% endblock %}
 
 <div class="calendar-widget">
     <h2>Calendar</h2>
-    <iframe
-        src="https://calendar.google.com/calendar/embed?src=hunner.the.squeaky%40gmail.com&ctz=America%2FNew_York&mode=AGENDA"
-        style="border: 0" width="100%" height="400" frameborder="0" scrolling="no">
-    </iframe>
+    <div id="homepage-calendar"></div>
+    <p class="calendar-widget-footer">
+        <a href="{% url 'calendar' %}">View full calendar →</a>
+    </p>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<script>
+    // Set the API URL for the calendar script
+    window.calendarEventsApiUrl = '{% url "calendar_events_api" %}';
+</script>
+<script src="{% static 'js/calendar.js' %}"></script>
 {% endblock %}

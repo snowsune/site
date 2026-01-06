@@ -8,22 +8,22 @@ from icalendar import Calendar
 from datetime import datetime, date, timedelta
 import pytz
 import recurring_ical_events
+import json
+
+from snowsune.models import SiteSetting
 
 
-# Calendar configuration - easily extensible
-CALENDAR_SOURCES = [
-    {
-        "name": "Hunner's Calendar",
-        "url": "https://calendar.google.com/calendar/ical/hunner.the.squeaky%40gmail.com/public/basic.ics",
-        "color": "#3788d8",  # Default blue color
-    },
-    # Add more calendars here as needed
-    # {
-    #     'name': 'Another Calendar',
-    #     'url': 'https://example.com/calendar.ics',
-    #     'color': '#ff6b6b',
-    # },
-]
+def get_calendar_sources():
+    """Get calendar sources from SiteSetting, with fallback to default"""
+    try:
+        setting = SiteSetting.objects.filter(key="CALENDAR_SOURCES").first()
+        if setting and setting.value:
+            return json.loads(setting.value)
+    except (json.JSONDecodeError, AttributeError):
+        pass
+
+    # Default
+    return []
 
 
 class CalendarView(View):
@@ -34,7 +34,7 @@ class CalendarView(View):
             request,
             "calendar.html",
             {
-                "calendar_sources": CALENDAR_SOURCES,
+                "calendar_sources": get_calendar_sources(),
             },
         )
 
@@ -45,8 +45,9 @@ class CalendarEventsAPIView(View):
 
     def get(self, request, *args, **kwargs):
         all_events = []
+        calendar_sources = get_calendar_sources()
 
-        for calendar_config in CALENDAR_SOURCES:
+        for calendar_config in calendar_sources:
             try:
                 # Fetch the ICS file
                 response = requests.get(

@@ -109,3 +109,51 @@
     color: var(--text-color-dark, #000000);
 }
 
+/* Homepage calendar widget */
+.calendar-widget {
+    margin-top: 2rem;
+}
+
+#homepage-calendar {
+    background: var(--bg-color, #ffffff);
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+#homepage-calendar .fc-header-toolbar {
+    margin-bottom: 0.5rem;
+}
+
+#homepage-calendar .fc-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+#homepage-calendar .fc-toolbar-title {
+    font-size: 1rem;
+}
+
+#homepage-calendar .fc-timegrid-slot {
+    height: 2.5em;
+}
+
+.calendar-widget-footer {
+    margin-top: 0.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+}
+
+.calendar-widget-footer a {
+    color: var(--accent-color, #00FFFF);
+    text-decoration: none;
+}
+
+.calendar-widget-footer a:hover {
+    text-decoration: underline;
+}
+
+.dark-mode #homepage-calendar {
+    background: var(--bg-color-dark, #1a1a1a);
+}
+
