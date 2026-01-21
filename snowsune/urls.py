@@ -66,6 +66,8 @@ urlpatterns = [
         ),
         name="robots",
     ),
+    # Custom pages - must be last to catch all unmatched paths
+    path("", include("apps.custompages.urls")),
 ]
 
 

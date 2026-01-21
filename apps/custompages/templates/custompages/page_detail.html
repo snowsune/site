@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page.display_title }} - Snowsune.net{% endblock %}
+{% block meta_description %}{{ page.meta_description|default:page.title }}{% endblock %}
+{% block og_title %}{{ page.display_title }} - Snowsune.net{% endblock %}
+{% block og_description %}{{ page.meta_description|default:page.title }}{% endblock %}
+{% block og_image %}{% if page.preview_image %}{{ page.preview_image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+{% block og_url %}https://snowsune.net{{ page.get_absolute_url }}{% endblock %}
+{% block twitter_title %}{{ page.display_title }} - Snowsune.net{% endblock %}
+{% block twitter_description %}{{ page.meta_description|default:page.title }}{% endblock %}
+{% block twitter_image %}{% if page.preview_image %}{{ page.preview_image.url }}{% else %}{% static 'placeholders/placeholder_wide.png' %}{% endif %}{% endblock %}
+
+{% block sidebar %}
+  {% if sidebar_links %}
+    <h2>Page Links</h2>
+    <ul>
+      {% for link in sidebar_links %}
+        <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<h1>{{ page.title }}</h1>
+<div class="custom-page-content">
+  {{ page.content_html|safe }}
+</div>
+{% endblock %}
