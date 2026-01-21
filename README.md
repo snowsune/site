@@ -1,4 +1,4 @@
-# ❄️ https://snowsune.net
+# https://snowsune.net
 
 Welcome to **Snowsune.net**, my little website where I post personal projects, 
 character data, tools, blog posts, stuff and things!
