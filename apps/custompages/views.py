@@ -27,14 +27,15 @@ class CustomPageDetailView(DetailView):
 
         path = self.kwargs.get(self.slug_url_kwarg)
         if path is None:
-            raise AttributeError(
-                "CustomPageDetailView must be called with a path parameter."
-            )
+            raise Http404("No path provided.")
 
         try:
             obj = queryset.get(path=path)
         except CustomPage.DoesNotExist:
             raise Http404("No custom page found matching the path.")
+        except Exception:
+            # Catch database connection errors and return 404 instead of 500
+            raise Http404("Error loading page.")
 
         return obj
 

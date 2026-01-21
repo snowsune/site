@@ -12,7 +12,7 @@ class CustomPage(models.Model):
     path = models.SlugField(
         max_length=200,
         unique=True,
-        help_text="URL path for this page (e.g., 'my-page' will be accessible at /my-page)",
+        help_text="URL path for this page (e.g., 'my-page' will be accessible at /cust/my-page)",
     )
     content = models.TextField(help_text="Markdown content for the page")
     content_html = models.TextField(blank=True, editable=False)  # Rendered HTML version
