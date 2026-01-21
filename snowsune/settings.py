@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "apps.quotes",  # Quotes scroller app
     "apps.bot_manager",  # Fops Bot management app
     "apps.bookclub",  # Comic book club app
+    "apps.custompages",  # Custom pages with markdown
 ]
 
 MIDDLEWARE = [

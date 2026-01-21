@@ -84,15 +84,17 @@ def _get_payload() -> Optional[Dict[str, Any]]:
             "permissions": data.get("permissions", DEFAULT_PERMISSIONS),
         }
         channels: Dict[str, List[Dict[str, Any]]] = {
-            guild_id: [
-                _normalize_channel(channel)
-                for channel in data.get("channels", {}).get(guild_id, [])
-            ]
-            if isinstance(data.get("channels"), dict)
-            else [
-                _normalize_channel(channel)
-                for channel in data.get("channels", [])  # type: ignore[arg-type]
-            ]
+            guild_id: (
+                [
+                    _normalize_channel(channel)
+                    for channel in data.get("channels", {}).get(guild_id, [])
+                ]
+                if isinstance(data.get("channels"), dict)
+                else [
+                    _normalize_channel(channel)
+                    for channel in data.get("channels", [])  # type: ignore[arg-type]
+                ]
+            )
         }
         raw_members = data.get("members") or {}
         members: Dict[str, List[Dict[str, Any]]] = {}
@@ -141,20 +143,24 @@ def _get_payload() -> Optional[Dict[str, Any]]:
             "members": members,
             "users": users,
             "user_memberships": {
-                "default": [
-                    {
-                        "guild_id": str(entry.get("guild_id", guild_id)),
-                        "permissions": entry.get("permissions", DEFAULT_PERMISSIONS),
-                    }
-                    for entry in user_memberships.get("default", [])
-                ]
-                if isinstance(user_memberships, dict)
-                else [
-                    {
-                        "guild_id": guild_id,
-                        "permissions": DEFAULT_PERMISSIONS,
-                    }
-                ],
+                "default": (
+                    [
+                        {
+                            "guild_id": str(entry.get("guild_id", guild_id)),
+                            "permissions": entry.get(
+                                "permissions", DEFAULT_PERMISSIONS
+                            ),
+                        }
+                        for entry in user_memberships.get("default", [])
+                    ]
+                    if isinstance(user_memberships, dict)
+                    else [
+                        {
+                            "guild_id": guild_id,
+                            "permissions": DEFAULT_PERMISSIONS,
+                        }
+                    ]
+                ),
                 "by_discord_id": {
                     str(uid): [
                         {
@@ -189,7 +195,9 @@ def _get_payload() -> Optional[Dict[str, Any]]:
     channels: Dict[str, List[Dict[str, Any]]] = {}
     for gid, channel_list in (data.get("channels") or {}).items():
         gid_str = str(gid)
-        channels[gid_str] = [_normalize_channel(channel) for channel in channel_list or []]
+        channels[gid_str] = [
+            _normalize_channel(channel) for channel in channel_list or []
+        ]
 
     members: Dict[str, List[Dict[str, Any]]] = {}
     for gid, member_list in (data.get("members") or {}).items():
@@ -299,5 +307,3 @@ def get_all_fops_subscriptions() -> List[Dict[str, Any]]:
     for subs in payload["subscriptions"].values():
         all_subs.extend(list(subs))
     return all_subs
-
-

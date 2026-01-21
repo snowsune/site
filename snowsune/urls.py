@@ -13,6 +13,7 @@ from snowsune.views.live_status import live_status_view
 from snowsune.views.image_utils import format_preview_view
 from snowsune.views.randal_fanclub import RandalFanclubView
 from snowsune.views.calendar import CalendarView, CalendarEventsAPIView
+from snowsune.views.health import health_check
 from apps.thank_yous.views import thank_you_view
 
 
@@ -49,6 +50,7 @@ urlpatterns = [
     path("users/", include("apps.users.urls")),
     path("fops/", include("apps.bot_manager.urls")),
     path("bookclub/", include("apps.bookclub.urls")),
+    path("cust/", include("apps.custompages.urls")),
     # Hidden pages
     path("orfc/", RandalFanclubView.as_view(), name="randal_fanclub"),
     # SEO
@@ -66,6 +68,8 @@ urlpatterns = [
         ),
         name="robots",
     ),
+    # Health checking
+    path("health", health_check, name="health"),
 ]
 
 
