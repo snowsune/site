@@ -18,7 +18,12 @@ class CustomPageAdmin(admin.ModelAdmin):
     list_filter = ["is_published", "created_at", "updated_at"]
     search_fields = ["title", "path", "content", "meta_description"]
     prepopulated_fields = {"path": ("title",)}
-    readonly_fields = ["created_at", "updated_at", "content_html", "preview_image_display"]
+    readonly_fields = [
+        "created_at",
+        "updated_at",
+        "content_html",
+        "preview_image_display",
+    ]
 
     fieldsets = (
         (
@@ -59,9 +64,7 @@ class CustomPageAdmin(admin.ModelAdmin):
         ),
         (
             "Status",
-            {
-                "fields": ("is_published",)
-            },
+            {"fields": ("is_published",)},
         ),
         (
             "Dates",
