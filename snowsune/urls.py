@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.views.generic import TemplateView
 from django.http import HttpResponse
 from django.conf import settings
@@ -14,12 +14,15 @@ from snowsune.views.image_utils import format_preview_view
 from snowsune.views.randal_fanclub import RandalFanclubView
 from snowsune.views.calendar import CalendarView, CalendarEventsAPIView
 from snowsune.views.health import health_check
+from snowsune.views.redirects import discord_redirect
 from apps.thank_yous.views import thank_you_view
 
 
 urlpatterns = [
     # django
     path("admin/", admin.site.urls),
+    # Redirect helpers
+    re_path(r"^discord(?:/.*)?$", discord_redirect, name="discord_redirect"),
     # "local" urls
     path("", HomeView.as_view(), name="home"),
     path("projects/", ProjectsView.as_view(), name="projects"),
