@@ -2,6 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
+import mimetypes
+from urllib.parse import urljoin
+from django.conf import settings
 from django.views.generic import (
     ListView,
     DetailView,
@@ -395,6 +398,11 @@ class BlogRSSFeed(Feed):
     description = "Snowsune.net RSS blog feed."
     feed_type = Rss201rev2Feed
 
+    def _absolute_url(self, maybe_relative_url: str) -> str:
+        # urljoin handles absolute URLs too.
+        base = settings.SITE_URL.rstrip("/") + "/"
+        return urljoin(base, maybe_relative_url.lstrip("/"))
+
     def items(self):
         return BlogPost.objects.filter(status="published").order_by("-published_at")[
             :20
@@ -407,7 +415,7 @@ class BlogRSSFeed(Feed):
         return item.excerpt
 
     def item_link(self, item):
-        return item.get_absolute_url()
+        return self._absolute_url(item.get_absolute_url())
 
     def item_author_name(self, item):
         return item.author.username
@@ -420,3 +428,24 @@ class BlogRSSFeed(Feed):
 
     def item_categories(self, item):
         return [tag.name for tag in item.tags.all()]
+
+    # "Enclosure" stuff so we can use the preview images in the rss feeds
+    def item_enclosure_url(self, item):
+        if getattr(item, "featured_image", None) and getattr(item.featured_image, "url", None):
+            return self._absolute_url(item.featured_image.url)
+        return None
+
+    def item_enclosure_length(self, item):
+        try:
+            if getattr(item, "featured_image", None):
+                return int(item.featured_image.size or 0)
+        except Exception:
+            pass
+        return 0
+
+    def item_enclosure_mime_type(self, item):
+        url = self.item_enclosure_url(item)
+        if not url:
+            return None
+        mime, _encoding = mimetypes.guess_type(url)
+        return mime or "image/jpeg"
