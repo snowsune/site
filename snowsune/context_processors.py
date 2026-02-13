@@ -77,7 +77,13 @@ def seasonal_css(request):
         (9, 17): "fox_day.css",  # National fox day!
         (10,): "halloween.css",  # October (whole month counts~)
         (12,): "christmas.css",  # December (whole month counts!)
+        (2, 14): "valentines.css",  # February 14th (Valentines day!)
     }
 
-    css_file = seasonal_dates.get((today.month,))
+    # First check for exact date match (month, day)
+    css_file = seasonal_dates.get((today.month, today.day))
+    # If no exact match, check for month-only match (month,)
+    if not css_file:
+        css_file = seasonal_dates.get((today.month,))
+    
     return {"seasonal_css": f"css/seasonal/{css_file}" if css_file else None}

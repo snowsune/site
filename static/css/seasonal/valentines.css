@@ -1,0 +1,58 @@
+/* Happy valentines day! */
+
+:root {
+    --background-color: #f0f8f0;
+    --tile-background: #ffffff;
+    --text-color: #000000;
+    --invert-text-color: #ffffff;
+    --navbar-bg: #ff1493; /* pink */
+    --navbar-text: #ffffff;
+    --sidebar-bg: #f0f8f0;
+    --link-hover: #ff69b4; /* light pink */
+    --link-default: #ff1493; /* pink */
+    --link-visited: #ff69b4; /* light pink */
+    --accent-color: #ff1493; /* pink */
+    --accent-hover: #ff0066; /* dark pink */
+    --success-color: #4caf50;
+    --success-hover: #45a049;
+    --warning-color: #ffaa00;
+    --error-color: #ff6b6b;
+    --border-color: #2d4a35;
+    --border-hover: #3d5a45;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --shadow-hover: rgba(0, 0, 0, 0.6);
+}
+
+body {
+    background: url("/static/background/seasonal/tile_valentines.png") repeat, var(--background-color);
+}
+
+/* Dark mode overrides */
+.dark-mode {
+    --background-color: #1a0a1a;
+    --tile-background: #2d1a2d;
+    --text-color: #ffb6e1;
+    --invert-text-color: #1a0a1a;
+    --navbar-bg: #ff1493; /* pink */
+    --navbar-text: #ffffff;
+    --sidebar-bg: #1a0a1a;
+    --link-hover: #ff69b4; /* light pink */
+    --link-default: #ff69b4; /* light pink */
+    --link-visited: #ff1493; /* pink */
+    --accent-color: #ff1493; /* pink */
+    --accent-hover: #ff69b4; /* light pink */
+    --success-color: #4caf50;
+    --success-hover: #45a049;
+    --warning-color: #ffaa00;
+    --error-color: #ff6b6b;
+    --border-color: #ff69b4;
+    --border-hover: #ff1493;
+    --shadow-color: rgba(255, 20, 147, 0.3);
+    --shadow-hover: rgba(255, 20, 147, 0.5);
+}
+
+.dark-mode body {
+    background: url("/static/background/seasonal/tile_valentines.png") repeat, var(--background-color);
+}
+
+  
