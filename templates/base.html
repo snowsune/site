@@ -125,7 +125,7 @@
       <div class="logo">
         <img src="{% if debug %}{% static 'logos/devlogo.png' %}{% else %}{% static 'logos/logo.png' %}{% endif %}"
           alt="Snowsune Logo" />
-        <div class="live-stats">
+        <div class="live-stats" data-nosnippet>
           <a href="{% url 'user-gallery' %}" class="stat-box-link">
             <span class="tile stat-box" title="Users online! (Last 15 Minutes)">👥 <span
                 id="active-users-count">-</span>
