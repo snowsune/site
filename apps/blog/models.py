@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils import timezone
+from django.urls import reverse
 import markdown
 from django.utils.html import strip_tags
 from django.conf import settings
@@ -359,7 +360,8 @@ class Comment(models.Model):
 
             # Only format username as a link if the user is authenticated
             if self.user and self.user.is_authenticated:
-                username_display = f"[{self.get_display_name()}](<{settings.SITE_URL}/user/{self.get_display_name()}>)"
+                profile_path = reverse("user-profile", args=[self.get_display_name()])
+                username_display = f"[{self.get_display_name()}](<{settings.SITE_URL}{profile_path}>)"
             else:
                 username_display = f'"{self.get_display_name()}"'
 

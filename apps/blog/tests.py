@@ -221,7 +221,7 @@ class BlogModelsTest(TestCase):
         site_url = getattr(settings, "SITE_URL", "https://snowsune.net")
 
         self.assertIn(
-            f"[{self.user.username}](<{site_url}/user/{self.user.username}>) commented on [Test Post]",
+            f"[{self.user.username}](<{site_url}/users/{self.user.username}/>) commented on [Test Post]",
             message,
         )
         self.assertIn(">>> This is a test comment from authenticated user", message)

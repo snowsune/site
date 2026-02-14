@@ -55,7 +55,7 @@ def send_new_user_webhook(user):
             if user.last_name:
                 message += f" {user.last_name}"
             message += "\n"
-        message += f"\n**Profile:** {settings.SITE_URL}/user/{user.username}"
+        message += f"\n**Profile:** {settings.SITE_URL}{user.get_absolute_url()}"
 
         # Send webhook
         send_discord_webhook(webhook_url, message)

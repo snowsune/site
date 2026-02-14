@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.urls import reverse
 
 
 class CustomUser(AbstractUser):
@@ -177,6 +178,10 @@ class CustomUser(AbstractUser):
     email_verified = models.BooleanField(default=False)
     email_verification_token = models.CharField(max_length=64, blank=True, null=True)
     email_verification_sent_at = models.DateTimeField(blank=True, null=True)
+
+    def get_absolute_url(self):
+        """Profile URL: /users/<username>/"""
+        return reverse("user-profile", args=[self.username])
 
     def get_profile_picture_url(self):
         """
