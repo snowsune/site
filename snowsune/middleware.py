@@ -19,7 +19,9 @@ class BlockGeoMiddleware:
     def __call__(self, request):
         # Normally CF dosn't pass these but, i have a catchall worker upstream (or it should be there)
         # Its passthru, and if no-match because i somehow exceed the limit then you just slip thru
-        country = request.META.get("HTTP_X_CF_COUNTRY") or request.META.get("HTTP_CF_IPCOUNTRY")
+        country = request.META.get("HTTP_X_CF_COUNTRY") or request.META.get(
+            "HTTP_CF_IPCOUNTRY"
+        )
         region = request.META.get("HTTP_X_CF_REGION")
 
         for blocked_region in REGION_451_REFERENCES:
@@ -33,7 +35,9 @@ class BlockGeoMiddleware:
             except Exception:
                 fallback = "Unavailable for legal reasons in your region."
                 if ref_url and ref_text:
-                    fallback += f" See <a href='{ref_url}'>{ref_text}</a> for more information."
+                    fallback += (
+                        f" See <a href='{ref_url}'>{ref_text}</a> for more information."
+                    )
                 return HttpResponse(fallback, status=451)
 
         return self.get_response(request)
