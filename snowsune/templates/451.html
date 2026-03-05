@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Unavailable in Your Region - Snowsune.net{% endblock %}
+
+{% block og_image %}{% static 'stickers/foxi-sticker-ERROR.png' %}{% endblock %}
+{% block twitter_image %}{% static 'stickers/foxi-sticker-ERROR.png' %}{% endblock %}
+{% block og_description %}This content is not available in your region.{% endblock %}
+
+{% block content %}
+<div class="error-page" style="text-align: center">
+  <h1>451 - Unavailable in Your Region</h1>
+  <p>This content is not available for legal reasons in your region.</p>
+  <img src="{% static 'stickers/foxi-sticker-ERROR.png' %}" alt="Art by Mothwing!"
+    style="max-width: 400px; margin: 2em auto" />
+  {% if reference_url and reference_text %}
+  <p>
+    See <a href="{{ reference_url }}" target="_blank" rel="noopener">{{ reference_text }}</a> for more information.
+  </p>
+  {% endif %}
+  <p><a href="{% url 'home' %}">Return Home</a></p>
+</div>
+{% endblock %}
