@@ -19,10 +19,27 @@
 
 {% block content %}
 <div class="tools-container">
-    <!-- <header class="tools-header">
-        <h1>Tools & Utilities</h1>
-        <p class="tools-subtitle">A collection of useful tools I've built and maintain</p>
-    </header> -->
+    {% if user.is_staff %}
+    <section class="tools-section" aria-label="Staff tools">
+        <h2>Site staff</h2>
+        <div class="tools-grid">
+            <div class="tool-card formal-tool">
+                <div class="tool-content">
+                    <h3>Cumtanks Editor</h3>
+                    <p>Edit clones, "liquid levels" etc for <a href="https://cumtanks.snowsune.net/">https://cumtanks.snowsune.net/</a> and <a href="https://cumtanks.snowsune.net/vixiclones">https://cumtanks.snowsune.net/vixiclones</a>.</p>
+                    <a href="{% url 'tanks_manager:edit' %}" class="tool-button">Open tanks editor</a>
+                </div>
+            </div>
+            <div class="tool-card formal-tool">
+                <div class="tool-content">
+                    <h3>Django admin</h3>
+                    <p>Admin system for the WHOLE site :O</p>
+                    <a href="{% url 'admin:index' %}" class="tool-button">Open admin</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
 
     <section class="tools-section">
         <h2>Vixi's Tools</h2>
@@ -147,6 +164,16 @@
 {% block sidebar %}
 <div class="tools-sidebar">
     <h2>Quick Access</h2>
+
+    {% if user.is_staff %}
+    <div class="sidebar-section">
+        <h3>Staff</h3>
+        <ul class="sidebar-links">
+            <li><a href="{% url 'tanks_manager:edit' %}">Cumtanks editor</a></li>
+            <li><a href="{% url 'admin:index' %}">Django admin</a></li>
+        </ul>
+    </div>
+    {% endif %}
 
     <div class="sidebar-section">
         <h3>Games</h3>

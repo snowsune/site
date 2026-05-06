@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     "apps.bot_manager",  # Fops Bot management app
     "apps.bookclub",  # Comic book club app
     "apps.custompages",  # Custom pages with markdown
+    "apps.tanks_manager",  # Cumtanks data.json editor
 ]
 
 MIDDLEWARE = [
@@ -192,8 +193,10 @@ STATICFILES_DIRS = [
     BASE_DIR / "apps/thank_yous/static",  # Thank Yous
 ]
 
-# Media Paths (things like profile pictures and such are uploaded here)
-MEDIA_URL = "/media/"  # Base of the URL for media
+# User uploads (profiles, blog images, tanks_manager, …). Each ImageField uses
+# upload_to="some/subdir/" relative to MEDIA_ROOT. Override MEDIA_ROOT in prod
+# for persistent storage (see README: e.g. MEDIA_ROOT=.local/media for dev).
+MEDIA_URL = "/media/"
 MEDIA_ROOT = os.environ.get("MEDIA_ROOT", str(BASE_DIR / "media"))
 
 # Default primary key field type
