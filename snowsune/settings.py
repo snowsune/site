@@ -87,7 +87,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "snowsune.middleware.CloudflareAwareVisitorTrackingMiddleware",  # Removed - using Cloudflare Analytics instead
 ]
 
 # Trust reverse proxy headers
@@ -96,11 +95,6 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Cloudflare-specific settings
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
-
-# Cloudflare Analytics API configuration
-CLOUDFLARE_ANALYTICS_API_TOKEN = os.getenv("CLOUDFLARE_ANALYTICS_API_TOKEN")
-CLOUDFLARE_ZONE_ID = os.getenv("CLOUDFLARE_ZONE_ID")
-CLOUDFLARE_ACCOUNT_ID = os.getenv("CLOUDFLARE_ACCOUNT_ID")
 
 ROOT_URLCONF = "snowsune.urls"
 

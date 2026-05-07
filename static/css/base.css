@@ -20,8 +20,9 @@
   --border-hover: #adb5bd;
   --shadow-color: rgba(0, 0, 0, 0.1);
   --shadow-hover: rgba(0, 0, 0, 0.15);
-  --border-radius: 12px;
-  --border-radius-small: 4px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -51,8 +52,9 @@
   --border-hover: #666;
   --shadow-color: rgba(0, 0, 0, 0.3);
   --shadow-hover: rgba(0, 0, 0, 0.4);
-  --border-radius: 12px;
-  --border-radius-small: 4px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -86,7 +88,7 @@ a:visited {
 /* My site is divided into chunks, they can inherit that style from here! */
 .tile {
   background: var(--tile-background);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   box-shadow: 0 5px 5px var(--shadow-color);
@@ -106,7 +108,7 @@ a:visited {
   background: var(--navbar-bg);
   color: white;
   padding: 1em;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   gap: 0.5em;
 }
 .header-left {
@@ -131,7 +133,7 @@ a:visited {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  border-radius: var(--border-radius-small);
+  border-radius: var(--radius-md);
   box-shadow: 0 3px 6px var(--shadow-color);
 }
 
@@ -191,11 +193,12 @@ a:visited {
   margin-bottom: 0.5rem; /* Space between logo and stats */
 }
 
+/* Live stats UI */
 .live-stats {
   text-align: center;
   font-size: 0.9rem;
   color: var(--text-color);
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .stat-box {
@@ -205,16 +208,16 @@ a:visited {
   margin-top: 0;
   margin-bottom: 0;
   font-size: 0.9em;
-  border-radius: var(--border-radius-small);
+  border-radius: var(--radius-md);
 }
 
 #active-users-count,
-#server-offset {
-  font-weight: bold;
+#server-offset,
+#ko-fi-progress {
+  font-weight: 700;
   color: var(--link-default);
 }
 
-/* Clickable stat box styling */
 .stat-box-link {
   text-decoration: none;
   color: inherit;
@@ -224,8 +227,6 @@ a:visited {
 .stat-box-link:hover .stat-box {
   background: var(--accent-color);
   color: white;
-  transform: scale(1.05);
-  transition: all 0.2s ease;
 }
 
 /* ==============
@@ -304,7 +305,7 @@ a:visited {
   background: #5865F2;
   color: #fff;
   font-weight: 600;
-  border-radius: 999px;
+  border-radius: var(--radius-lg);
   padding: 0.35em 1em 0.35em 0.8em;
   font-size: 1em;
   text-decoration: none;
@@ -312,7 +313,6 @@ a:visited {
   margin-right: 0;
   box-shadow: 0 2px 8px rgba(88,101,242,0.08);
   transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
-  animation: discord-bounce 1.2s infinite alternate;
 }
 .login .discord-navbar-btn {
   background: #5865F2;
@@ -335,7 +335,7 @@ a:visited {
   gap: 0.5em;
   background: var(--card-bg);
   border: 2px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   padding: 0.4em 0.6em;
   margin-bottom: 0.5em;
 }
@@ -343,7 +343,7 @@ a:visited {
 .user-avatar {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: var(--radius-lg);
   object-fit: cover;
   border: 2px solid var(--border-color);
 }
@@ -388,7 +388,7 @@ a:visited {
   background: var(--link-default);
   color: var(--invert-text-color);
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   font-size: 0.9rem;
   font-weight: 500;
   transition: all 0.2s;
@@ -455,7 +455,7 @@ a:visited {
 .calendar-widget iframe {
   width: 100%;
   border: none;
-  border-radius: var(--border-radius-small);
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 
@@ -538,7 +538,7 @@ a:visited {
   left: 0;
   width: 100%;
   z-index: 1000;
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   box-shadow: 0 5px 10px rgba(0,0,0,0.2);
 }
 .nav-mobile-links a {
@@ -557,7 +557,7 @@ a:visited {
   background: #1e6f9c;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: 0.6em 1em;
   font-size: 1em;
   font-weight: 600;
@@ -676,7 +676,7 @@ a:visited {
   background: #1e6f9c;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: 0.4em 1.1em;
   font-size: 1em;
   font-weight: 600;
@@ -708,7 +708,7 @@ a:visited {
 
 .blog-preview {
   background: var(--tile-background);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 1.5em;
   box-shadow: 0 5px 5px rgba(0, 0, 0, 0.5);
   display: flex;
@@ -721,7 +721,7 @@ a:visited {
   width: 200px;
   height: 150px;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
 }
 
 .blog-preview-image img {
@@ -771,7 +771,7 @@ a:visited {
   background: var(--sidebar-bg);
   color: var(--text-color);
   padding: 0.2em 0.6em;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-size: 0.8em;
   font-weight: 500;
 }
@@ -820,7 +820,7 @@ a:visited {
   font-weight: 500;
   padding: 0.5em 1em;
   border: 2px solid var(--link-default);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   transition: all 0.2s ease;
 }
 
@@ -837,7 +837,7 @@ a:visited {
   margin-bottom: 2em;
   padding: 2em 0;
   background: linear-gradient(135deg, var(--tile-background), var(--sidebar-bg));
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color, #444);
 }
 
@@ -860,7 +860,7 @@ a:visited {
   margin-bottom: 3em;
   padding: 1.5em;
   background: var(--tile-background);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color, #444);
   line-height: 1.6;
 }
@@ -936,7 +936,7 @@ a:visited {
 
 .notification {
   margin-bottom: 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   animation: slideInRight 0.3s ease-out;
   overflow: hidden;
@@ -984,7 +984,7 @@ a:visited {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-lg);
   transition: background-color 0.2s ease;
   flex-shrink: 0;
 }
