@@ -1,9 +1,12 @@
 import os
 
 from django.conf import settings
+from django.contrib.auth.hashers import make_password
 from django.core.files import File
 from django.db import migrations, models
 import django.db.models.deletion
+
+_PLACEHOLDER_USERNAME = "tanks-migration-placeholder"
 
 
 def forwards(apps, schema_editor):
@@ -19,8 +22,11 @@ def forwards(apps, schema_editor):
         or CustomUser.objects.order_by("pk").first()
     )
     if not owner:
-        raise RuntimeError(
-            "tanks_manager 0002_tanksite_schema requires at least one users.CustomUser."
+        # Fresh databases (like CI) may have no users yet; create an unusable
+        # placeholder so TankSite.owner can be satisfied before tests create data.
+        owner, _ = CustomUser.objects.get_or_create(
+            username=_PLACEHOLDER_USERNAME,
+            defaults={"password": make_password(None)},
         )
 
     ts = TankSettings.objects.filter(pk=1).first()
