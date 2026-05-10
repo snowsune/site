@@ -239,14 +239,9 @@ def tanks_root_redirect(request):
     return redirect("tools")
 
 
-def _unique_tank_slug_for_user(user):
-    base = slugify(user.username) or f"user-{user.pk}"
-    slug = base
-    n = 2
-    while TankSite.objects.filter(slug=slug).exists():
-        slug = f"{base}-{n}"
-        n += 1
-    return slug
+def _tank_slug_from_username(user):
+    """Public URL segment for this account — slugified username (same rules as Django slug fields)."""
+    return slugify(user.username) or f"user-{user.pk}"
 
 
 @login_required
@@ -256,26 +251,24 @@ def create_my_tank(request):
     if existing_slug:
         return redirect("tanks_manager:edit", slug=existing_slug)
 
-    for _ in range(12):
-        slug = _unique_tank_slug_for_user(request.user)
-        try:
-            TankSite.objects.create(owner=request.user, slug=slug)
-        except IntegrityError:
-            existing_slug = tank_site_slug_for_user(request.user)
-            if existing_slug:
-                return redirect("tanks_manager:edit", slug=existing_slug)
-            continue
-        messages.success(
+    slug = _tank_slug_from_username(request.user)
+    try:
+        TankSite.objects.create(owner=request.user, slug=slug)
+    except IntegrityError:
+        existing_slug = tank_site_slug_for_user(request.user)
+        if existing_slug:
+            return redirect("tanks_manager:edit", slug=existing_slug)
+        messages.error(
             request,
-            "Your vore page is ready — customize it in the editor.",
+            "Could not create your tank page right now. Please try again or contact staff.",
         )
-        return redirect("tanks_manager:edit", slug=slug)
+        return redirect("tools")
 
-    messages.error(
+    messages.success(
         request,
-        "Could not create your tank page right now. Please try again in a moment.",
+        "Your vore page is ready — customize it in the editor.",
     )
-    return redirect("tools")
+    return redirect("tanks_manager:edit", slug=slug)
 
 
 @transaction.atomic
