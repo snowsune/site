@@ -23,11 +23,15 @@ def _stage_art_urls(site, request):
     if site.stage_background:
         bg = request.build_absolute_uri(site.stage_background.url)
     else:
-        bg = request.build_absolute_uri(static("tanks_manager/Alice_close_up_sheath_background.png"))
+        bg = request.build_absolute_uri(
+            static("tanks_manager/Alice_close_up_sheath_background.png")
+        )
     if site.stage_foreground:
         fg = request.build_absolute_uri(site.stage_foreground.url)
     else:
-        fg = request.build_absolute_uri(static("tanks_manager/Alice_close_up_sheath_shot.png"))
+        fg = request.build_absolute_uri(
+            static("tanks_manager/Alice_close_up_sheath_shot.png")
+        )
     return bg, fg
 
 
@@ -103,8 +107,12 @@ def _editor_data(site):
             "tankBottomOffset": site.tank_bottom_offset,
             "character_name": site.character_name,
             "character_url": site.character_url,
-            "stage_background_url": site.stage_background.url if site.stage_background else "",
-            "stage_foreground_url": site.stage_foreground.url if site.stage_foreground else "",
+            "stage_background_url": site.stage_background.url
+            if site.stage_background
+            else "",
+            "stage_foreground_url": site.stage_foreground.url
+            if site.stage_foreground
+            else "",
         },
         "logs": [
             {"date": g.date, "text": g.text}
@@ -271,10 +279,7 @@ def _persist(data, tank_site):
     )
     if auto:
         TankLog.objects.bulk_create(
-            [
-                TankLog(tank_site=tank_site, date=d, text=t)
-                for d, t in auto
-            ]
+            [TankLog(tank_site=tank_site, date=d, text=t) for d, t in auto]
         )
 
 
