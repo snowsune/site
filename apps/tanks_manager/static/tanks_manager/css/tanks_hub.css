@@ -1,0 +1,122 @@
+/* /tanks/ hub — light layout next to main site chrome */
+
+.tanks-hub {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1rem 0 2rem;
+}
+
+.tanks-hub-title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.tanks-hub-lead {
+  margin: 0 0 1.5rem;
+  color: var(--muted-text-color, #888);
+  line-height: 1.5;
+}
+
+.tanks-hub-card {
+  padding: 1.25rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #333);
+  background: var(--card-bg, #1a1a22);
+}
+
+.tanks-hub-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.tanks-hub-muted {
+  font-size: 0.9rem;
+  color: var(--muted-text-color, #888);
+  margin: 0.5rem 0 0;
+}
+
+.tanks-hub-section {
+  margin-bottom: 2rem;
+}
+
+.tanks-hub-section h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.75rem;
+}
+
+.tanks-hub-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tanks-hub-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #333);
+  background: var(--card-bg, #1a1a22);
+}
+
+.tanks-hub-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.tanks-hub-slug {
+  font-size: 0.85rem;
+  word-break: break-all;
+}
+
+.tanks-hub-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tanks-hub-inline-form {
+  display: inline;
+  margin: 0;
+}
+
+.tanks-hub-inline-form .tanks-hub-btn-delete {
+  background: #5c2323;
+  border: 1px solid #7a3030;
+  color: #fff;
+}
+
+.tanks-hub-inline-form .tanks-hub-btn-delete:hover {
+  background: #722828;
+}
+
+.tanks-hub-create {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 28rem;
+}
+
+.tanks-hub-label {
+  font-weight: 600;
+}
+
+.tanks-hub-input {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #444);
+  background: var(--bg-color, #121218);
+  color: inherit;
+  font-size: 1rem;
+}

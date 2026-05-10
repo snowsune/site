@@ -3,12 +3,12 @@ from django.db import models
 
 
 class TankSite(models.Model):
-    """One public tank page per owner; URL is /tanks/&lt;slug&gt;/."""
+    """Public tank page; URL is /tanks/&lt;slug&gt;/. Owners may have several."""
 
-    owner = models.OneToOneField(
+    owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="tank_site",
+        related_name="tank_sites",
     )
     slug = models.SlugField(
         max_length=50,
@@ -83,12 +83,8 @@ class TankLog(models.Model):
         ordering = ["date", "id"]
 
 
-def tank_site_slug_for_user(user):
-    """Return this user's tank URL slug, or None if anonymous or they have no TankSite."""
+def tanks_for_user(user):
+    """TankSite queryset for this user; empty if anonymous."""
     if not getattr(user, "is_authenticated", False):
-        return None
-    return (
-        TankSite.objects.filter(owner_id=user.pk)
-        .values_list("slug", flat=True)
-        .first()
-    )
+        return TankSite.objects.none()
+    return TankSite.objects.filter(owner=user).order_by("slug")

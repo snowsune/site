@@ -52,6 +52,13 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 # Site URL for webhooks and external links
 SITE_URL = os.getenv("SITE_URL", "https://snowsune.net")
 
+# Verification emails and /users/verify-email/ redirects: always use production so
+# dev/staging SITE_URL never ends up in inboxes or partial verifies on the wrong DB.
+EMAIL_VERIFICATION_CANONICAL_ORIGIN = os.getenv(
+    "EMAIL_VERIFICATION_CANONICAL_ORIGIN",
+    "https://snowsune.net",
+)
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",

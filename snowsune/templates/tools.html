@@ -38,23 +38,12 @@
     <section class="tools-section tools-section-nsfw" aria-label="NSFW tools">
         <h2>NSFW</h2>
         <div class="tools-grid">
-            <!-- Tank editor -->
-            <div class="tool-card formal-tool">
+            <!-- VorePageEditor -->
+            <div class="tool-card">
                 <div class="tool-content">
-                    <h3>Vore Page Editor</h3>
-                    <p>Somewhat experimental vore-page editor! You can upload your own artwork and set levels inside
-                        anything you like! Personalized per-account!
-                    </p>
-                    {% if user_tank_slug %}
-                    <a href="{% url 'tanks_manager:edit' user_tank_slug %}" class="tool-button">Open the editor</a>
-                    <a href="{% url 'tanks_manager:show' user_tank_slug %}" class="tool-button">View your vore page</a>
-                    {% else %}
-                    <p class="tools-nsfw-note">No tank page on your account yet. If you hit the button you can create one and edit it later!</p>
-                    <form method="post" action="{% url 'tanks_manager:create' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="tool-button">Create my vore page</button>
-                    </form>
-                    {% endif %}
+                    <h3>VorePageEditor</h3>
+                    <p>Still slightly experimental! Upload your own artwork and make a vore page for your character!</p>
+                    <a href="{% url 'tanks_manager:hub' %}" class="tool-button">Open VorePageEditor</a>
                 </div>
             </div>
 
@@ -198,10 +187,11 @@
     <div class="sidebar-section">
         <h3>NSFW</h3>
         <ul class="sidebar-links">
-            {% if user_tank_slug %}
-            <li><a href="{% url 'tanks_manager:edit' user_tank_slug %}">Tank editor</a></li>
-            <li><a href="{% url 'tanks_manager:show' user_tank_slug %}">Tank page</a></li>
-            {% else %}
+            <li><a href="{% url 'tanks_manager:hub' %}">VorePageEditor</a></li>
+            {% for site in tanks_owned %}
+            <li><a href="{% url 'tanks_manager:edit' site.slug %}">{{ site.character_name|default:site.slug }}</a></li>
+            {% endfor %}
+            {% if not tanks_owned %}
             <li>
                 <form method="post" action="{% url 'tanks_manager:create' %}" class="tools-sidebar-create-form">
                     {% csrf_token %}

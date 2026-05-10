@@ -177,6 +177,8 @@
     </div>
   </header>
 
+  {% include "includes/django_messages.html" %}
+
   <!-- Email Verification Banner -->
   {% if user.is_authenticated and not user.email_verified %}
   <div class="email-verification-banner">
@@ -241,6 +243,8 @@
     </div>
   </footer>
 
+  <script src="{% static 'notifications/js/notifications.js' %}"></script>
+
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const hamburger = document.getElementById('nav-hamburger');
@@ -270,7 +274,8 @@
         const type = message.classList.contains('message-success') ? 'success' :
           message.classList.contains('message-error') ? 'error' :
             message.classList.contains('message-warning') ? 'warning' :
-              message.classList.contains('message-info') ? 'info' : 'info';
+              message.classList.contains('message-info') ? 'info' :
+                message.classList.contains('message-debug') ? 'info' : 'info';
 
         const text = message.querySelector('.message-text')?.textContent || message.textContent;
 
@@ -280,9 +285,6 @@
       });
     });
   </script>
-
-  <!-- Centralized Notification System (WIP) -->
-  <script src="{% static 'notifications/js/notifications.js' %}"></script>
 
   <!-- Quotes Scroller -->
   <script src="{% static 'quotes/js/quotes-scroller.js' %}"></script>

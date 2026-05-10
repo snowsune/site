@@ -3,56 +3,12 @@
 {% block title %}Tank editor ({{ tank_site.slug }}) · Snowsune{% endblock %}
 
 {% block extra_css %}
-<style>
-  .tanks-meta { font-size: .9rem; opacity: .85; margin-bottom: 1rem; }
-  .tanks-meta a { color: var(--link-color, #6cf); }
-  .tanks-err { background: var(--error-background, #4a2020); padding: .75rem; border-radius: 6px; margin-bottom: 1rem; }
-  .tanks-msgs { list-style: none; padding: 0; margin: 0 0 1rem; font-size: .9rem; opacity: .9; }
-  .tanks-card { background: var(--tile-background, #1a1a22); border: 1px solid var(--border-color, #333); border-radius: 8px; padding: .75rem; margin: .5rem 0; position: relative; }
-  .tanks-grid { display: grid; gap: .5rem .75rem; align-items: end; }
-  @media (min-width: 640px) {
-    .tanks-g5 { grid-template-columns: 1fr 5rem 7rem 1fr 8rem; }
-    .tanks-g3 { grid-template-columns: 8rem 1fr auto; }
-    .tanks-g2 { grid-template-columns: 1fr 1fr; }
-  }
-  .tanks-card label { display: flex; flex-direction: column; gap: .25rem; font-size: .85rem; }
-  .tanks-card input { padding: .35rem .5rem; border-radius: 4px; border: 1px solid var(--border-color); background: var(--background-color); color: inherit; width: 100%; box-sizing: border-box; }
-  .tanks-card input[type="file"] { width: auto; max-width: 100%; }
-  .tanks-card input[type="number"] { width: 100%; max-width: 8rem; }
-  .tanks-card input[type="color"] {
-    width: 100%;
-    max-width: 7rem;
-    height: 2.35rem;
-    padding: 0.2rem;
-    cursor: pointer;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    background: var(--background-color);
-  }
-  .tanks-h2 { margin: 1.25rem 0 .5rem; font-size: 1.05rem; border-bottom: 1px solid var(--border-color); padding-bottom: .25rem; }
-  .tanks-actions button { margin: .25rem .5rem .25rem 0; padding: .45rem .75rem; border-radius: 4px; border: none; cursor: pointer; background: #2a4a6a; color: #fff; }
-  .tanks-actions button.secondary { background: #444; }
-  .tanks-thumb { max-height: 48px; max-width: 120px; object-fit: contain; border-radius: 4px; vertical-align: middle; }
-  .tanks-upload-tools { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-top: .5rem; font-size: .85rem; }
-  .tanks-default-dl { font-size: .85rem; }
-  .tanks-default-dl a { color: var(--link-color, #6cf); }
-  .tanks-cb-row { display: flex; flex-direction: row; align-items: center; gap: 0.4rem; margin-top: 0.35rem; position: relative; z-index: 3; pointer-events: auto; font-size: .85rem; }
-  .tanks-cb-row input[type="checkbox"] {
-    width: 1.15rem !important; height: 1.15rem !important; min-width: 1.15rem !important; min-height: 1.15rem !important;
-    margin: 0; flex-shrink: 0; cursor: pointer; accent-color: #9cf;
-  }
-  .tanks-cb-row label { flex-direction: row !important; align-items: center; gap: 0.35rem; cursor: pointer; margin: 0 !important; width: auto !important; font-weight: normal; }
-  button.tanks-remove-row {
-    background: none; border: none; padding: 0; margin-top: 0.4rem;
-    color: var(--link-color, #9cf); text-decoration: underline; cursor: pointer;
-    font: inherit; font-size: .85rem;
-  }
-  button.tanks-remove-row:hover { opacity: 0.85; }
-</style>
+<link rel="stylesheet" href="{% static 'tanks_manager/css/tanks_editor.css' %}">
 {% endblock %}
 
 {% block content %}
 <h1>Tank editor · /tanks/{{ tank_site.slug }}/</h1>
+<p class="tanks-meta"><a href="{% url 'tanks_manager:hub' %}">← All my vore pages</a></p>
 <p class="tanks-meta">
   Cumtanks! A lot of people mentioned that they wanted to be able to add their own/upload their own art
   so.. tada!
@@ -61,9 +17,6 @@
   <br>
   And if you have any questions, ask me on discord or email ofc <a href="mailto:vixi@snowsune.net">vixi@snowsune.net</a>
 </p>
-
-{% if err %}<div class="tanks-err">{{ err }}</div>{% endif %}
-{% if messages %}<ul class="tanks-msgs">{% for m in messages %}<li>{{ m }}</li>{% endfor %}</ul>{% endif %}
 
 <form method="post" enctype="multipart/form-data" id="tanks-form">
   {% csrf_token %}
@@ -140,7 +93,7 @@
   <div class="tanks-card">
     <div class="tanks-grid tanks-g3">
       <label>unix date <input type="number" name="g{{ forloop.counter0 }}_date" value="{% if g.date %}{{ g.date }}{% else %}{{ unix_now }}{% endif %}"></label>
-      <label style="grid-column: span 2;">text <input name="g{{ forloop.counter0 }}_text" value="{{ g.text }}"></label>
+      <label class="tanks-span-2">text <input name="g{{ forloop.counter0 }}_text" value="{{ g.text }}"></label>
     </div>
     <button type="button" class="tanks-remove-row">remove row</button>
   </div>
@@ -151,6 +104,15 @@
   <h2 class="tanks-h2">Save</h2>
   <div class="tanks-actions"><button type="submit" name="save" value="1">Save</button></div>
 </form>
+
+<h2 class="tanks-h2 tanks-h2-danger">Delete page</h2>
+<p class="tanks-meta">Remove this page. I can't really recover it if you do :</p>
+<form method="post" action="{% url 'tanks_manager:delete' tank_site.slug %}"
+  onsubmit="return confirm('Delete this tank page permanently? :<');">
+  {% csrf_token %}
+  <div class="tanks-actions"><button type="submit" class="tanks-delete-page">Delete this page</button></div>
+</form>
+
 <script>
 (function () {
   var nL = {{ data.liquids|length }};
@@ -189,7 +151,7 @@
     wrap.innerHTML =
       '<div class="tanks-grid tanks-g3">' +
       '<label>unix date <input type="number" name="g' + i + '_date" value="' + ts + '"></label>' +
-      '<label style="grid-column: span 2;">text <input name="g' + i + '_text" value=""></label></div>' +
+      '<label class="tanks-span-2">text <input name="g' + i + '_text" value=""></label></div>' +
       '<button type="button" class="tanks-remove-row">remove row</button>';
     document.getElementById('tanks-logs').appendChild(wrap);
   });

@@ -13,7 +13,7 @@ from django.templatetags.static import static
 from django.utils.text import slugify
 from django.views.decorators.http import require_GET, require_POST
 
-from .models import TankLiquid, TankLog, TankSite, tank_site_slug_for_user
+from .models import TankLiquid, TankLog, TankSite, tanks_for_user
 
 # Stage layout: offsets are for an 850px-tall design box (see tank_page.css aspect-ratio).
 _DESIGN_STAGE_HEIGHT = 850
@@ -232,41 +232,79 @@ def tank_show(request, slug):
     )
 
 
-def tanks_root_redirect(request):
-    slug = tank_site_slug_for_user(request.user)
-    if slug:
-        return redirect("tanks_manager:show", slug=slug)
-    return redirect("tools")
+@require_GET
+def tanks_hub(request):
+    tanks_owned = []
+    username_slug_hint = ""
+    if request.user.is_authenticated:
+        tanks_owned = list(tanks_for_user(request.user))
+        username_slug_hint = _tank_slug_from_username(request.user)
+    return render(
+        request,
+        "tanks_manager/hub.html",
+        {
+            "tanks_owned": tanks_owned,
+            "username_slug_hint": username_slug_hint,
+        },
+    )
 
 
 def _tank_slug_from_username(user):
-    """Public URL segment for this account — slugified username (same rules as Django slug fields)."""
+    """Preferred slug from login name (slug field rules)."""
     return slugify(user.username) or f"user-{user.pk}"
+
+
+def _slug_candidates_for_new_tank(user):
+    """Yield slug guesses until one is unused (globally unique)."""
+    base = _tank_slug_from_username(user)
+    yield base
+    for n in range(2, 500):
+        yield f"{base}-{n}"
 
 
 @login_required
 @require_POST
 def create_my_tank(request):
-    existing_slug = tank_site_slug_for_user(request.user)
-    if existing_slug:
-        return redirect("tanks_manager:edit", slug=existing_slug)
+    redirect_to = "tanks_manager:hub"
+    requested = slugify((request.POST.get("slug") or "").strip())[:50]
 
-    slug = _tank_slug_from_username(request.user)
-    try:
-        TankSite.objects.create(owner=request.user, slug=slug)
-    except IntegrityError:
-        existing_slug = tank_site_slug_for_user(request.user)
-        if existing_slug:
-            return redirect("tanks_manager:edit", slug=existing_slug)
-        messages.error(
-            request,
-            "Could not create your tank page right now. Please try again or contact staff.",
-        )
-        return redirect("tools")
+    if requested:
+        if TankSite.objects.filter(slug=requested).exists():
+            messages.error(
+                request,
+                "That URL slug is already taken. Pick a different one.",
+            )
+            return redirect(redirect_to)
+        try:
+            TankSite.objects.create(owner=request.user, slug=requested)
+        except IntegrityError:
+            messages.error(
+                request,
+                "Could not create that slug — try another.",
+            )
+            return redirect(redirect_to)
+        slug = requested
+    else:
+        slug = None
+        for cand in _slug_candidates_for_new_tank(request.user):
+            if TankSite.objects.filter(slug=cand).exists():
+                continue
+            try:
+                TankSite.objects.create(owner=request.user, slug=cand)
+                slug = cand
+                break
+            except IntegrityError:
+                continue
+        if slug is None:
+            messages.error(
+                request,
+                "Could not allocate a URL slug. Try entering one manually.",
+            )
+            return redirect(redirect_to)
 
     messages.success(
         request,
-        "Your vore page is ready — customize it in the editor.",
+        "Tank page created — customize it in the editor.",
     )
     return redirect("tanks_manager:edit", slug=slug)
 
@@ -316,12 +354,23 @@ def _can_edit_tank(user, site):
 
 
 @login_required
+@require_POST
+def delete_my_tank(request, slug):
+    site = get_object_or_404(TankSite, slug=slug)
+    if not _can_edit_tank(request.user, site):
+        raise PermissionDenied
+    label = site.character_name or site.slug
+    site.delete()
+    messages.success(request, f"Deleted “{label}”.")
+    return redirect("tanks_manager:hub")
+
+
+@login_required
 def edit(request, slug):
     site = get_object_or_404(TankSite, slug=slug)
     if not _can_edit_tank(request.user, site):
         raise PermissionDenied
 
-    err = None
     data = _editor_data(site)
 
     if request.method == "POST" and "save" in request.POST:
@@ -349,7 +398,7 @@ def edit(request, slug):
             messages.success(request, "Saved.")
             return redirect("tanks_manager:edit", slug=site.slug)
         except Exception as e:
-            err = str(e)
+            messages.error(request, str(e))
 
     return render(
         request,
@@ -357,7 +406,6 @@ def edit(request, slug):
         {
             "tank_site": site,
             "data": data,
-            "err": err,
             "unix_now": int(time.time()),
         },
     )

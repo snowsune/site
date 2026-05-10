@@ -5,12 +5,6 @@
 
 <a href="javascript:history.back()">← Back</a>
 
-{% if messages %}
-{% for message in messages %}
-<div class="alert alert-{{ message.tags }}">{{ message }}</div>
-{% endfor %}
-{% endif %}
-
 <form method="post">
     {% csrf_token %}
 

@@ -124,7 +124,17 @@ class NotificationSystem {
         // Icon
         const icon = document.createElement('span');
         icon.className = 'notification-icon';
-        icon.innerHTML = this.getIcon(type);
+        const stickerSrc = this.getStickerSrc(type);
+        if (stickerSrc) {
+            const img = document.createElement('img');
+            img.className = 'notification-sticker';
+            img.src = stickerSrc;
+            img.alt = '';
+            img.decoding = 'async';
+            icon.appendChild(img);
+        } else {
+            icon.innerHTML = this.getIcon(type);
+        }
 
         // Message
         const messageSpan = document.createElement('span');
@@ -148,7 +158,21 @@ class NotificationSystem {
     }
 
     /**
-     * Get icon for notification type
+     * Static sticker URLs (matches {% static 'stickers/…' %} with STATIC_URL /static/)
+     */
+    getStickerSrc(type) {
+        const base = '/static/stickers/';
+        if (type === 'success') {
+            return `${base}bep_bounce.gif`;
+        }
+        if (type === 'error') {
+            return `${base}foxi-sticker-ERROR.png`;
+        }
+        return null;
+    }
+
+    /**
+     * Fallback emoji icon for notification types without stickers
      */
     getIcon(type) {
         const icons = {
@@ -186,6 +210,7 @@ class NotificationSystem {
         if (message.classList.contains('message-error')) return 'error';
         if (message.classList.contains('message-warning')) return 'warning';
         if (message.classList.contains('message-info')) return 'info';
+        if (message.classList.contains('message-debug')) return 'info';
         return 'info';
     }
 
