@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils.cache import patch_vary_headers
 
 # Per-region reference link
 REGION_451_REFERENCES = {
@@ -41,3 +42,25 @@ class BlockGeoMiddleware:
                 return HttpResponse(fallback, status=451)
 
         return self.get_response(request)
+
+
+class PrivateHtmlNoStoreMiddleware:
+    """
+    Nav and login widgets (base.html) depend on the session cookie. Browsers and
+    upstream caches sometimes reuse a stored HTML document without sending
+    Cookie so users see an anonymous shell while logged in. Mark HTML as
+    private and uncached so each visit reflects the current session.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if response.status_code != 200:
+            return response
+        if "text/html" not in response.get("Content-Type", ""):
+            return response
+        response["Cache-Control"] = "private, no-store"
+        patch_vary_headers(response, ["Cookie"])
+        return response
