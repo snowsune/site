@@ -49,8 +49,7 @@
                     <a href="{% url 'tanks_manager:edit' user_tank_slug %}" class="tool-button">Open the editor</a>
                     <a href="{% url 'tanks_manager:show' user_tank_slug %}" class="tool-button">View your vore page</a>
                     {% else %}
-                    <p class="tools-nsfw-note">No tank page on your account yet. Create one — your URL will use your
-                        username (you can share the public link after).</p>
+                    <p class="tools-nsfw-note">No tank page on your account yet. If you hit the button you can create one and edit it later!</p>
                     <form method="post" action="{% url 'tanks_manager:create' %}">
                         {% csrf_token %}
                         <button type="submit" class="tool-button">Create my vore page</button>
