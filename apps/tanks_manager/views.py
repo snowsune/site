@@ -7,12 +7,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.files.base import ContentFile
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.templatetags.static import static
-from django.views.decorators.http import require_GET
+from django.utils.text import slugify
+from django.views.decorators.http import require_GET, require_POST
 
-from .models import TankLiquid, TankLog, TankSite
+from .models import TankLiquid, TankLog, TankSite, tank_site_slug_for_user
 
 # Stage layout: offsets are for an 850px-tall design box (see tank_page.css aspect-ratio).
 _DESIGN_STAGE_HEIGHT = 850
@@ -232,14 +233,48 @@ def tank_show(request, slug):
 
 
 def tanks_root_redirect(request):
-    if request.user.is_authenticated:
-        slug = (
-            TankSite.objects.filter(owner_id=request.user.pk)
-            .values_list("slug", flat=True)
-            .first()
+    slug = tank_site_slug_for_user(request.user)
+    if slug:
+        return redirect("tanks_manager:show", slug=slug)
+    return redirect("tools")
+
+
+def _unique_tank_slug_for_user(user):
+    base = slugify(user.username) or f"user-{user.pk}"
+    slug = base
+    n = 2
+    while TankSite.objects.filter(slug=slug).exists():
+        slug = f"{base}-{n}"
+        n += 1
+    return slug
+
+
+@login_required
+@require_POST
+def create_my_tank(request):
+    existing_slug = tank_site_slug_for_user(request.user)
+    if existing_slug:
+        return redirect("tanks_manager:edit", slug=existing_slug)
+
+    for _ in range(12):
+        slug = _unique_tank_slug_for_user(request.user)
+        try:
+            TankSite.objects.create(owner=request.user, slug=slug)
+        except IntegrityError:
+            existing_slug = tank_site_slug_for_user(request.user)
+            if existing_slug:
+                return redirect("tanks_manager:edit", slug=existing_slug)
+            continue
+        messages.success(
+            request,
+            "Your vore page is ready — customize it in the editor.",
         )
-        if slug:
-            return redirect("tanks_manager:show", slug=slug)
+        return redirect("tanks_manager:edit", slug=slug)
+
+    messages.error(
+        request,
+        "Could not create your tank page right now. Please try again in a moment.",
+    )
     return redirect("tools")
 
 

@@ -190,9 +190,14 @@
     line-height: 1.45;
 }
 
-.tools-sidebar-muted {
-    font-size: 0.9rem;
-    color: var(--muted-text-color);
+.tools-sidebar-create-form {
+    margin: 0;
+}
+
+.tools-sidebar-create-form .tool-button {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
 }
 
 /* Responsive Bits */

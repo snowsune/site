@@ -81,3 +81,14 @@ class TankLog(models.Model):
 
     class Meta:
         ordering = ["date", "id"]
+
+
+def tank_site_slug_for_user(user):
+    """Return this user's tank URL slug, or None if anonymous or they have no TankSite."""
+    if not getattr(user, "is_authenticated", False):
+        return None
+    return (
+        TankSite.objects.filter(owner_id=user.pk)
+        .values_list("slug", flat=True)
+        .first()
+    )

@@ -37,21 +37,24 @@
     {% if user.is_authenticated %}
     <section class="tools-section tools-section-nsfw" aria-label="NSFW tools">
         <h2>NSFW</h2>
-        <p class="tools-nsfw-lead">Logged-in only. Mature themes.</p>
         <div class="tools-grid">
             <!-- Tank editor -->
             <div class="tool-card formal-tool">
                 <div class="tool-content">
-                    <h3>Tank editor</h3>
-                    <p>Edit liquids, logs, offsets, and optional stage images for your page at <code>/tanks/&lt;slug&gt;/</code>.</p>
+                    <h3>Vore Page Editor</h3>
+                    <p>Somewhat experimental vore-page editor! You can upload your own artwork and set levels inside
+                        anything you like! Personalized per-account!
+                    </p>
                     {% if user_tank_slug %}
-                    <a href="{% url 'tanks_manager:edit' user_tank_slug %}" class="tool-button">Open your tank editor</a>
-                    <a href="{% url 'tanks_manager:show' user_tank_slug %}" class="tool-button">View your tank page</a>
-                    {% elif user.is_staff %}
-                    <p class="tools-nsfw-note">No <strong>Tank site</strong> on your account yet — create one in admin and set yourself as owner.</p>
-                    <a href="{% url 'admin:tanks_manager_tanksite_add' %}" class="tool-button">Add tank site (admin)</a>
+                    <a href="{% url 'tanks_manager:edit' user_tank_slug %}" class="tool-button">Open the editor</a>
+                    <a href="{% url 'tanks_manager:show' user_tank_slug %}" class="tool-button">View your vore page</a>
                     {% else %}
-                    <p class="tools-nsfw-note">No tank is linked to your account yet. Ask staff if you would like one.</p>
+                    <p class="tools-nsfw-note">No tank page on your account yet. Create one — your URL will use your
+                        username (you can share the public link after).</p>
+                    <form method="post" action="{% url 'tanks_manager:create' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="tool-button">Create my vore page</button>
+                    </form>
                     {% endif %}
                 </div>
             </div>
@@ -199,11 +202,16 @@
             {% if user_tank_slug %}
             <li><a href="{% url 'tanks_manager:edit' user_tank_slug %}">Tank editor</a></li>
             <li><a href="{% url 'tanks_manager:show' user_tank_slug %}">Tank page</a></li>
-            {% elif user.is_staff %}
-            <li><a href="{% url 'admin:tanks_manager_tanksite_add' %}">Add tank site</a></li>
             {% else %}
-            <li><span class="tools-sidebar-muted">No tank linked</span></li>
+            <li>
+                <form method="post" action="{% url 'tanks_manager:create' %}" class="tools-sidebar-create-form">
+                    {% csrf_token %}
+                    <button type="submit" class="tool-button">Create tank page</button>
+                </form>
+            </li>
             {% endif %}
+            <li><a href="https://booru.snowsune.net/" target="_blank" rel="noopener noreferrer">BixiBooru Image Board</a></li>
+  
         </ul>
     </div>
     {% endif %}
