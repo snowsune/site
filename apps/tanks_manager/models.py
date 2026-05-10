@@ -1,33 +1,61 @@
+from django.conf import settings
 from django.db import models
 
 
-class TankSettings(models.Model):
+class TankSite(models.Model):
+    """One public tank page per owner; URL is /tanks/&lt;slug&gt;/."""
+
+    owner = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="tank_site",
+    )
+    slug = models.SlugField(
+        max_length=50,
+        unique=True,
+        db_index=True,
+        help_text="URL segment, e.g. vixi → /tanks/vixi/",
+    )
     tank_top_offset = models.PositiveIntegerField(default=360)
     tank_bottom_offset = models.PositiveIntegerField(default=101)
-
-    class Meta:
-        verbose_name_plural = "Tank settings"
-
-
-class TankClone(models.Model):
-    sort_order = models.PositiveIntegerField(default=0)
-    name = models.CharField(max_length=200)
-    banner = models.CharField(max_length=200, blank=True)
-    image = models.CharField(
+    character_name = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Shown as the main title on the public tank page when set.",
+    )
+    character_url = models.CharField(
         max_length=500,
         blank=True,
-        help_text="Relative path or URL if not using upload",
+        help_text="Optional; makes the title a link (e.g. profile or ref sheet).",
     )
-    image_file = models.ImageField(
-        upload_to="tanks/clones/", blank=True, null=True, max_length=500
+    stage_background = models.ImageField(
+        upload_to="tanks/stage/",
+        blank=True,
+        null=True,
+        max_length=500,
+        help_text="Optional; sample Alice tank art is used when empty.",
     )
-    url = models.CharField(max_length=500, blank=True)
+    stage_foreground = models.ImageField(
+        upload_to="tanks/stage/",
+        blank=True,
+        null=True,
+        max_length=500,
+        help_text="Optional; sample overlay is used when empty.",
+    )
 
     class Meta:
-        ordering = ["sort_order", "id"]
+        ordering = ["slug"]
+
+    def __str__(self):
+        return f"/tanks/{self.slug}/ ({self.owner})"
 
 
 class TankLiquid(models.Model):
+    tank_site = models.ForeignKey(
+        TankSite,
+        on_delete=models.CASCADE,
+        related_name="liquids",
+    )
     sort_order = models.PositiveIntegerField(default=0)
     name = models.CharField(max_length=200)
     volume = models.PositiveSmallIntegerField(default=0)
@@ -43,6 +71,11 @@ class TankLiquid(models.Model):
 
 
 class TankLog(models.Model):
+    tank_site = models.ForeignKey(
+        TankSite,
+        on_delete=models.CASCADE,
+        related_name="logs",
+    )
     date = models.PositiveIntegerField(help_text="Unix timestamp")
     text = models.TextField()
 

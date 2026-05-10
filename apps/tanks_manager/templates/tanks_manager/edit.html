@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Tanks data · Snowsune{% endblock %}
+{% load tanks_manager_tags %}
+{% block title %}Tank editor ({{ tank_site.slug }}) · Snowsune{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -10,7 +11,6 @@
   .tanks-card { background: var(--tile-background, #1a1a22); border: 1px solid var(--border-color, #333); border-radius: 8px; padding: .75rem; margin: .5rem 0; position: relative; }
   .tanks-grid { display: grid; gap: .5rem .75rem; align-items: end; }
   @media (min-width: 640px) {
-    .tanks-g4 { grid-template-columns: repeat(4, 1fr); }
     .tanks-g5 { grid-template-columns: 1fr 5rem 7rem 1fr 8rem; }
     .tanks-g3 { grid-template-columns: 8rem 1fr auto; }
     .tanks-g2 { grid-template-columns: 1fr 1fr; }
@@ -19,13 +19,23 @@
   .tanks-card input { padding: .35rem .5rem; border-radius: 4px; border: 1px solid var(--border-color); background: var(--background-color); color: inherit; width: 100%; box-sizing: border-box; }
   .tanks-card input[type="file"] { width: auto; max-width: 100%; }
   .tanks-card input[type="number"] { width: 100%; max-width: 8rem; }
-  .tanks-card select.js-clone-name { padding: .35rem .5rem; border-radius: 4px; border: 1px solid var(--border-color); background: var(--background-color); color: inherit; width: 100%; box-sizing: border-box; }
+  .tanks-card input[type="color"] {
+    width: 100%;
+    max-width: 7rem;
+    height: 2.35rem;
+    padding: 0.2rem;
+    cursor: pointer;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+  }
   .tanks-h2 { margin: 1.25rem 0 .5rem; font-size: 1.05rem; border-bottom: 1px solid var(--border-color); padding-bottom: .25rem; }
   .tanks-actions button { margin: .25rem .5rem .25rem 0; padding: .45rem .75rem; border-radius: 4px; border: none; cursor: pointer; background: #2a4a6a; color: #fff; }
   .tanks-actions button.secondary { background: #444; }
   .tanks-thumb { max-height: 48px; max-width: 120px; object-fit: contain; border-radius: 4px; vertical-align: middle; }
   .tanks-upload-tools { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-top: .5rem; font-size: .85rem; }
-  /* Checkbox rows: don't use column flex from .tanks-card label — fixes tiny/unclickable boxes */
+  .tanks-default-dl { font-size: .85rem; }
+  .tanks-default-dl a { color: var(--link-color, #6cf); }
   .tanks-cb-row { display: flex; flex-direction: row; align-items: center; gap: 0.4rem; margin-top: 0.35rem; position: relative; z-index: 3; pointer-events: auto; font-size: .85rem; }
   .tanks-cb-row input[type="checkbox"] {
     width: 1.15rem !important; height: 1.15rem !important; min-width: 1.15rem !important; min-height: 1.15rem !important;
@@ -42,10 +52,16 @@
 {% endblock %}
 
 {% block content %}
-<h1>Cumtanks data</h1>
+<h1>Tank editor · /tanks/{{ tank_site.slug }}/</h1>
 <p class="tanks-meta">
-  Hey if you're reading this! You're an admin :P this is just a simple table editor i made to edit the data that
-  <a href="https://cumtanks.snowsune.net/">https://cumtanks.snowsune.net/</a> and <a href="https://cumtanks.snowsune.net/vixiclones">https://cumtanks.snowsune.net/vixiclones</a> uses.</p>
+  Cumtanks! A lot of people mentioned that they wanted to be able to add their own/upload their own art
+  so.. tada!
+  <br>
+  If you fill out the tables below, you should see a public sharable page <a href="{% url 'tanks_manager:show' tank_site.slug %}">here!</a>
+  <br>
+  And if you have any questions, ask me on discord or email ofc <a href="mailto:vixi@snowsune.net">vixi@snowsune.net</a>
+</p>
+
 {% if err %}<div class="tanks-err">{{ err }}</div>{% endif %}
 {% if messages %}<ul class="tanks-msgs">{% for m in messages %}<li>{{ m }}</li>{% endfor %}</ul>{% endif %}
 
@@ -54,44 +70,43 @@
 
   <h2 class="tanks-h2">Settings</h2>
   <div class="tanks-card tanks-grid tanks-g2">
-    <label>tankTopOffset <input type="number" name="top" value="{{ data.settings.tankTopOffset }}"></label>
-    <label>tankBottomOffset <input type="number" name="bot" value="{{ data.settings.tankBottomOffset }}"></label>
+    <label>Tank Top Offset (Pixels) <input type="number" name="top" value="{{ data.settings.tankTopOffset }}"></label>
+    <label>Tank Bottom Offset (Pixels) <input type="number" name="bot" value="{{ data.settings.tankBottomOffset }}"></label>
+  </div>
+  <div class="tanks-card tanks-grid tanks-g2">
+    <label>Character name (optional, shows at the top of the page)
+      <input type="text" name="char_name" value="{{ data.settings.character_name }}" maxlength="200" placeholder="e.g. Alice Prairie">
+    </label>
+    <label>Character link (optional, hyperlink for the character name)
+      <input type="url" name="char_url" value="{{ data.settings.character_url }}" maxlength="500" placeholder="https://…">
+    </label>
   </div>
 
-  <h2 class="tanks-h2">Clones</h2>
-  <div id="tanks-clones">
-  {% for c in data.clones %}
-  <div class="tanks-card tanks-clone-card">
-    <input type="hidden" name="c{{ forloop.counter0 }}_id" value="{{ c.pk|default:'' }}">
-    <div class="tanks-grid tanks-g4">
-      <label>name
-        <select name="c{{ forloop.counter0 }}_name" class="js-clone-name" id="id_c{{ forloop.counter0 }}_name" autocomplete="off">
-          <option value="">—</option>
-          {% if c.name and c.name not in clone_names %}<option value="{{ c.name }}" selected>{{ c.name }}</option>{% endif %}
-          {% for nm in clone_names %}<option value="{{ nm }}" {% if c.name == nm %}selected{% endif %}>{{ nm }}</option>{% endfor %}
-        </select>
-      </label>
-      <label>banner <input name="c{{ forloop.counter0 }}_banner" value="{{ c.banner }}"></label>
-      <label>image path <input name="c{{ forloop.counter0 }}_image" value="{{ c.image }}" placeholder="relative path if no file"></label>
-      <label>url <input name="c{{ forloop.counter0 }}_url" value="{{ c.url }}"></label>
-    </div>
-    <div class="tanks-upload-tools">
-      <label>upload <input type="file" name="c{{ forloop.counter0 }}_imgfile" accept="image/*"></label>
-      {% if c.upload_preview_url %}<span><img class="tanks-thumb" src="{{ c.upload_preview_url }}" alt=""></span>{% endif %}
-      {% if c.upload_preview_url %}
-      <div class="tanks-cb-row">
-        <input type="checkbox" name="c{{ forloop.counter0 }}_clearimg" value="1" id="id_c{{ forloop.counter0 }}_clr">
-        <label for="id_c{{ forloop.counter0 }}_clr">clear file</label>
+  <h2 class="tanks-h2">Stage art</h2>
+  <p class="tanks-meta">Optional custom art! Kinda not tested. Defaults/examples are linked below!</p>
+  <div class="tanks-card tanks-grid tanks-g2">
+    <div>
+      <label>Background image</label>
+      <div class="tanks-upload-tools">
+        <input type="file" name="stage_bg" accept="image/*">
+        <span class="tanks-default-dl"><a href="{{ default_stage_bg_url }}" download="alice-tank-background.png" target="_blank" rel="noopener noreferrer">Sample background (download)</a></span>
+        {% if data.settings.stage_background_url %}<span><img class="tanks-thumb" src="{{ data.settings.stage_background_url }}" alt=""></span>{% endif %}
+        <div class="tanks-cb-row"><input type="checkbox" name="clear_stage_bg" id="id_clear_stage_bg"><label for="id_clear_stage_bg">clear uploaded background</label></div>
       </div>
-      {% endif %}
     </div>
-    <button type="button" class="tanks-remove-row">remove row</button>
+    <div>
+      <label>Foreground / overlay image</label>
+      <div class="tanks-upload-tools">
+        <input type="file" name="stage_fg" accept="image/*">
+        <span class="tanks-default-dl"><a href="{{ default_stage_fg_url }}" download="alice-tank-foreground.png" target="_blank" rel="noopener noreferrer">Sample foreground (download)</a></span>
+        {% if data.settings.stage_foreground_url %}<span><img class="tanks-thumb" src="{{ data.settings.stage_foreground_url }}" alt=""></span>{% endif %}
+        <div class="tanks-cb-row"><input type="checkbox" name="clear_stage_fg" id="id_clear_stage_fg"><label for="id_clear_stage_fg">clear uploaded overlay</label></div>
+      </div>
+    </div>
   </div>
-  {% endfor %}
-  </div>
-  <div class="tanks-actions"><button type="button" class="secondary" id="btn-add-clone">+ clone</button></div>
 
   <h2 class="tanks-h2">Liquids</h2>
+  <p class="tanks-meta">Logs will be autogenerated based on liquid changes! (But also add more below too if you want!)</p>
   <div id="tanks-liquids">
   {% for l in data.liquids %}
   <div class="tanks-card">
@@ -99,7 +114,7 @@
     <div class="tanks-grid tanks-g5">
       <label>name <input name="l{{ forloop.counter0 }}_name" value="{{ l.name }}"></label>
       <label>vol <input type="number" name="l{{ forloop.counter0 }}_vol" value="{{ l.volume }}"></label>
-      <label>color <input name="l{{ forloop.counter0 }}_color" value="{{ l.color }}"></label>
+      <label>color <input type="color" name="l{{ forloop.counter0 }}_color" value="{{ l.color|hex_for_color_input }}" title="{{ l.color }}"></label>
       <label>url <input name="l{{ forloop.counter0 }}_url" value="{{ l.url }}"></label>
       <label>image path <input name="l{{ forloop.counter0 }}_img" value="{{ l.image }}" placeholder="optional"></label>
     </div>
@@ -138,63 +153,14 @@
 </form>
 <script>
 (function () {
-  var CLONE_NAMES = {{ clone_names_json }};
-  var nC = {{ data.clones|length }};
   var nL = {{ data.liquids|length }};
   var nG = {{ data.logs|length }};
-
-  function cloneSelectInner(selected) {
-    var h = '<option value="">—</option>';
-    CLONE_NAMES.forEach(function (nm) {
-      h += '<option value="' + nm + '"' + (nm === selected ? ' selected' : '') + '>' + nm + '</option>';
-    });
-    return h;
-  }
-
-  function syncCloneNameSelects() {
-    var selects = Array.from(document.querySelectorAll('#tanks-clones select.js-clone-name'));
-    selects.forEach(function (s) {
-      Array.from(s.options).forEach(function (opt) {
-        if (!opt.value) return;
-        opt.disabled = selects.some(function (o) {
-          return o !== s && o.value === opt.value;
-        });
-      });
-    });
-  }
 
   document.getElementById('tanks-form').addEventListener('click', function (e) {
     var btn = e.target.closest('.tanks-remove-row');
     if (!btn) return;
     var card = btn.closest('.tanks-card');
-    if (card) {
-      card.remove();
-      syncCloneNameSelects();
-    }
-  });
-
-  document.getElementById('tanks-clones').addEventListener('change', function (e) {
-    if (e.target.classList.contains('js-clone-name')) syncCloneNameSelects();
-  });
-
-  document.getElementById('btn-add-clone').addEventListener('click', function () {
-    var i = nC++;
-    var wrap = document.createElement('div');
-    wrap.className = 'tanks-card tanks-clone-card';
-    wrap.innerHTML =
-      '<input type="hidden" name="c' + i + '_id" value="">' +
-      '<div class="tanks-grid tanks-g4">' +
-      '<label>name <select name="c' + i + '_name" class="js-clone-name" id="id_c' + i + '_name" autocomplete="off">' +
-      cloneSelectInner('') +
-      '</select></label>' +
-      '<label>banner <input name="c' + i + '_banner" value=""></label>' +
-      '<label>image path <input name="c' + i + '_image" value="" placeholder="relative path if no file"></label>' +
-      '<label>url <input name="c' + i + '_url" value=""></label></div>' +
-      '<div class="tanks-upload-tools">' +
-      '<label>upload <input type="file" name="c' + i + '_imgfile" accept="image/*"></label></div>' +
-      '<button type="button" class="tanks-remove-row">remove row</button>';
-    document.getElementById('tanks-clones').appendChild(wrap);
-    syncCloneNameSelects();
+    if (card) card.remove();
   });
 
   document.getElementById('btn-add-liquid').addEventListener('click', function () {
@@ -206,7 +172,7 @@
       '<div class="tanks-grid tanks-g5">' +
       '<label>name <input name="l' + i + '_name" value=""></label>' +
       '<label>vol <input type="number" name="l' + i + '_vol" value="0"></label>' +
-      '<label>color <input name="l' + i + '_color" value="#ffffff"></label>' +
+      '<label>color <input type="color" name="l' + i + '_color" value="#ffffff"></label>' +
       '<label>url <input name="l' + i + '_url" value=""></label>' +
       '<label>image path <input name="l' + i + '_img" value="" placeholder="optional"></label></div>' +
       '<div class="tanks-upload-tools">' +
@@ -227,8 +193,6 @@
       '<button type="button" class="tanks-remove-row">remove row</button>';
     document.getElementById('tanks-logs').appendChild(wrap);
   });
-
-  syncCloneNameSelects();
 })();
 </script>
 {% endblock %}

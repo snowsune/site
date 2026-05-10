@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.humanize",
     # Main app
     "snowsune",
     # Custom apps
@@ -74,7 +75,7 @@ INSTALLED_APPS = [
     "apps.bot_manager",  # Fops Bot management app
     "apps.bookclub",  # Comic book club app
     "apps.custompages",  # Custom pages with markdown
-    "apps.tanks_manager",  # Cumtanks data.json editor
+    "apps.tanks_manager",  # Per-user tank pages + editor
 ]
 
 MIDDLEWARE = [

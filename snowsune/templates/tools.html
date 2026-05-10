@@ -25,16 +25,46 @@
         <div class="tools-grid">
             <div class="tool-card formal-tool">
                 <div class="tool-content">
-                    <h3>Cumtanks Editor</h3>
-                    <p>Edit clones, "liquid levels" etc for <a href="https://cumtanks.snowsune.net/">https://cumtanks.snowsune.net/</a> and <a href="https://cumtanks.snowsune.net/vixiclones">https://cumtanks.snowsune.net/vixiclones</a>.</p>
-                    <a href="{% url 'tanks_manager:edit' %}" class="tool-button">Open tanks editor</a>
-                </div>
-            </div>
-            <div class="tool-card formal-tool">
-                <div class="tool-content">
                     <h3>Django admin</h3>
                     <p>Admin system for the WHOLE site :O</p>
                     <a href="{% url 'admin:index' %}" class="tool-button">Open admin</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    <section class="tools-section tools-section-nsfw" aria-label="NSFW tools">
+        <h2>NSFW</h2>
+        <p class="tools-nsfw-lead">Logged-in only. Mature themes.</p>
+        <div class="tools-grid">
+            <!-- Tank editor -->
+            <div class="tool-card formal-tool">
+                <div class="tool-content">
+                    <h3>Tank editor</h3>
+                    <p>Edit liquids, logs, offsets, and optional stage images for your page at <code>/tanks/&lt;slug&gt;/</code>.</p>
+                    {% if user_tank_slug %}
+                    <a href="{% url 'tanks_manager:edit' user_tank_slug %}" class="tool-button">Open your tank editor</a>
+                    <a href="{% url 'tanks_manager:show' user_tank_slug %}" class="tool-button">View your tank page</a>
+                    {% elif user.is_staff %}
+                    <p class="tools-nsfw-note">No <strong>Tank site</strong> on your account yet — create one in admin and set yourself as owner.</p>
+                    <a href="{% url 'admin:tanks_manager_tanksite_add' %}" class="tool-button">Add tank site (admin)</a>
+                    {% else %}
+                    <p class="tools-nsfw-note">No tank is linked to your account yet. Ask staff if you would like one.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- BixiBooru -->
+            <div class="tool-card">
+                <div class="tool-image">
+                    <img src="{% static 'stickers/bixibooru.png' %}" alt="BixiBooru Image Board" loading="lazy">
+                </div>
+                <div class="tool-content">
+                    <h3>BixiBooru</h3>
+                    <p>A Danbooru fork image board that I maintain and host. Lots archived on there >:3</p>
+                    <a href="https://booru.snowsune.net/" class="tool-button external">Visit The Booru</a>
                 </div>
             </div>
         </div>
@@ -56,18 +86,6 @@
                         with discord webhooks too! And works with a snowsune.net account or not. Please try it and leave
                         feedback!</p>
                     <a href="{% url 'commorganizer' %}" class="tool-button">Try My Organizer!</a>
-                </div>
-            </div>
-
-            <!-- BixiBooru -->
-            <div class="tool-card">
-                <div class="tool-image">
-                    <img src="{% static 'stickers/bixibooru.png' %}" alt="BixiBooru Image Board" loading="lazy">
-                </div>
-                <div class="tool-content">
-                    <h3>BixiBooru</h3>
-                    <p>A Danbooru fork image board that I maintain and host. Lots archived on there >:3</p>
-                    <a href="https://booru.snowsune.net/" class="tool-button external">Visit The Booru</a>
                 </div>
             </div>
 
@@ -169,8 +187,23 @@
     <div class="sidebar-section">
         <h3>Staff</h3>
         <ul class="sidebar-links">
-            <li><a href="{% url 'tanks_manager:edit' %}">Cumtanks editor</a></li>
             <li><a href="{% url 'admin:index' %}">Django admin</a></li>
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    <div class="sidebar-section">
+        <h3>NSFW</h3>
+        <ul class="sidebar-links">
+            {% if user_tank_slug %}
+            <li><a href="{% url 'tanks_manager:edit' user_tank_slug %}">Tank editor</a></li>
+            <li><a href="{% url 'tanks_manager:show' user_tank_slug %}">Tank page</a></li>
+            {% elif user.is_staff %}
+            <li><a href="{% url 'admin:tanks_manager_tanksite_add' %}">Add tank site</a></li>
+            {% else %}
+            <li><span class="tools-sidebar-muted">No tank linked</span></li>
+            {% endif %}
         </ul>
     </div>
     {% endif %}
