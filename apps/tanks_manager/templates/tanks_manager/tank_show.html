@@ -20,15 +20,6 @@
     </header>
     {% endif %}
     <section class="tank-layout">
-      <aside class="tank-logbook">
-        <ul>
-          {% for log in logs %}
-            <li{% if log.is_new %} class="tank-log-new"{% endif %}>{{ log.dt|naturaltime }} — {{ log.text }}</li>
-          {% empty %}
-            <li><em>No log entries yet.</em></li>
-          {% endfor %}
-        </ul>
-      </aside>
       <div class="tank-stage">
         <img class="tank-bg" src="{{ stage_background_url }}" alt="" width="1200" height="850" decoding="async" />
         {% for row in liquid_layers %}
@@ -37,7 +28,7 @@
             style="bottom: {{ row.bottom_pct|floatformat:4 }}%; height: {{ row.height_pct|floatformat:4 }}%; background-color: {{ row.color }};"
           >
             {% if row.image %}
-              <img class="tank-liquid-img" src="{{ row.image }}" alt="" width="800" height="200" decoding="async" />
+              <img class="tank-liquid-img" src="{{ row.image }}" alt="" decoding="async" />
             {% endif %}
             {% if row.url %}
               <a class="tank-liquid-label{% if row.label_nudge %} is-nudged{% endif %}" href="{{ row.url }}" target="_blank" rel="noreferrer noopener">{{ row.name }} ({{ row.volume }}%)</a>
@@ -48,6 +39,15 @@
         {% endfor %}
         <img class="tank-fg" src="{{ stage_foreground_url }}" alt="" width="1200" height="850" decoding="async" />
       </div>
+      <aside class="tank-logbook">
+        <ul>
+          {% for log in logs %}
+            <li{% if log.is_new %} class="tank-log-new"{% endif %}>{{ log.dt|naturaltime }} — {{ log.text }}</li>
+          {% empty %}
+            <li><em>No log entries yet.</em></li>
+          {% endfor %}
+        </ul>
+      </aside>
       <div class="tank-home-link">
         <a href="https://snowsune.net" title="Back to snowsune.net">
           <img src="https://snowsune.net/static/stickers/bep_bounce.gif" alt="" width="20" height="20" />

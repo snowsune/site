@@ -1,13 +1,13 @@
-/* Public tank page: logbook + stage + liquids */
+/* Tank show page — bg/fg use object-fit; liquid <img> stays width-fill + clip only */
+
 :root {
   color-scheme: dark;
 }
 
 .tank-page {
-  box-sizing: border-box;
   margin: 0;
   background: #23232b;
-  font-family: "Inter", Arial, sans-serif;
+  font-family: Inter, Arial, sans-serif;
   min-height: 100vh;
   color: #e6e6ff;
 }
@@ -23,6 +23,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  max-width: 100%;
 }
 
 .tank-page-title {
@@ -34,7 +35,6 @@
   margin: 0;
   font-size: clamp(1.25rem, 3vw, 1.85rem);
   font-weight: 700;
-  color: #e6e6ff;
   line-height: 1.2;
 }
 
@@ -48,8 +48,11 @@
   color: #aacfff;
 }
 
+/* DOM: .tank-stage, .tank-logbook, .tank-home-link — order sets desktop vs mobile */
 .tank-layout {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 24px;
   width: 100%;
   align-items: flex-start;
@@ -58,8 +61,9 @@
 .tank-logbook {
   width: 240px;
   max-width: 30vw;
+  flex-shrink: 0;
   padding: 16px 12px;
-  background: rgba(30, 30, 40, 0.95);
+  background: #1e1e28f2;
   border: 3px solid #000;
   display: flex;
   flex-direction: column;
@@ -79,30 +83,34 @@
 
 .tank-stage {
   position: relative;
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   aspect-ratio: 1200 / 850;
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
   overflow: hidden;
   background: #14141c;
 }
 
-.tank-stage img {
+/* Fill the stage frame (fixes letterboxing / “half empty” sides on phones) */
+.tank-stage > .tank-bg,
+.tank-stage > .tank-fg {
   position: absolute;
   inset: 0;
-  margin: auto;
+  width: 100%;
   height: 100%;
+  margin: 0;
+  object-fit: cover;
+  object-position: center;
   pointer-events: none;
 }
 
-.tank-stage .tank-bg {
+.tank-stage > .tank-bg {
   z-index: 1;
 }
 
-.tank-stage .tank-fg {
+.tank-stage > .tank-fg {
   z-index: 3;
 }
 
@@ -118,13 +126,11 @@
 
 .tank-liquid-img {
   position: absolute;
+  left: 0;
   top: 0;
-  right: 4%;
-  height: 100%;
-  width: auto;
-  max-width: 85%;
-  object-fit: contain;
-  object-position: top right;
+  width: 100%;
+  height: auto;
+  display: block;
   pointer-events: none;
 }
 
@@ -134,11 +140,11 @@
   left: 50%;
   z-index: 1;
   transform: translate(-50%, -50%);
-  padding: clamp(4px, 0.6vw, 8px) clamp(8px, 1vw, 14px);
-  background: rgba(0, 0, 0, 0.45);
+  padding: 4px 8px;
+  background: #00000073;
   color: #fff;
   font-weight: 600;
-  font-size: clamp(10px, 1.4vw, 19px);
+  font-size: clamp(10px, 2.8vw, 17px);
   border-radius: 4px;
   white-space: nowrap;
   text-align: center;
@@ -154,8 +160,29 @@
   transform: translate(60%, -50%);
 }
 
+@media (min-width: 901px) {
+  .tank-logbook {
+    order: 1;
+  }
+
+  .tank-stage {
+    order: 2;
+  }
+
+  .tank-home-link {
+    order: 3;
+  }
+
+  .tank-liquid-label {
+    padding: 6px 12px;
+    font-size: clamp(13px, 1.6vw, 24px);
+    border-radius: 6px;
+  }
+}
+
 .tank-home-link {
   width: 220px;
+  flex-shrink: 0;
   display: flex;
   justify-content: flex-start;
 }
@@ -166,16 +193,16 @@
   gap: 6px;
   padding: 8px 16px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.75);
+  background: #000000bf;
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
   text-decoration: none;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .tank-home-link a:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: #ffffffe6;
   color: #1f1f29;
 }
 
@@ -205,19 +232,50 @@ li.tank-log-new {
 
   .tank-layout {
     flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
   }
 
-  .tank-logbook,
-  .tank-home-link {
+  /* Same DOM as desktop; explicit order so tank is on top */
+  .tank-stage {
+    order: 1;
+    flex: none;
     width: 100%;
     max-width: none;
+    margin: 0;
+    align-self: stretch;
+  }
+
+  .tank-logbook {
+    order: 2;
+    width: 100%;
+    max-width: none;
+    max-height: min(45vh, 320px);
+    font-size: 0.9rem;
+    -webkit-overflow-scrolling: touch;
   }
 
   .tank-home-link {
+    order: 3;
+    width: 100%;
+    max-width: none;
     justify-content: center;
   }
+}
 
-  .tank-stage {
-    width: 100%;
+@media (max-width: 480px) {
+  .tank-page-inner {
+    padding: 16px 12px;
+  }
+
+  .tank-liquid-label {
+    white-space: normal;
+    max-width: 90%;
+    line-height: 1.25;
+  }
+
+  .tank-liquid-label.is-nudged {
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 }
