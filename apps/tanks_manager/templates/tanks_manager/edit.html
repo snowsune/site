@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load tanks_manager_tags %}
+{% load static tanks_manager_tags %}
 {% block title %}Tank editor ({{ tank_site.slug }}) · Snowsune{% endblock %}
 
 {% block extra_css %}
@@ -89,7 +89,7 @@
       <label>Background image</label>
       <div class="tanks-upload-tools">
         <input type="file" name="stage_bg" accept="image/*">
-        <span class="tanks-default-dl"><a href="{{ default_stage_bg_url }}" download="alice-tank-background.png" target="_blank" rel="noopener noreferrer">Sample background (download)</a></span>
+        <span class="tanks-default-dl"><a href="{% static 'tanks_manager/Alice_close_up_sheath_background.png' %}" download="alice-tank-background.png">Default background</a></span>
         {% if data.settings.stage_background_url %}<span><img class="tanks-thumb" src="{{ data.settings.stage_background_url }}" alt=""></span>{% endif %}
         <div class="tanks-cb-row"><input type="checkbox" name="clear_stage_bg" id="id_clear_stage_bg"><label for="id_clear_stage_bg">clear uploaded background</label></div>
       </div>
@@ -98,7 +98,7 @@
       <label>Foreground / overlay image</label>
       <div class="tanks-upload-tools">
         <input type="file" name="stage_fg" accept="image/*">
-        <span class="tanks-default-dl"><a href="{{ default_stage_fg_url }}" download="alice-tank-foreground.png" target="_blank" rel="noopener noreferrer">Sample foreground (download)</a></span>
+        <span class="tanks-default-dl"><a href="{% static 'tanks_manager/Alice_close_up_sheath_shot.png' %}" download="alice-tank-foreground.png">Default foreground</a></span>
         {% if data.settings.stage_foreground_url %}<span><img class="tanks-thumb" src="{{ data.settings.stage_foreground_url }}" alt=""></span>{% endif %}
         <div class="tanks-cb-row"><input type="checkbox" name="clear_stage_fg" id="id_clear_stage_fg"><label for="id_clear_stage_fg">clear uploaded overlay</label></div>
       </div>

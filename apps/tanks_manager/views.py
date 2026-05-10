@@ -9,28 +9,25 @@ from django.core.exceptions import PermissionDenied
 from django.core.files.base import ContentFile
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.templatetags.static import static
 from django.views.decorators.http import require_GET
 
 from .models import TankLiquid, TankLog, TankSite
 
 # Stage layout: offsets are for an 850px-tall design box (see tank_page.css aspect-ratio).
 _DESIGN_STAGE_HEIGHT = 850
-# Bundled sample art (same files as the old static tank); used when no custom upload.
-_DEFAULT_STAGE_ART_BASE = "https://cumtanks.snowsune.net"
-_DEFAULT_STAGE_BG_URL = f"{_DEFAULT_STAGE_ART_BASE}/Alice_close_up_sheath_background.png"
-_DEFAULT_STAGE_FG_URL = f"{_DEFAULT_STAGE_ART_BASE}/Alice_close_up_sheath_shot.png"
 
 
 def _stage_art_urls(site, request):
-    """Absolute URLs for stage layers: uploads, else sample defaults."""
+    """Absolute URLs for stage layers: uploads, else bundled static defaults."""
     if site.stage_background:
         bg = request.build_absolute_uri(site.stage_background.url)
     else:
-        bg = _DEFAULT_STAGE_BG_URL
+        bg = request.build_absolute_uri(static("tanks_manager/Alice_close_up_sheath_background.png"))
     if site.stage_foreground:
         fg = request.build_absolute_uri(site.stage_foreground.url)
     else:
-        fg = _DEFAULT_STAGE_FG_URL
+        fg = request.build_absolute_uri(static("tanks_manager/Alice_close_up_sheath_shot.png"))
     return bg, fg
 
 
@@ -329,7 +326,5 @@ def edit(request, slug):
             "data": data,
             "err": err,
             "unix_now": int(time.time()),
-            "default_stage_bg_url": _DEFAULT_STAGE_BG_URL,
-            "default_stage_fg_url": _DEFAULT_STAGE_FG_URL,
         },
     )

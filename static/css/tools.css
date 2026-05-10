@@ -172,7 +172,7 @@
     transform: none;
 }
 
-/* NSFW tools block (logged-in only) */
+/* NSFW tools block */
 .tools-section-nsfw h2 {
     border-left-color: #b85c7a;
 }
@@ -195,7 +195,7 @@
     color: var(--muted-text-color);
 }
 
-/* Responsive Design */
+/* Responsive Bits */
 @media (max-width: 768px) {
     .tools-container {
         padding: 0.5rem;
