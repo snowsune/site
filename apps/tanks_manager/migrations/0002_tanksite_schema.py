@@ -64,7 +64,6 @@ def backwards(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("tanks_manager", "0001_initial"),
         ("users", "0004_customuser_email_verification_sent_at_and_more"),
