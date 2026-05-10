@@ -965,6 +965,17 @@ a:visited {
 .notification-icon {
   font-size: 1.2em;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-sticker {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
 }
 
 .notification-text {

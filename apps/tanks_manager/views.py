@@ -1,95 +1,96 @@
-import json
 import os
 import re
 import time
-from django.conf import settings
+from datetime import datetime, timedelta, timezone as dt_timezone
+
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.core.files.base import ContentFile
-from django.db import transaction
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
-from django.utils.safestring import mark_safe
-from django.views.decorators.http import require_GET
+from django.db import IntegrityError, transaction
+from django.shortcuts import get_object_or_404, redirect, render
+from django.templatetags.static import static
+from django.utils.text import slugify
+from django.views.decorators.http import require_GET, require_POST
 
-from .models import TankClone, TankLiquid, TankLog, TankSettings
+from .models import TankLiquid, TankLog, TankSite, tanks_for_user
 
-CLONE_NAME_CHOICES = (
-    "Azure",
-    "Cyan",
-    "Indigo",
-    "Lapis",
-    "Midnight",
-    "Navy",
-    "Royal",
-    "Sapphire",
-    "Sky",
-)
+# Stage layout: offsets are for an 850px-tall design box (see tank_page.css aspect-ratio).
+_DESIGN_STAGE_HEIGHT = 850
 
 
-def _settings():
-    obj, _ = TankSettings.objects.get_or_create(
-        pk=1,
-        defaults=dict(tank_top_offset=360, tank_bottom_offset=101),
-    )
-    return obj
+def _stage_art_urls(site, request):
+    """Absolute URLs for stage layers: uploads, else bundled static defaults."""
+    if site.stage_background:
+        bg = request.build_absolute_uri(site.stage_background.url)
+    else:
+        bg = request.build_absolute_uri(
+            static("tanks_manager/Alice_close_up_sheath_background.png")
+        )
+    if site.stage_foreground:
+        fg = request.build_absolute_uri(site.stage_foreground.url)
+    else:
+        fg = request.build_absolute_uri(
+            static("tanks_manager/Alice_close_up_sheath_shot.png")
+        )
+    return bg, fg
 
 
-def _image_json(obj):
-    if obj.image_file:
-        base = settings.SITE_URL.rstrip("/")
-        return f"{base}{obj.image_file.url}"
-    return obj.image or ""
-
-
-def _liquid_export(li):
-    row = {
-        "name": li.name,
-        "volume": li.volume,
-        "color": li.color,
-        "url": li.url,
-    }
-    img = _image_json(li)
-    if img:
-        row["image"] = img
-    return row
-
-
-def _data_from_db():
-    s = _settings()
-    return {
-        "clones": [
+def _liquid_layer_rows(liquids, tank_top, tank_bottom, request):
+    """Bottom + height as % of design stage height."""
+    design = _DESIGN_STAGE_HEIGHT
+    tank_h = max(0, design - tank_top - tank_bottom)
+    offset_px = 0.0
+    cumulative_vol = 0
+    rows = []
+    for li in liquids:
+        vol = int(li.volume)
+        h_px = (vol / 100.0) * tank_h
+        bottom_px = tank_bottom + offset_px
+        cumulative_vol += vol
+        if h_px <= 0:
+            offset_px += h_px
+            continue
+        if li.image_file:
+            img = request.build_absolute_uri(li.image_file.url)
+        elif li.image:
+            raw = li.image.strip()
+            if raw.startswith(("http://", "https://", "data:")):
+                img = raw
+            elif raw.startswith("/"):
+                img = request.build_absolute_uri(raw)
+            else:
+                img = request.build_absolute_uri(f"/{raw.lstrip('/')}")
+        else:
+            img = ""
+        rows.append(
             {
-                "name": c.name,
-                "banner": c.banner,
-                "image": _image_json(c),
-                "url": c.url,
+                "bottom_pct": (bottom_px / design) * 100,
+                "height_pct": (h_px / design) * 100,
+                "color": li.color or "#ffffff",
+                "image": img,
+                "name": li.name,
+                "volume": vol,
+                "url": li.url.strip(),
+                "label_nudge": cumulative_vol < 20,
             }
-            for c in TankClone.objects.all()
-        ],
-        "liquids": [_liquid_export(li) for li in TankLiquid.objects.all()],
-        "settings": {
-            "tankTopOffset": s.tank_top_offset,
-            "tankBottomOffset": s.tank_bottom_offset,
-        },
-        "logs": [{"date": g.date, "text": g.text} for g in TankLog.objects.all()],
-    }
+        )
+        offset_px += h_px
+    return rows
 
 
-def _editor_data():
-    s = _settings()
+def _logs_for_show(logs):
+    out = []
+    now = datetime.now(dt_timezone.utc)
+    for g in logs:
+        dt = datetime.fromtimestamp(int(g.date), tz=dt_timezone.utc)
+        is_new = (now - dt) < timedelta(hours=8)
+        out.append({"dt": dt, "text": g.text, "is_new": is_new})
+    return out
+
+
+def _editor_data(site):
     return {
-        "clones": [
-            {
-                "pk": c.pk,
-                "name": c.name,
-                "banner": c.banner,
-                "image": c.image,
-                "url": c.url,
-                "upload_preview_url": c.image_file.url if c.image_file else "",
-            }
-            for c in TankClone.objects.all()
-        ],
         "liquids": [
             {
                 "pk": li.pk,
@@ -100,13 +101,24 @@ def _editor_data():
                 "image": li.image,
                 "upload_preview_url": li.image_file.url if li.image_file else "",
             }
-            for li in TankLiquid.objects.all()
+            for li in TankLiquid.objects.filter(tank_site=site)
         ],
         "settings": {
-            "tankTopOffset": s.tank_top_offset,
-            "tankBottomOffset": s.tank_bottom_offset,
+            "tankTopOffset": site.tank_top_offset,
+            "tankBottomOffset": site.tank_bottom_offset,
+            "character_name": site.character_name,
+            "character_url": site.character_url,
+            "stage_background_url": site.stage_background.url
+            if site.stage_background
+            else "",
+            "stage_foreground_url": site.stage_foreground.url
+            if site.stage_foreground
+            else "",
         },
-        "logs": [{"date": g.date, "text": g.text} for g in TankLog.objects.all()],
+        "logs": [
+            {"date": g.date, "text": g.text}
+            for g in TankLog.objects.filter(tank_site=site)
+        ],
     }
 
 
@@ -117,21 +129,7 @@ def _idx(post, files, letter):
 
 
 def _build(post, files):
-    clones, liquids, logs = [], [], []
-    for i in _idx(post, files, "c"):
-        raw_pk = post.get(f"c{i}_id", "").strip()
-        row = {
-            "pk": int(raw_pk) if raw_pk.isdigit() else None,
-            "name": post.get(f"c{i}_name", "").strip(),
-            "banner": post.get(f"c{i}_banner", "").strip(),
-            "image": post.get(f"c{i}_image", "").strip(),
-            "url": post.get(f"c{i}_url", "").strip(),
-            "_clear_upload": f"c{i}_clearimg" in post,
-        }
-        k = f"c{i}_imgfile"
-        if k in files and getattr(files[k], "name", ""):
-            row["_upload"] = files[k]
-        clones.append(row)
+    liquids, logs = [], []
     for i in _idx(post, files, "l"):
         raw_pk = post.get(f"l{i}_id", "").strip()
         row = {
@@ -158,11 +156,12 @@ def _build(post, files):
             d = now
         logs.append({"date": d, "text": post.get(f"g{i}_text", "").strip()})
     return {
-        "clones": clones,
         "liquids": liquids,
         "settings": {
             "tankTopOffset": int(post.get("top") or 0),
             "tankBottomOffset": int(post.get("bot") or 0),
+            "character_name": post.get("char_name", "").strip()[:200],
+            "character_url": post.get("char_url", "").strip()[:500],
         },
         "logs": logs,
     }
@@ -183,38 +182,21 @@ def _liquid_change_logs(old_vols, new_liquids):
     return lines
 
 
-def _snapshot_image_files(model_cls):
+def _snapshot_image_files(model_cls, tank_site):
     by_pk = {}
-    for obj in model_cls.objects.all():
+    for obj in model_cls.objects.filter(tank_site=tank_site):
         if obj.image_file:
             with obj.image_file.open("rb") as fh:
                 by_pk[obj.pk] = (obj.image_file.name, fh.read())
     return by_pk
 
 
-def _save_clone(row, snap):
-    pk = row["pk"]
-    up = row.get("_upload")
-    clear = row.get("_clear_upload")
-    obj = TankClone.objects.create(
-        sort_order=row["_order"],
-        name=row["name"],
-        banner=row["banner"],
-        image=row["image"],
-        url=row["url"],
-    )
-    if up:
-        obj.image_file.save(up.name, up, save=True)
-    elif pk and snap.get(pk) and not clear:
-        name, raw = snap[pk]
-        obj.image_file.save(os.path.basename(name), ContentFile(raw), save=True)
-
-
-def _save_liquid(row, snap):
+def _save_liquid(row, snap, tank_site):
     pk = row["pk"]
     up = row.get("_upload")
     clear = row.get("_clear_upload")
     obj = TankLiquid.objects.create(
+        tank_site=tank_site,
         sort_order=row["_order"],
         name=row["name"],
         volume=row["volume"],
@@ -229,69 +211,201 @@ def _save_liquid(row, snap):
         obj.image_file.save(os.path.basename(name), ContentFile(raw), save=True)
 
 
-def _dumps(data):
-    return json.dumps(data, indent=1, ensure_ascii=False) + "\n"
+@require_GET
+def tank_show(request, slug):
+    site = get_object_or_404(TankSite, slug=slug)
+    liquids = TankLiquid.objects.filter(tank_site=site)
+    logs = TankLog.objects.filter(tank_site=site)
+    bg_url, fg_url = _stage_art_urls(site, request)
+    return render(
+        request,
+        "tanks_manager/tank_show.html",
+        {
+            "tank_site": site,
+            "stage_background_url": bg_url,
+            "stage_foreground_url": fg_url,
+            "liquid_layers": _liquid_layer_rows(
+                liquids, site.tank_top_offset, site.tank_bottom_offset, request
+            ),
+            "logs": _logs_for_show(logs),
+        },
+    )
 
 
 @require_GET
-def data_json(request):
-    resp = HttpResponse(_dumps(_data_from_db()), content_type="application/json")
-    resp["Access-Control-Allow-Origin"] = "*"
-    return resp
+def tanks_hub(request):
+    tanks_owned = []
+    username_slug_hint = ""
+    if request.user.is_authenticated:
+        tanks_owned = list(tanks_for_user(request.user))
+        username_slug_hint = _tank_slug_from_username(request.user)
+    return render(
+        request,
+        "tanks_manager/hub.html",
+        {
+            "tanks_owned": tanks_owned,
+            "username_slug_hint": username_slug_hint,
+        },
+    )
+
+
+def _tank_slug_from_username(user):
+    """Preferred slug from login name (slug field rules)."""
+    return slugify(user.username) or f"user-{user.pk}"
+
+
+def _slug_candidates_for_new_tank(user):
+    """Yield slug guesses until one is unused (globally unique)."""
+    base = _tank_slug_from_username(user)
+    yield base
+    for n in range(2, 500):
+        yield f"{base}-{n}"
+
+
+@login_required
+@require_POST
+def create_my_tank(request):
+    redirect_to = "tanks_manager:hub"
+    requested = slugify((request.POST.get("slug") or "").strip())[:50]
+
+    if requested:
+        if TankSite.objects.filter(slug=requested).exists():
+            messages.error(
+                request,
+                "That URL slug is already taken. Pick a different one.",
+            )
+            return redirect(redirect_to)
+        try:
+            TankSite.objects.create(owner=request.user, slug=requested)
+        except IntegrityError:
+            messages.error(
+                request,
+                "Could not create that slug — try another.",
+            )
+            return redirect(redirect_to)
+        slug = requested
+    else:
+        slug = None
+        for cand in _slug_candidates_for_new_tank(request.user):
+            if TankSite.objects.filter(slug=cand).exists():
+                continue
+            try:
+                TankSite.objects.create(owner=request.user, slug=cand)
+                slug = cand
+                break
+            except IntegrityError:
+                continue
+        if slug is None:
+            messages.error(
+                request,
+                "Could not allocate a URL slug. Try entering one manually.",
+            )
+            return redirect(redirect_to)
+
+    messages.success(
+        request,
+        "Tank page created — customize it in the editor.",
+    )
+    return redirect("tanks_manager:edit", slug=slug)
 
 
 @transaction.atomic
-def _persist(data):
-    old_vols = {li.name: li.volume for li in TankLiquid.objects.order_by("sort_order")}
-    clone_snap = _snapshot_image_files(TankClone)
-    liquid_snap = _snapshot_image_files(TankLiquid)
+def _persist(data, tank_site):
+    old_vols = {
+        li.name: li.volume
+        for li in TankLiquid.objects.filter(tank_site=tank_site).order_by("sort_order")
+    }
+    liquid_snap = _snapshot_image_files(TankLiquid, tank_site)
 
-    s = _settings()
-    s.tank_top_offset = data["settings"]["tankTopOffset"]
-    s.tank_bottom_offset = data["settings"]["tankBottomOffset"]
-    s.save()
+    tank_site.tank_top_offset = data["settings"]["tankTopOffset"]
+    tank_site.tank_bottom_offset = data["settings"]["tankBottomOffset"]
+    tank_site.character_name = data["settings"]["character_name"]
+    tank_site.character_url = data["settings"]["character_url"]
+    tank_site.save(
+        update_fields=[
+            "tank_top_offset",
+            "tank_bottom_offset",
+            "character_name",
+            "character_url",
+        ]
+    )
 
-    TankClone.objects.all().delete()
-    for i, row in enumerate(data["clones"]):
-        row["_order"] = i
-        _save_clone(row, clone_snap)
-
-    auto = _liquid_change_logs(old_vols, data["liquids"])
-    TankLiquid.objects.all().delete()
+    TankLiquid.objects.filter(tank_site=tank_site).delete()
     for i, row in enumerate(data["liquids"]):
         row["_order"] = i
-        _save_liquid(row, liquid_snap)
+        _save_liquid(row, liquid_snap, tank_site)
 
-    TankLog.objects.all().delete()
+    auto = _liquid_change_logs(old_vols, data["liquids"])
+    TankLog.objects.filter(tank_site=tank_site).delete()
     TankLog.objects.bulk_create(
-        [TankLog(date=g["date"], text=g["text"]) for g in data["logs"]]
+        [
+            TankLog(tank_site=tank_site, date=g["date"], text=g["text"])
+            for g in data["logs"]
+        ]
     )
     if auto:
-        TankLog.objects.bulk_create([TankLog(date=d, text=t) for d, t in auto])
+        TankLog.objects.bulk_create(
+            [TankLog(tank_site=tank_site, date=d, text=t) for d, t in auto]
+        )
 
 
-@staff_member_required
-def edit(request):
-    err = None
-    data = _editor_data()
+def _can_edit_tank(user, site):
+    return user.is_staff or (user.is_authenticated and user.pk == site.owner_id)
+
+
+@login_required
+@require_POST
+def delete_my_tank(request, slug):
+    site = get_object_or_404(TankSite, slug=slug)
+    if not _can_edit_tank(request.user, site):
+        raise PermissionDenied
+    label = site.character_name or site.slug
+    site.delete()
+    messages.success(request, f"Deleted “{label}”.")
+    return redirect("tanks_manager:hub")
+
+
+@login_required
+def edit(request, slug):
+    site = get_object_or_404(TankSite, slug=slug)
+    if not _can_edit_tank(request.user, site):
+        raise PermissionDenied
+
+    data = _editor_data(site)
 
     if request.method == "POST" and "save" in request.POST:
         try:
             data = _build(request.POST, request.FILES)
-            _persist(data)
+            _persist(data, site)
+            site = get_object_or_404(TankSite, slug=slug)
+            if request.POST.get("clear_stage_bg"):
+                if site.stage_background:
+                    site.stage_background.delete(save=False)
+                site.stage_background = None
+                site.save(update_fields=["stage_background"])
+            if request.POST.get("clear_stage_fg"):
+                if site.stage_foreground:
+                    site.stage_foreground.delete(save=False)
+                site.stage_foreground = None
+                site.save(update_fields=["stage_foreground"])
+            site = get_object_or_404(TankSite, slug=slug)
+            if f := request.FILES.get("stage_bg"):
+                if getattr(f, "name", ""):
+                    site.stage_background.save(f.name, f, save=True)
+            if f := request.FILES.get("stage_fg"):
+                if getattr(f, "name", ""):
+                    site.stage_foreground.save(f.name, f, save=True)
             messages.success(request, "Saved.")
-            return redirect("tanks_manager:edit")
+            return redirect("tanks_manager:edit", slug=site.slug)
         except Exception as e:
-            err = str(e)
+            messages.error(request, str(e))
 
     return render(
         request,
         "tanks_manager/edit.html",
         {
+            "tank_site": site,
             "data": data,
-            "err": err,
             "unix_now": int(time.time()),
-            "clone_names": CLONE_NAME_CHOICES,
-            "clone_names_json": mark_safe(json.dumps(CLONE_NAME_CHOICES)),
         },
     )
