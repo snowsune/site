@@ -33,7 +33,9 @@ def _lanczos():
         return Image.LANCZOS
 
 
-def _widest_transparent_run_bounds(pixels, y: int, width: int) -> tuple[int, int] | None:
+def _widest_transparent_run_bounds(
+    pixels, y: int, width: int
+) -> tuple[int, int] | None:
     runs: list[tuple[int, int]] = []
     start: int | None = None
     for x in range(width):
@@ -173,7 +175,9 @@ def interpolate_stage_x_pct(samples: List[List[float]], y_pct: float) -> float:
     return 50.0
 
 
-def band_anchor_stage_x_pct(samples: List[List[float]], y_top_lo: float, y_top_hi: float) -> float:
+def band_anchor_stage_x_pct(
+    samples: List[List[float]], y_top_lo: float, y_top_hi: float
+) -> float:
     """Average interpolated X at band top, middle, and bottom for stability."""
     if y_top_hi < y_top_lo:
         y_top_lo, y_top_hi = y_top_hi, y_top_lo

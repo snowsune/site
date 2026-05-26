@@ -2,7 +2,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("tanks_manager", "0003_alter_tanksite_owner_fk"),
     ]

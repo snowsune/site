@@ -201,9 +201,7 @@ def verify_email_view(request, user_id, token):
     req_host = request.get_host().split(":")[0].lower()
     if canonical_host and req_host != canonical_host:
         base = settings.EMAIL_VERIFICATION_CANONICAL_ORIGIN.rstrip("/")
-        path = reverse(
-            "verify-email", kwargs={"user_id": user_id, "token": token}
-        )
+        path = reverse("verify-email", kwargs={"user_id": user_id, "token": token})
         return HttpResponseRedirect(f"{base}{path}")
 
     user = get_object_or_404(CustomUser, id=user_id)

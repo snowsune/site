@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("tanks_manager", "0004_tanksite_stage_fg_label_profile"),
     ]
