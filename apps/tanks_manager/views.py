@@ -13,6 +13,7 @@ from django.templatetags.static import static
 from django.utils.text import slugify
 from django.views.decorators.http import require_GET, require_POST
 
+from .foreground_labels import analyze_stage_foreground, band_anchor_stage_x_pct
 from .models import TankLiquid, TankLog, TankSite, tanks_for_user
 
 # Stage layout: offsets are for an 850px-tall design box (see tank_page.css aspect-ratio).
@@ -36,8 +37,9 @@ def _stage_art_urls(site, request):
     return bg, fg
 
 
-def _liquid_layer_rows(liquids, tank_top, tank_bottom, request):
+def _liquid_layer_rows(liquids, tank_top, tank_bottom, request, fg_label_profile=None):
     """Bottom + height as % of design stage height."""
+    fg_label_profile = fg_label_profile or []
     design = _DESIGN_STAGE_HEIGHT
     tank_h = max(0, design - tank_top - tank_bottom)
     offset_px = 0.0
@@ -63,16 +65,26 @@ def _liquid_layer_rows(liquids, tank_top, tank_bottom, request):
                 img = request.build_absolute_uri(f"/{raw.lstrip('/')}")
         else:
             img = ""
+        bottom_pct = (bottom_px / design) * 100
+        height_pct = (h_px / design) * 100
+        label_fg_left_pct = None
+        if fg_label_profile:
+            y_top_lo = 100.0 - bottom_pct - height_pct
+            y_top_hi = 100.0 - bottom_pct
+            sx = band_anchor_stage_x_pct(fg_label_profile, y_top_lo, y_top_hi)
+            label_fg_left_pct = max(0.0, min(100.0, sx))
+
         rows.append(
             {
-                "bottom_pct": (bottom_px / design) * 100,
-                "height_pct": (h_px / design) * 100,
+                "bottom_pct": bottom_pct,
+                "height_pct": height_pct,
                 "color": li.color or "#ffffff",
                 "image": img,
                 "name": li.name,
                 "volume": vol,
                 "url": li.url.strip(),
                 "label_nudge": cumulative_vol < 20,
+                "label_fg_left_pct": label_fg_left_pct,
             }
         )
         offset_px += h_px
@@ -225,7 +237,11 @@ def tank_show(request, slug):
             "stage_background_url": bg_url,
             "stage_foreground_url": fg_url,
             "liquid_layers": _liquid_layer_rows(
-                liquids, site.tank_top_offset, site.tank_bottom_offset, request
+                liquids,
+                site.tank_top_offset,
+                site.tank_bottom_offset,
+                request,
+                fg_label_profile=site.stage_fg_label_profile or [],
             ),
             "logs": _logs_for_show(logs),
         },
@@ -353,6 +369,27 @@ def _can_edit_tank(user, site):
     return user.is_staff or (user.is_authenticated and user.pk == site.owner_id)
 
 
+def _refresh_stage_foreground_analysis(site):
+    """Rebuild label profile + tank top/bottom offsets from overlay transparency."""
+    if not site.stage_foreground:
+        site.stage_fg_label_profile = []
+        site.save(update_fields=["stage_fg_label_profile"])
+        return
+    try:
+        with site.stage_foreground.open("rb") as fh:
+            profile, margins = analyze_stage_foreground(fh)
+    except Exception:
+        profile, margins = [], None
+    site.stage_fg_label_profile = profile
+    update_fields = ["stage_fg_label_profile"]
+    if margins is not None:
+        top, bot = margins
+        site.tank_top_offset = top
+        site.tank_bottom_offset = bot
+        update_fields.extend(["tank_top_offset", "tank_bottom_offset"])
+    site.save(update_fields=update_fields)
+
+
 @login_required
 @require_POST
 def delete_my_tank(request, slug):
@@ -387,7 +424,8 @@ def edit(request, slug):
                 if site.stage_foreground:
                     site.stage_foreground.delete(save=False)
                 site.stage_foreground = None
-                site.save(update_fields=["stage_foreground"])
+                site.stage_fg_label_profile = []
+                site.save(update_fields=["stage_foreground", "stage_fg_label_profile"])
             site = get_object_or_404(TankSite, slug=slug)
             if f := request.FILES.get("stage_bg"):
                 if getattr(f, "name", ""):
@@ -395,6 +433,7 @@ def edit(request, slug):
             if f := request.FILES.get("stage_fg"):
                 if getattr(f, "name", ""):
                     site.stage_foreground.save(f.name, f, save=True)
+                    _refresh_stage_foreground_analysis(site)
             messages.success(request, "Saved.")
             return redirect("tanks_manager:edit", slug=site.slug)
         except Exception as e:

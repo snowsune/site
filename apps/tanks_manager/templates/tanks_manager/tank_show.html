@@ -31,9 +31,9 @@
               <img class="tank-liquid-img" src="{{ row.image }}" alt="" decoding="async" />
             {% endif %}
             {% if row.url %}
-              <a class="tank-liquid-label{% if row.label_nudge %} is-nudged{% endif %}" href="{{ row.url }}" target="_blank" rel="noreferrer noopener">{{ row.name }} ({{ row.volume }}%)</a>
+              <a class="tank-liquid-label{% if row.label_fg_left_pct is None and row.label_nudge %} is-nudged{% endif %}" href="{{ row.url }}" target="_blank" rel="noreferrer noopener"{% if row.label_fg_left_pct is not None %} style="left: {{ row.label_fg_left_pct|floatformat:4 }}%;"{% endif %}>{{ row.name }} ({{ row.volume }}%)</a>
             {% else %}
-              <span class="tank-liquid-label{% if row.label_nudge %} is-nudged{% endif %}">{{ row.name }} ({{ row.volume }}%)</span>
+              <span class="tank-liquid-label{% if row.label_fg_left_pct is None and row.label_nudge %} is-nudged{% endif %}"{% if row.label_fg_left_pct is not None %} style="left: {{ row.label_fg_left_pct|floatformat:4 }}%;"{% endif %}>{{ row.name }} ({{ row.volume }}%)</span>
             {% endif %}
           </div>
         {% endfor %}

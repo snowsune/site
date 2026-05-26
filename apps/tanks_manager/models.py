@@ -42,6 +42,11 @@ class TankSite(models.Model):
         max_length=500,
         help_text="Optional; sample overlay is used when empty.",
     )
+    stage_fg_label_profile = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Cached [[y_pct_from_top, x_pct], …] from transparent scanlines; rebuilt on FG upload.",
+    )
 
     class Meta:
         ordering = ["slug"]
