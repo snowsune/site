@@ -78,6 +78,7 @@ def seasonal_css(request):
         (10,): "halloween.css",  # October (whole month counts~)
         (12,): "christmas.css",  # December (whole month counts!)
         (2, 14): "valentines.css",  # February 14th (Valentines day!)
+        (6,): "pride.css",  # June (Pride month!)
     }
 
     # First check for exact date match (month, day)
