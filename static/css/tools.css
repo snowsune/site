@@ -172,7 +172,35 @@
     transform: none;
 }
 
-/* Responsive Design */
+/* NSFW tools block */
+.tools-section-nsfw h2 {
+    border-left-color: #b85c7a;
+}
+
+.tools-nsfw-lead {
+    font-size: 0.95rem;
+    color: var(--muted-text-color);
+    margin: -0.75rem 0 1.25rem 1rem;
+}
+
+.tools-nsfw-note {
+    font-size: 0.9rem;
+    color: var(--muted-text-color);
+    margin-bottom: 1rem;
+    line-height: 1.45;
+}
+
+.tools-sidebar-create-form {
+    margin: 0;
+}
+
+.tools-sidebar-create-form .tool-button {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* Responsive Bits */
 @media (max-width: 768px) {
     .tools-container {
         padding: 0.5rem;

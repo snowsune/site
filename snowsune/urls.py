@@ -29,6 +29,7 @@ urlpatterns = [
     path("tools/", ToolsView.as_view(), name="tools"),
     path("calendar/", CalendarView.as_view(), name="calendar"),
     path("thank-you/", thank_you_view, name="thank_you"),
+    path("tos/", TemplateView.as_view(template_name="tos.html"), name="tos"),
     path("login/", HomeView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     # API endpoints

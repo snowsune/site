@@ -1,10 +1,14 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from urllib.parse import urlparse
+
+from django.conf import settings
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django import forms
-from django.conf import settings
 import logging
 from .models import CustomUser
 from .utils import send_verification_email, verify_email_token
@@ -192,6 +196,14 @@ def verify_email_view(request, user_id, token):
     """
     Handle email verification link clicks.
     """
+    canonical = urlparse(settings.EMAIL_VERIFICATION_CANONICAL_ORIGIN)
+    canonical_host = (canonical.hostname or "").lower()
+    req_host = request.get_host().split(":")[0].lower()
+    if canonical_host and req_host != canonical_host:
+        base = settings.EMAIL_VERIFICATION_CANONICAL_ORIGIN.rstrip("/")
+        path = reverse("verify-email", kwargs={"user_id": user_id, "token": token})
+        return HttpResponseRedirect(f"{base}{path}")
+
     user = get_object_or_404(CustomUser, id=user_id)
 
     if verify_email_token(user, token):

@@ -175,12 +175,6 @@
 {% block content %}
 <h1>Edit your account</h1>
 
-{% if messages %}
-{% for message in messages %}
-<div class="alert alert-{{ message.tags }}">{{ message }}</div>
-{% endfor %}
-{% endif %}
-
 <div class="account-section">
     <h2>Account Information</h2>
     <p><strong>Username:</strong> {{ user.username }}</p>

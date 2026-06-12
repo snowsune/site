@@ -11,7 +11,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="TankSettings",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("tank_top_offset", models.PositiveIntegerField(default=360)),
                 ("tank_bottom_offset", models.PositiveIntegerField(default=101)),
             ],
@@ -22,7 +30,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="TankClone",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("sort_order", models.PositiveIntegerField(default=0)),
                 ("name", models.CharField(max_length=200)),
                 ("banner", models.CharField(blank=True, max_length=200)),
@@ -52,7 +68,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="TankLiquid",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("sort_order", models.PositiveIntegerField(default=0)),
                 ("name", models.CharField(max_length=200)),
                 ("volume", models.PositiveSmallIntegerField(default=0)),
@@ -76,7 +100,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="TankLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("date", models.PositiveIntegerField(help_text="Unix timestamp")),
                 ("text", models.TextField()),
             ],

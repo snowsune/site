@@ -965,6 +965,17 @@ a:visited {
 .notification-icon {
   font-size: 1.2em;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-sticker {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
 }
 
 .notification-text {
@@ -1057,4 +1068,39 @@ a:visited {
   .notification-text {
     font-size: 0.9em;
   }
+}
+
+/* Terms of Service page */
+.tos-page {
+  max-width: 720px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.tos-page h1 {
+  margin-bottom: 0.25em;
+}
+
+.tos-updated {
+  color: var(--border-hover);
+  font-size: 0.9rem;
+  margin-bottom: 1.5em;
+}
+
+.tos-page section {
+  margin-bottom: 1.5em;
+}
+
+.tos-page h2 {
+  font-size: 1.15rem;
+  margin-bottom: 0.4em;
+}
+
+.tos-page ul {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.tos-page li {
+  margin-bottom: 0.35em;
 }

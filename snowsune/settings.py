@@ -52,6 +52,13 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 # Site URL for webhooks and external links
 SITE_URL = os.getenv("SITE_URL", "https://snowsune.net")
 
+# Verification emails and /users/verify-email/ redirects: always use production so
+# dev/staging SITE_URL never ends up in inboxes or partial verifies on the wrong DB.
+EMAIL_VERIFICATION_CANONICAL_ORIGIN = os.getenv(
+    "EMAIL_VERIFICATION_CANONICAL_ORIGIN",
+    "https://snowsune.net",
+)
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -60,6 +67,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.humanize",
     # Main app
     "snowsune",
     # Custom apps
@@ -74,7 +82,7 @@ INSTALLED_APPS = [
     "apps.bot_manager",  # Fops Bot management app
     "apps.bookclub",  # Comic book club app
     "apps.custompages",  # Custom pages with markdown
-    "apps.tanks_manager",  # Cumtanks data.json editor
+    "apps.tanks_manager",  # Per-user tank pages + editor
 ]
 
 MIDDLEWARE = [
@@ -87,6 +95,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "snowsune.middleware.PrivateHtmlNoStoreMiddleware",
 ]
 
 # Trust reverse proxy headers
