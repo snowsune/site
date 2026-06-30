@@ -333,7 +333,7 @@ a:visited {
   flex-direction: row;
   align-items: center;
   gap: 0.5em;
-  background: var(--card-bg);
+  background: var(--tile-background);
   border: 2px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 0.4em 0.6em;

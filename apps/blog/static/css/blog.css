@@ -1450,7 +1450,7 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
 }
 
 .comment-row.spam {
-    border-left-color: var(--danger-color, #dc3545);
+    border-left-color: var(--error-color);
     opacity: 0.7;
 }
 
@@ -1536,7 +1536,7 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
 
 /* Form validation feedback */
 .form-control.error {
-    border-color: var(--danger-color, #dc3545);
+    border-color: var(--error-color);
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
 }
 
@@ -1546,7 +1546,7 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
 }
 
 .error-message {
-    color: var(--danger-color, #dc3545);
+    color: var(--error-color);
     font-size: 0.875em;
     margin-top: 0.25rem;
     display: flex;
@@ -1561,7 +1561,7 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
 
 /* Remove error state when user starts typing */
 .form-control:focus.error {
-    border-color: var(--primary-color, #007bff);
+    border-color: var(--accent-color);
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
@@ -1641,7 +1641,7 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
 }
 
 .badge-danger {
-    background-color: var(--danger-color, #dc3545);
+    background-color: var(--error-color);
     color: white;
 }
 

@@ -3,7 +3,7 @@
 }
 
 #calendar {
-    background: var(--bg-color, #ffffff);
+    background: var(--tile-background);
     border-radius: 8px;
     padding: 1rem;
 }
@@ -27,13 +27,13 @@
 }
 
 .fc-button:hover {
-    background-color: var(--accent-hover-color, #00CCCC);
-    border-color: var(--accent-hover-color, #00CCCC);
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
 }
 
 .fc-button-active {
-    background-color: var(--accent-active-color, #009999);
-    border-color: var(--accent-active-color, #009999);
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
 }
 
 .fc-daygrid-day-number,
@@ -43,7 +43,7 @@
 }
 
 .fc-day-today {
-    background-color: var(--highlight-color, rgba(0, 255, 255, 0.1));
+    background-color: color-mix(in srgb, var(--accent-color) 12%, transparent);
 }
 
 .fc-event {
@@ -59,7 +59,7 @@
 #calendar-legend {
     margin-top: 2rem;
     padding: 1rem;
-    background: var(--bg-color, #ffffff);
+    background: var(--tile-background);
     border-radius: 8px;
 }
 
@@ -89,24 +89,8 @@
 }
 
 /* Dark mode support */
-.dark-mode #calendar,
-.dark-mode #calendar-legend {
-    background: var(--bg-color-dark, #1a1a1a);
-}
-
-.dark-mode .fc-daygrid-day-number,
-.dark-mode .fc-col-header-cell-cushion,
-.dark-mode .fc-timegrid-slot-label-cushion {
-    color: var(--text-color-dark, #ffffff);
-}
-
 .dark-mode .fc-day-today {
-    background-color: var(--highlight-color-dark, rgba(0, 255, 255, 0.2));
-}
-
-.dark-mode .fc-button {
-    background-color: var(--accent-color-dark, #00FFFF);
-    color: var(--text-color-dark, #000000);
+    background-color: color-mix(in srgb, var(--accent-color) 20%, transparent);
 }
 
 /* Homepage calendar widget */
@@ -115,7 +99,7 @@
 }
 
 #homepage-calendar {
-    background: var(--bg-color, #ffffff);
+    background: var(--tile-background);
     border-radius: 8px;
     padding: 0.5rem;
     margin-bottom: 0.5rem;
@@ -167,9 +151,5 @@
 
 .calendar-widget-footer a:hover {
     text-decoration: underline;
-}
-
-.dark-mode #homepage-calendar {
-    background: var(--bg-color-dark, #1a1a1a);
 }
 

@@ -21,7 +21,8 @@
 
 .users-subtitle {
     font-size: 1rem;
-    color: var(--muted-text-color);
+    color: var(--text-color);
+    opacity: 0.8;
 }
 
 .user-gallery {
@@ -31,7 +32,7 @@
 }
 
 .user-card {
-    background: var(--card-bg);
+    background: var(--tile-background);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow: hidden;
@@ -50,7 +51,7 @@
 .user-avatar-container {
     height: 180px;
     overflow: hidden;
-    background: var(--muted-bg);
+    background: var(--sidebar-bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -77,7 +78,8 @@
 
 .user-username {
     font-size: 0.8rem;
-    color: var(--muted-text-color);
+    color: var(--text-color);
+    opacity: 0.8;
     margin-bottom: 0.5rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -99,7 +101,8 @@
 .empty-gallery {
     text-align: center;
     padding: 3rem 1rem;
-    color: var(--muted-text-color);
+    color: var(--text-color);
+    opacity: 0.8;
     grid-column: 1 / -1;
 }
 
@@ -111,7 +114,7 @@
 }
 
 .profile-header {
-    background: var(--card-bg);
+    background: var(--tile-background);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 2rem;
@@ -139,7 +142,8 @@
 
 .profile-username {
     font-size: 1rem;
-    color: var(--muted-text-color);
+    color: var(--text-color);
+    opacity: 0.8;
     margin-bottom: 1rem;
 }
 
@@ -156,7 +160,7 @@
 }
 
 .profile-bio {
-    background: var(--muted-bg);
+    background: var(--sidebar-bg);
     padding: 1rem;
     border-radius: 4px;
     border-left: 3px solid var(--accent-color);
@@ -174,7 +178,7 @@
 }
 
 .profile-section {
-    background: var(--card-bg);
+    background: var(--tile-background);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1.5rem;
@@ -195,7 +199,7 @@
 }
 
 .profile-link-card {
-    background: var(--muted-bg);
+    background: var(--sidebar-bg);
     border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 1rem;
@@ -207,7 +211,7 @@
 }
 
 .profile-link-card a {
-    color: var(--primary-color);
+    color: var(--accent-color);
     text-decoration: none;
     word-break: break-all;
 }
@@ -229,19 +233,19 @@
 
 .edit-profile-btn {
     display: inline-block;
-    background: var(--primary-color);
+    background: var(--accent-color);
     color: var(--invert-text-color);
     padding: 0.6rem 1.2rem;
     text-decoration: none;
     border-radius: 4px;
     font-weight: 600;
     transition: all 0.2s ease;
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--accent-color);
 }
 
 .edit-profile-btn:hover {
-    background: var(--primary-hover);
-    border-color: var(--primary-hover);
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
 }
 
 /* Mobile */

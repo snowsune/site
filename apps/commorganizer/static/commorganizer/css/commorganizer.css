@@ -82,7 +82,7 @@
 }
 
 .commission-card {
-  background: var(--card-bg, #18304b);
+  background: var(--tile-background);
   border: 2px solid var(--accent-color, #00eaff);
   border-radius: 12px;
   padding: 1.5em;
@@ -110,7 +110,7 @@
 }
 
 .commission-card p {
-  color: var(--muted-text, #ccc);
+  color: var(--text-color);
   margin-bottom: 1.5em;
   font-size: 0.95em;
   flex-grow: 1;
@@ -118,7 +118,7 @@
 
 .commission-card .commission-url {
   font-family: monospace;
-  background: var(--muted-bg, #2a2a2a);
+  background: var(--sidebar-bg);
   padding: 0.3em 0.6em;
   border-radius: 4px;
   font-size: 0.85em;
@@ -160,7 +160,7 @@
 }
 
 .logged-in-info {
-  background: var(--card-bg, #18304b);
+  background: var(--tile-background);
   border: 2px solid var(--success-color, #00ff88);
   border-radius: 12px;
   padding: 1.5em;
@@ -348,7 +348,7 @@
 }
 
 .current-commission {
-  background: var(--muted-bg, #2a2a2a);
+  background: var(--sidebar-bg);
   padding: 1em;
   border-radius: 8px;
   border: 1px solid var(--accent-color, #00eaff);
@@ -362,7 +362,7 @@
 }
 
 .commission-meta {
-  color: var(--muted-text, #ccc);
+  color: var(--text-color);
   font-size: 0.9em;
   margin: 0.3em 0;
 }
@@ -375,7 +375,7 @@
 
 .stat-item {
   text-align: center;
-  background: var(--muted-bg, #2a2a2a);
+  background: var(--sidebar-bg);
   padding: 1em 0.5em;
   border-radius: 8px;
   border: 1px solid var(--accent-color, #00eaff);
@@ -390,7 +390,7 @@
 }
 
 .stat-label {
-  color: var(--muted-text, #ccc);
+  color: var(--text-color);
   font-size: 0.8em;
   text-transform: uppercase;
   letter-spacing: 0.5px;

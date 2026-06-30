@@ -20,7 +20,8 @@
 
 .tools-subtitle {
     font-size: 1.2rem;
-    color: var(--muted-text-color);
+    color: var(--text-color);
+    opacity: 0.8;
     margin: 0;
 }
 
@@ -44,7 +45,7 @@
 }
 
 .tool-card {
-    background: var(--card-bg);
+    background: var(--tile-background);
     border: 2px solid var(--border-color);
     border-radius: 12px;
     overflow: hidden;
@@ -61,7 +62,7 @@
 .tool-image {
     height: 200px;
     overflow: hidden;
-    background: var(--card-bg);
+    background: var(--tile-background);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -86,37 +87,46 @@
 }
 
 .tool-content p {
-    color: var(--muted-text-color);
+    color: var(--text-color);
+    opacity: 0.8;
     line-height: 1.6;
     margin-bottom: 1.5rem;
 }
 
 .tool-button {
     display: inline-block;
-    background: var(--primary-color);
+    background: var(--accent-color);
     color: var(--invert-text-color);
     padding: 0.8rem 1.5rem;
     text-decoration: none;
     border-radius: 8px;
     font-weight: 600;
     transition: all 0.3s ease;
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--accent-color);
 }
 
 .tool-button:hover {
-    background: var(--primary-hover);
-    border-color: var(--primary-hover);
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
     transform: translateY(-2px);
 }
 
 .tool-button.external {
-    background: var(--secondary-color);
-    border-color: var(--secondary-color);
+    background: var(--link-default);
+    border-color: var(--link-default);
 }
 
 .tool-button.external:hover {
-    background: var(--secondary-hover);
-    border-color: var(--secondary-hover);
+    background: var(--link-hover);
+    border-color: var(--link-hover);
+}
+
+.tool-button:visited {
+    color: var(--invert-text-color);
+}
+
+.tool-button.external:visited {
+    color: var(--invert-text-color);
 }
 
 /* Formal/Boring Tool Styles */
@@ -135,7 +145,7 @@
 
 .tool-card.formal-tool .tool-image {
     height: 120px;
-    background: var(--bg-color);
+    background: var(--background-color);
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -153,11 +163,12 @@
     font-size: 0.9rem;
     line-height: 1.5;
     margin-bottom: 1rem;
-    color: var(--muted-text-color);
+    color: var(--text-color);
+    opacity: 0.8;
 }
 
 .tool-card.formal-tool .tool-button {
-    background: var(--muted-bg);
+    background: var(--sidebar-bg);
     color: var(--text-color);
     border: 1px solid var(--border-color);
     padding: 0.6rem 1.2rem;
@@ -167,7 +178,7 @@
 }
 
 .tool-card.formal-tool .tool-button:hover {
-    background: var(--hover-bg);
+    background: var(--border-hover);
     border-color: var(--accent-color);
     transform: none;
 }

@@ -109,7 +109,8 @@ table tbody tr:hover {
     display: block;
     margin-left: calc(1.8rem);
     font-size: 0.85rem;
-    color: var(--muted-text);
+    color: var(--text-color);
+    opacity: 0.8;
 }
 
 .settings-toggles label.text-input {
@@ -132,7 +133,8 @@ table tbody tr:hover {
     display: block;
     margin-top: var(--spacing-xs);
     font-size: 0.85rem;
-    color: var(--muted-text);
+    color: var(--text-color);
+    opacity: 0.8;
 }
 
 /* Buttons */
@@ -279,7 +281,8 @@ table tbody tr:hover {
 .fops-hero .hero-media figcaption {
     margin-top: var(--spacing-sm);
     font-size: 0.85rem;
-    color: var(--muted-text);
+    color: var(--text-color);
+    opacity: 0.8;
 }
 
 /* Setup sections */
@@ -348,7 +351,8 @@ table tbody tr:hover {
 
 .feature-tabs header p {
     margin: 0;
-    color: var(--muted-text);
+    color: var(--text-color);
+    opacity: 0.8;
 }
 
 .tab-button-group {
@@ -443,7 +447,8 @@ table tbody tr:hover {
 
 .guild-management .guild-empty {
     font-style: italic;
-    color: var(--muted-text);
+    color: var(--text-color);
+    opacity: 0.8;
     margin: var(--spacing-md) 0;
 }
 
