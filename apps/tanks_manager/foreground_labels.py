@@ -6,11 +6,7 @@ from __future__ import annotations
 
 from typing import BinaryIO, List, Tuple
 
-from PIL import Image, ImageOps
-
-# Image width, height
-STAGE_W = 1200
-STAGE_H = 850
+from PIL import Image
 
 # Pixels with alpha below this count as transparent
 ALPHA_THRESHOLD = 48
@@ -24,13 +20,6 @@ MIN_WIDE_RUN_PX = 120
 
 # Ignore auto-bounds when the overall vertical extent (top→bottom) is too small.
 MIN_TANK_HEIGHT_ROWS = 64
-
-
-def _lanczos():
-    try:
-        return Image.Resampling.LANCZOS
-    except AttributeError:
-        return Image.LANCZOS
 
 
 def _widest_transparent_run_bounds(
@@ -55,7 +44,6 @@ def _widest_transparent_run_bounds(
 
 
 def _widest_transparent_run_center_x(pixels, y: int, width: int) -> float | None:
-    """Center x (0..width) of the widest contiguous transparent run on this row."""
     b = _widest_transparent_run_bounds(pixels, y, width)
     if b is None:
         return None
@@ -70,23 +58,24 @@ def _widest_transparent_run_width(pixels, y: int, width: int) -> int:
     return b[1] - b[0]
 
 
-def _fit_stage_foreground_rgba(file_obj: BinaryIO) -> Image.Image:
+def _open_foreground_rgba(file_obj: BinaryIO) -> Image.Image:
     file_obj.seek(0)
     img = Image.open(file_obj)
     if getattr(img, "n_frames", 1) > 1:
         img.seek(0)
-    img = img.convert("RGBA")
-    return ImageOps.fit(img, (STAGE_W, STAGE_H), method=_lanczos())
+    return img.convert("RGBA")
 
 
-def _row_qualifies_for_tank_band(pixels, y: int) -> bool:
-    need = max(MIN_WIDE_RUN_PX, int(STAGE_W * MIN_WIDE_RUN_RATIO))
-    return _widest_transparent_run_width(pixels, y, STAGE_W) >= need
+def _row_qualifies_for_tank_band(pixels, y: int, width: int) -> bool:
+    need = max(MIN_WIDE_RUN_PX, int(width * MIN_WIDE_RUN_RATIO))
+    return _widest_transparent_run_width(pixels, y, width) >= need
 
 
-def detect_tank_vertical_offsets_from_pixels(pixels) -> Tuple[int, int] | None:
+def detect_tank_vertical_offsets_from_pixels(
+    pixels, width: int, height: int
+) -> Tuple[int, int] | None:
     """
-    Infer tank_top_offset and tank_bottom_offset (pixels in STAGE_H space).
+    Infer tank_top_offset and tank_bottom_offset
 
     Rows qualify when they have a wide transparent run (same threshold as label holes).
     Uses the overall vertical extent: topmost qualifying row through bottommost qualifying
@@ -94,8 +83,8 @@ def detect_tank_vertical_offsets_from_pixels(pixels) -> Tuple[int, int] | None:
     """
     ymin: int | None = None
     ymax: int | None = None
-    for y in range(STAGE_H):
-        if not _row_qualifies_for_tank_band(pixels, y):
+    for y in range(height):
+        if not _row_qualifies_for_tank_band(pixels, y, width):
             continue
         if ymin is None:
             ymin = ymax = y
@@ -111,21 +100,23 @@ def detect_tank_vertical_offsets_from_pixels(pixels) -> Tuple[int, int] | None:
         return None
 
     tank_top = ymin
-    tank_bottom = STAGE_H - (ymax + 1)
-    if tank_top + tank_bottom >= STAGE_H:
+    tank_bottom = height - (ymax + 1)
+    if tank_top + tank_bottom >= height:
         return None
     return (tank_top, tank_bottom)
 
 
-def _build_label_profile_from_pixels(pixels) -> List[List[float]]:
+def _build_label_profile_from_pixels(
+    pixels, width: int, height: int
+) -> List[List[float]]:
     samples: List[List[float]] = []
-    for y in range(0, STAGE_H, ROW_STEP):
-        cx = _widest_transparent_run_center_x(pixels, y, STAGE_W)
+    for y in range(0, height, ROW_STEP):
+        cx = _widest_transparent_run_center_x(pixels, y, width)
         if cx is None:
             x_pct = 50.0
         else:
-            x_pct = (cx / STAGE_W) * 100.0
-        y_pct = (y / STAGE_H) * 100.0 if STAGE_H else 0.0
+            x_pct = (cx / width) * 100.0
+        y_pct = (y / height) * 100.0 if height else 0.0
         samples.append([round(y_pct, 4), round(x_pct, 4)])
     return samples
 
@@ -134,26 +125,15 @@ def analyze_stage_foreground(
     file_obj: BinaryIO,
 ) -> tuple[List[List[float]], Tuple[int, int] | None]:
     """
-    Fit image to stage size (object-fit: cover), then compute label profile and optional
+    Read the overlay at native size, then compute label profile and optional
     tank vertical margins from transparency.
     """
-    fitted = _fit_stage_foreground_rgba(file_obj)
-    pixels = fitted.load()
-    profile = _build_label_profile_from_pixels(pixels)
-    margins = detect_tank_vertical_offsets_from_pixels(pixels)
+    img = _open_foreground_rgba(file_obj)
+    width, height = img.size
+    pixels = img.load()
+    profile = _build_label_profile_from_pixels(pixels, width, height)
+    margins = detect_tank_vertical_offsets_from_pixels(pixels, width, height)
     return profile, margins
-
-
-def compute_foreground_label_profile(file_obj: BinaryIO) -> List[List[float]]:
-    """
-    Build [[y_pct_from_top, x_pct_from_left], ...] for the stage coordinate system.
-
-    The image is fitted to STAGE_W×STAGE_H the same way CSS object-fit: cover does
-    (center crop), then each sampled row picks the horizontal center of the widest
-    transparent segment so labels can sit in visible “holes” in the overlay.
-    """
-    profile, _ = analyze_stage_foreground(file_obj)
-    return profile
 
 
 def interpolate_stage_x_pct(samples: List[List[float]], y_pct: float) -> float:

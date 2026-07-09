@@ -3,6 +3,8 @@ import re
 import time
 from datetime import datetime, timedelta, timezone as dt_timezone
 
+from PIL import Image
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -16,8 +18,7 @@ from django.views.decorators.http import require_GET, require_POST
 from .foreground_labels import analyze_stage_foreground, band_anchor_stage_x_pct
 from .models import TankLiquid, TankLog, TankSite, tanks_for_user
 
-# Stage layout: offsets are for an 850px-tall design box (see tank_page.css aspect-ratio).
-_DESIGN_STAGE_HEIGHT = 850
+_DEFAULT_STAGE_W, _DEFAULT_STAGE_H = 1200, 850
 
 
 def _stage_art_urls(site, request):
@@ -37,10 +38,29 @@ def _stage_art_urls(site, request):
     return bg, fg
 
 
-def _liquid_layer_rows(liquids, tank_top, tank_bottom, request, fg_label_profile=None):
-    """Bottom + height as % of design stage height."""
+def _image_field_size(field):
+    if not field:
+        return None
+    with field.open("rb") as fh:
+        return Image.open(fh).size
+
+
+def _stage_dimensions(site):
+    """Native pixel size of the stage (foreground, else background, else default art)."""
+    size = _image_field_size(site.stage_foreground)
+    if size is None:
+        size = _image_field_size(site.stage_background)
+    if size is None:
+        return _DEFAULT_STAGE_W, _DEFAULT_STAGE_H
+    return size
+
+
+def _liquid_layer_rows(
+    liquids, tank_top, tank_bottom, stage_height, request, fg_label_profile=None
+):
+    """Bottom + height as % of stage image height."""
     fg_label_profile = fg_label_profile or []
-    design = _DESIGN_STAGE_HEIGHT
+    design = stage_height
     tank_h = max(0, design - tank_top - tank_bottom)
     offset_px = 0.0
     cumulative_vol = 0
@@ -229,6 +249,7 @@ def tank_show(request, slug):
     liquids = TankLiquid.objects.filter(tank_site=site)
     logs = TankLog.objects.filter(tank_site=site)
     bg_url, fg_url = _stage_art_urls(site, request)
+    stage_w, stage_h = _stage_dimensions(site)
     return render(
         request,
         "tanks_manager/tank_show.html",
@@ -236,10 +257,13 @@ def tank_show(request, slug):
             "tank_site": site,
             "stage_background_url": bg_url,
             "stage_foreground_url": fg_url,
+            "stage_width": stage_w,
+            "stage_height": stage_h,
             "liquid_layers": _liquid_layer_rows(
                 liquids,
                 site.tank_top_offset,
                 site.tank_bottom_offset,
+                stage_h,
                 request,
                 fg_label_profile=site.stage_fg_label_profile or [],
             ),

@@ -20,8 +20,8 @@
     </header>
     {% endif %}
     <section class="tank-layout">
-      <div class="tank-stage">
-        <img class="tank-bg" src="{{ stage_background_url }}" alt="" width="1200" height="850" decoding="async" />
+      <div class="tank-stage" style="aspect-ratio: {{ stage_width }} / {{ stage_height }};">
+        <img class="tank-bg" src="{{ stage_background_url }}" alt="" width="{{ stage_width }}" height="{{ stage_height }}" decoding="async" />
         {% for row in liquid_layers %}
           <div
             class="tank-liquid-layer"
@@ -37,7 +37,7 @@
             {% endif %}
           </div>
         {% endfor %}
-        <img class="tank-fg" src="{{ stage_foreground_url }}" alt="" width="1200" height="850" decoding="async" />
+        <img class="tank-fg" src="{{ stage_foreground_url }}" alt="" width="{{ stage_width }}" height="{{ stage_height }}" decoding="async" />
       </div>
       <aside class="tank-logbook">
         <ul>

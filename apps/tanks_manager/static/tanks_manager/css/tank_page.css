@@ -1,5 +1,4 @@
-/* Tank show page — bg/fg use object-fit; liquid <img> stays width-fill + clip only */
-
+/* Tank show page CSS */
 :root {
   color-scheme: dark;
 }
@@ -68,7 +67,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 850px;
+  max-height: min(90vh, 100%);
   overflow-y: auto;
 }
 
@@ -88,12 +87,10 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  aspect-ratio: 1200 / 850;
   overflow: hidden;
   background: #14141c;
 }
 
-/* Fill the stage frame (fixes letterboxing / “half empty” sides on phones) */
 .tank-stage > .tank-bg,
 .tank-stage > .tank-fg {
   position: absolute;
@@ -101,8 +98,7 @@
   width: 100%;
   height: 100%;
   margin: 0;
-  object-fit: cover;
-  object-position: center;
+  object-fit: fill;
   pointer-events: none;
 }
 
