@@ -298,33 +298,69 @@ a:visited {
   align-items: flex-end;
 }
 
-.discord-navbar-btn {
+.matrix-navbar-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
-  background: #5865F2;
-  color: #fff;
+  background: var(--accent-color);
+  color: var(--invert-text-color);
   font-weight: 600;
   border-radius: var(--radius-lg);
   padding: 0.35em 1em 0.35em 0.8em;
   font-size: 1em;
   text-decoration: none;
-  margin-bottom: 0em;
+  margin-bottom: 0;
   margin-right: 0;
-  box-shadow: 0 2px 8px rgba(88,101,242,0.08);
+  box-shadow: 0 2px 8px var(--shadow-color);
   transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
 }
-.login .discord-navbar-btn {
-  background: #5865F2;
-  color: #fff;
+.matrix-navbar-btn:visited {
+  color: var(--invert-text-color);
+}
+.login .matrix-navbar-btn {
+  background: var(--accent-color);
+  color: var(--invert-text-color);
   margin-bottom: 0.5em;
 }
-.login a:not(.discord-navbar-btn) {
+.login a:not(.matrix-navbar-btn) {
   background: #d90429;
   color: #fff;
 }
-.login a:not(.discord-navbar-btn):hover {
+.login a:not(.matrix-navbar-btn):hover {
   background: #ff616f;
+}
+
+/* Matrix widget modal — bare iframe, sized to the widget card */
+.matrix-widget-modal {
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  width: fit-content;
+  max-width: calc(100vw - 2em);
+  height: fit-content;
+  max-height: calc(100vh - 2em);
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+.matrix-widget-modal::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+.dark-mode .matrix-widget-modal::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+.matrix-widget-iframe {
+  display: block;
+  width: 22rem;
+  max-width: calc(100vw - 2em);
+  /* Fits expanded widget (room + join links) without an inner scrollbar */
+  height: 22rem;
+  max-height: calc(100vh - 2em);
+  border: none;
+  background: transparent;
 }
 
 /* User Info Widget */
@@ -493,29 +529,21 @@ a:visited {
   }
 }
 
-/* Remove old banner styles if present */
-.discord-invite-banner, .discord-animated-link, .discord-icon, .discord-text {
-  display: none !important;
-}
-
-.discord-navbar-btn:hover {
-  background: #4752c4;
+.matrix-navbar-btn:hover {
+  background: var(--accent-hover);
+  color: var(--invert-text-color);
   transform: scale(1.06);
-  box-shadow: 0 4px 16px rgba(88,101,242,0.18);
+  box-shadow: 0 4px 16px var(--shadow-hover);
   text-decoration: none;
 }
-.discord-navbar-icon {
+.matrix-navbar-icon {
   font-size: 1.2em;
   margin-right: 0.2em;
-  animation: discord-pulse 1.2s infinite alternate;
+  animation: matrix-pulse 1.2s infinite alternate;
 }
-@keyframes discord-bounce {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-2px); }
-}
-@keyframes discord-pulse {
+@keyframes matrix-pulse {
   0% { filter: brightness(1); }
-  100% { filter: brightness(1.4); }
+  100% { filter: brightness(1.25); }
 }
 
 /* Responsive Navbar */
@@ -574,14 +602,16 @@ a:visited {
   border-bottom: 1px solid #fff2;
   margin-bottom: 0.5em;
 }
-/* Discord button in mobile menu */
-.nav-mobile-links .discord-navbar-btn {
+/* Matrix button in mobile menu */
+.nav-mobile-links .matrix-navbar-btn {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: calc(100% - 2em);
   margin: 0.5em 1em;
-  justify-content: center;
-  border-bottom: 1px solid #fff2;
   padding: 0.6em 1em;
+  box-sizing: border-box;
+  border-bottom: 1px solid #fff2;
 }
 /* User info in mobile menu */
 .nav-mobile-links .user-info {
@@ -655,8 +685,8 @@ a:visited {
   .login .user-widget {
     display: none !important; /* Hide login buttons - moved to menu */
   }
-  .login .discord-navbar-btn {
-    display: none !important; /* Hide discord button - moved to menu */
+  .login .matrix-navbar-btn {
+    display: none !important; /* Hide matrix button - moved to menu */
   }
   .login .nav-hamburger {
     display: block; /* Ensure hamburger is visible */
@@ -874,14 +904,14 @@ a:visited {
   margin-bottom: 0;
 }
 
-.discord-link {
+.matrix-link {
   color: var(--link-default);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
-.discord-link:hover {
+.matrix-link:hover {
   color: var(--link-hover);
 }
 

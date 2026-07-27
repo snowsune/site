@@ -121,8 +121,7 @@ TEMPLATES = [
                 "snowsune.context_processors.version_processor",
                 "snowsune.context_processors.year_processor",
                 "snowsune.context_processors.debug_mode",
-                "snowsune.context_processors.expiry_links",
-                "snowsune.context_processors.discord_invite_link",  # TODO: Make generic!
+                "snowsune.context_processors.matrix_widget_link",
                 "snowsune.context_processors.ko_fi_url",
                 "snowsune.context_processors.google_analytics_id",
                 "snowsune.context_processors.seasonal_css",
@@ -160,6 +159,8 @@ DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 DISCORD_REDIRECT_URI = os.getenv(
     "DISCORD_REDIRECT_URI", f"{SITE_URL}/fops/discord/callback"
 )
+
+MATRIX_WIDGET_URL = "https://matrix.kitsunehosting.net/widget?admins=snowsune.net"
 
 # I'll use a custom user model for user-storage
 AUTH_USER_MODEL = "users.CustomUser"

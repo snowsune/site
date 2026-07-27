@@ -14,7 +14,7 @@ from snowsune.views.image_utils import format_preview_view
 from snowsune.views.randal_fanclub import RandalFanclubView
 from snowsune.views.calendar import CalendarView, CalendarEventsAPIView
 from snowsune.views.health import health_check
-from snowsune.views.redirects import discord_redirect
+from snowsune.views.redirects import matrix_redirect
 from apps.thank_yous.views import thank_you_view
 
 
@@ -22,7 +22,7 @@ urlpatterns = [
     # django
     path("admin/", admin.site.urls),
     # Redirect helpers
-    re_path(r"^discord(?:/.*)?$", discord_redirect, name="discord_redirect"),
+    re_path(r"^matrix(?:/.*)?$", matrix_redirect, name="matrix_redirect"),
     # "local" urls
     path("", HomeView.as_view(), name="home"),
     path("projects/", ProjectsView.as_view(), name="projects"),
