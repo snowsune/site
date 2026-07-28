@@ -150,11 +150,9 @@
           <a href="{% url 'tools' %}">Apps/Tools</a>
           <a href="{% url 'blog:blog_list' %}">Blog</a>
           <a href="{% url 'comics:comic_home' %}">Webcomic</a>
-          {% if discord_invite %}
-          <a href="{{ discord_invite }}" target="_blank" rel="noopener" class="discord-navbar-btn">
-            <span class="discord-navbar-icon">💬</span> Join my Discord!
+          <a href="{% url 'matrix_redirect' %}" class="matrix-navbar-btn js-matrix-widget-open">
+            <span class="matrix-navbar-icon">💬</span> Join me on Matrix!
           </a>
-          {% endif %}
           {% include "users/widget.html" %}
         </div>
       </nav>
@@ -167,15 +165,18 @@
     <div class="header-right">
       <div class="login">
         <button class="nav-hamburger" id="nav-hamburger" aria-label="Open navigation">&#9776;</button>
-        {% if discord_invite %}
-        <a href="{{ discord_invite }}" target="_blank" rel="noopener" class="discord-navbar-btn">
-          <span class="discord-navbar-icon">💬</span> Join my Discord!
+        <a href="{% url 'matrix_redirect' %}" class="matrix-navbar-btn js-matrix-widget-open">
+          <span class="matrix-navbar-icon">💬</span> Join me on Matrix!
         </a>
-        {% endif %}
         {% include "users/widget.html" %}
       </div>
     </div>
   </header>
+
+  <dialog id="matrix-widget-modal" class="matrix-widget-modal">
+    <iframe id="matrix-widget-iframe" class="matrix-widget-iframe" data-src="{{ matrix_widget }}"
+      title="Matrix join widget" loading="lazy" scrolling="no"></iframe>
+  </dialog>
 
   {% include "includes/django_messages.html" %}
 
@@ -295,6 +296,9 @@
 
   <!-- Live Stats Script -->
   <script src="{% static 'js/live-stats.js' %}"></script>
+
+  <!-- Matrix widget modal -->
+  <script src="{% static 'js/matrix-widget.js' %}"></script>
 
   {% block extra_js %}{% endblock %}
 </body>

@@ -58,7 +58,7 @@ creative projects, furry community hub{% endblock %}
     "query-input": "required name=search_term_string"
   },
   "sameAs": [
-    "{{ discord_invite }}"
+    "{{ matrix_widget }}"
   ]
 }
 </script>
@@ -87,8 +87,8 @@ creative projects, furry community hub{% endblock %}
         other furry stuff!
     </p>
 
-    <p><strong>You can always contact me by joining my <a href="{{ discord_invite }}" class="discord-link">Discord
-                community</a> or emailing me at <a href="mailto:vixi@snowsune.net">vixi@snowsune.net</a>!</strong></p>
+    <p><strong>You can always contact me by joining me on <a href="{% url 'matrix_redirect' %}" class="matrix-link js-matrix-widget-open">Matrix</a>
+                or emailing me at <a href="mailto:vixi@snowsune.net">vixi@snowsune.net</a>!</strong></p>
 </header>
 
 <!-- Latest Content Section -->

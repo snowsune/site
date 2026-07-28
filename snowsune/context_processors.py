@@ -1,10 +1,7 @@
 import os
 
 from django.conf import settings
-from django.utils.safestring import mark_safe
-
 from datetime import datetime, date
-from django.utils import timezone as django_timezone
 
 from .models import SiteSetting
 
@@ -28,20 +25,8 @@ def debug_mode(request):
     }
 
 
-# Expiry links
-def expiry_links(request):
-    return {
-        "discord": mark_safe(
-            f"<a href=\"{os.getenv('DISCORD_URL','#')}\">Discord Server</a>"
-        ),
-    }
-
-
-# Quick processor for the discord invite link
-# TODO: Could be made generic for all SiteSettings
-def discord_invite_link(request):
-    invite = SiteSetting.objects.filter(key="discord_invite").first()
-    return {"discord_invite": invite.value if invite else ""}
+def matrix_widget_link(request):
+    return {"matrix_widget": settings.MATRIX_WIDGET_URL}
 
 
 def ko_fi_url(request):
