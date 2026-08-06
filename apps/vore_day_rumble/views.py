@@ -100,8 +100,12 @@ def vote_status(request):
         .first()
     )
     if match is None:
-        return JsonResponse({"voting_open": False})
-    return JsonResponse(_vote_payload(match, request.user))
+        response = JsonResponse({"voting_open": False})
+    else:
+        response = JsonResponse(_vote_payload(match, request.user))
+    # Must not be cached: tallies change constantly and are cookie-sensitive
+    response["Cache-Control"] = "private, no-store"
+    return response
 
 
 @rumble_enabled_required
@@ -137,7 +141,9 @@ def cast_vote(request):
         user=request.user,
         defaults={"choice": choice},
     )
-    return JsonResponse(_vote_payload(match, request.user))
+    response = JsonResponse(_vote_payload(match, request.user))
+    response["Cache-Control"] = "private, no-store"
+    return response
 
 
 @rumble_enabled_required

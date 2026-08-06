@@ -95,9 +95,10 @@
 
   async function pollStatus() {
     try {
-      const resp = await fetch(statusUrl, {
+      const resp = await fetch(`${statusUrl}?_=${Date.now()}`, {
         headers: { Accept: "application/json" },
         credentials: "same-origin",
+        cache: "no-store",
       });
       if (!resp.ok) return;
       const data = await resp.json();
@@ -124,6 +125,7 @@
           "X-CSRFToken": csrfToken(),
         },
         credentials: "same-origin",
+        cache: "no-store",
         body: body.toString(),
       });
       const data = await resp.json().catch(() => ({}));

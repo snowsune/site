@@ -49,7 +49,7 @@ def start_vote(match):
     content = (
         f"**Vixi's Vore Day Rumble!**\n"
         f"**{a.display_name}** vs **{b.display_name}**\n"
-        f"Vote on snowsune.net: {vote_url}\n"
+        f"Vote on snowsune.net: <{vote_url}>\n"
         f"Closes <t:{ends_unix}:R>."
     )
 
