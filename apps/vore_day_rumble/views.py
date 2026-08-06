@@ -39,9 +39,11 @@ def index(request):
 
     settings = RumbleSettings.get()
     contestants = Contestant.objects.select_related("user").all()
-    active_match = Match.objects.filter(voting_open=True).select_related(
-        "contestant_a", "contestant_b"
-    ).first()
+    active_match = (
+        Match.objects.filter(voting_open=True)
+        .select_related("contestant_a", "contestant_b")
+        .first()
+    )
     return render(
         request,
         "vore_day_rumble/index.html",
@@ -98,9 +100,7 @@ def enter(request):
     else:
         initial = {}
         if existing is None:
-            initial["display_name"] = (
-                request.user.first_name or request.user.username
-            )
+            initial["display_name"] = request.user.first_name or request.user.username
         form = ContestantEntryForm(instance=existing, initial=initial)
 
     return render(

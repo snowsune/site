@@ -21,9 +21,9 @@ def build_bracketry_data():
     """
     contestants = list(Contestant.objects.select_related("user").all())
     matches = list(
-        Match.objects.select_related(
-            "contestant_a", "contestant_b", "winner"
-        ).order_by("round_number", "position")
+        Match.objects.select_related("contestant_a", "contestant_b", "winner").order_by(
+            "round_number", "position"
+        )
     )
 
     if not contestants and not matches:
