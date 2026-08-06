@@ -7,20 +7,55 @@ if (dataEl && wrapper) {
   const data = JSON.parse(dataEl.textContent);
 
   if (data.rounds && data.rounds.length) {
-    const round1Count = (data.matches || []).filter((m) => m.roundIndex === 0)
-      .length;
-    const height = Math.max(420, round1Count * 88);
+    const css = getComputedStyle(document.documentElement);
+    const text = css.getPropertyValue("--text-color").trim() || "#000";
+    const tile = css.getPropertyValue("--tile-background").trim() || "#fff";
+    const border = css.getPropertyValue("--border-color").trim() || "#ccc";
+    const accent = css.getPropertyValue("--accent-color").trim() || "#00bcd4";
+    const sidebar = css.getPropertyValue("--sidebar-bg").trim() || "#eee";
+
+    const pfpSize = 44;
 
     createBracket(data, wrapper, {
-      height: `${height}px`,
+      width: "100%",
+      // No height = expand to full bracket content
+      useClassicalLayout: true,
+      visibleRoundsCount: 0,
+      navButtonsPosition: "hidden",
+      showScrollbar: false,
+      verticalScrollMode: "native",
+      roundTitlesFontSize: 0,
+      roundTitlesVerticalPadding: 0,
+      rootBgColor: tile,
+      rootBorderColor: "transparent",
+      wrapperBorderColor: "transparent",
+      roundTitlesBorderColor: "transparent",
+      roundTitleColor: text,
+      matchTextColor: text,
+      connectionLinesColor: border,
+      highlightedConnectionLinesColor: accent,
+      hoveredMatchBorderColor: accent,
+      liveMatchBorderColor: accent,
+      liveMatchBgColor: sidebar,
+      matchStatusBgColor: accent,
+      matchMinVerticalGap: 20,
+      getRoundTitleElement() {
+        const el = document.createElement("div");
+        el.style.cssText = "height:0;overflow:hidden;padding:0;margin:0;";
+        return el;
+      },
       getNationalityHTML(player) {
         if (!player.nationality) {
-          return '<span style="display:inline-block;width:28px;height:28px;"></span>';
+          return (
+            `<span style="display:inline-block;width:${pfpSize}px;` +
+            `height:${pfpSize}px;border-radius:50%;background:${sidebar};` +
+            `border:1px solid ${border};vertical-align:middle;"></span>`
+          );
         }
         return (
-          `<img src="${player.nationality}" alt="" width="28" height="28" ` +
-          `style="width:28px;height:28px;border-radius:50%;object-fit:cover;` +
-          `vertical-align:middle;">`
+          `<img src="${player.nationality}" alt="" width="${pfpSize}" height="${pfpSize}" ` +
+          `style="width:${pfpSize}px;height:${pfpSize}px;border-radius:50%;` +
+          `object-fit:cover;vertical-align:middle;border:1px solid ${border};">`
         );
       },
     });

@@ -81,7 +81,7 @@ class Contestant(models.Model):
 
 
 class Match(models.Model):
-    """One matchup in a round. Full tree gets rebuilt whenever someone signs up."""
+    """One matchup in a round. Round 1 gets rebuilt whenever someone signs up."""
 
     round_number = models.PositiveIntegerField(default=1)
     position = models.PositiveIntegerField(

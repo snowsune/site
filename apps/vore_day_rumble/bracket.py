@@ -5,20 +5,9 @@ import math
 from .models import Contestant, Match, next_power_of_2
 
 
-def _round_name(round_number, bracket_size):
-    remaining = bracket_size // (2 ** (round_number - 1))
-    if remaining == 2:
-        return "Final"
-    if remaining == 4:
-        return "Semifinals"
-    if remaining == 8:
-        return "Quarterfinals"
-    return f"Round of {remaining}"
-
-
 def _side_for(contestant, winner_id):
     if contestant is None:
-        return {"title": "TBD"}
+        return {"title": "-"}
     side = {"contestantId": str(contestant.pk)}
     if winner_id is not None:
         side["isWinner"] = contestant.pk == winner_id
@@ -61,9 +50,8 @@ def build_bracketry_data():
             ],
         }
 
-    rounds = [
-        {"name": _round_name(r, size)} for r in range(1, total_rounds + 1)
-    ]
+    rounds = [{} for _ in range(total_rounds)]
+    empty = {"title": "-"}
 
     bracket_matches = []
     for match in matches:
@@ -72,18 +60,13 @@ def build_bracketry_data():
 
         if match.contestant_a:
             sides.append(_side_for(match.contestant_a, winner_id))
-        elif match.contestant_b and winner_id == match.contestant_b_id:
-            # Pure bye on the A side
-            sides.append({"title": "BYE"})
         else:
-            sides.append({"title": "TBD"} if match.round_number > 1 else {"title": "BYE"})
+            sides.append(empty)
 
         if match.contestant_b:
             sides.append(_side_for(match.contestant_b, winner_id))
-        elif match.contestant_a and winner_id == match.contestant_a_id:
-            sides.append({"title": "BYE"})
         else:
-            sides.append({"title": "TBD"} if match.round_number > 1 else {"title": "BYE"})
+            sides.append(empty)
 
         entry = {
             "roundIndex": match.round_number - 1,
@@ -93,10 +76,6 @@ def build_bracketry_data():
         if match.voting_open:
             entry["isLive"] = True
             entry["matchStatus"] = "Voting!"
-        elif match.winner_id and (
-            not match.contestant_a or not match.contestant_b
-        ):
-            entry["matchStatus"] = "Bye"
         bracket_matches.append(entry)
 
     return {
