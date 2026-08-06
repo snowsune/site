@@ -29,6 +29,14 @@ def rumble_enabled_required(view_func):
 @rumble_enabled_required
 def index(request):
     """Main rumble page."""
+    # Sweep any votes whose timer already elapsed
+    from .voting.runner import resolve_due_votes
+
+    try:
+        resolve_due_votes()
+    except Exception:
+        pass
+
     settings = RumbleSettings.get()
     contestants = Contestant.objects.select_related("user").all()
     active_match = Match.objects.filter(voting_open=True).select_related(

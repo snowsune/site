@@ -18,10 +18,18 @@
 <section class="rumble-page">
   <h1>Vixi's Vore Day Rumble</h1>
 
+  <p style="opacity:0.8;font-size:0.96em;">
+    This is super inspired by
+    <a href="https://hungerfight.rhainbowmetall.net/" target="_blank" rel="noopener">
+      Rhain's Hunger Fight!
+    </a>
+    go look at her art!
+  </p>
+
   <p class="rumble-meta">
     {% if settings.signups_open %}
     Signups are open!
-    <a href="{% url 'vore_day_rumble:enter' %}">Enter the rumble</a>.
+    <a href="{% url 'vore_day_rumble:enter' %}">Enter with your OC!</a>
     {% else %}
     Closed signups!
     
@@ -29,7 +37,7 @@
       {% if contestant.user == request.user %}
         <br>
         <strong>You are entered!</strong>
-        <a href="{% url 'vore_day_rumble:enter' %}">Edit your entry</a>.
+        <a href="{% url 'vore_day_rumble:enter' %}">Edit your entry</a>
       {% endif %}
     {% endfor %}
 
@@ -53,7 +61,7 @@
   </div>
   {% endif %}
 
-  <h2>Bracket</h2>
+  <h2>Nom-nom Bracket</h2>
   <div id="rumble-bracket"></div>
 </section>
 {% endblock %}

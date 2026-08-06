@@ -5,15 +5,32 @@ from .models import Contestant, Match, RumbleSettings, open_next_match_for_votin
 
 @admin.register(RumbleSettings)
 class RumbleSettingsAdmin(admin.ModelAdmin):
-    list_display = ["__str__", "enabled", "signups_open"]
+    list_display = ["__str__", "enabled", "signups_open", "discord_channel_id"]
     fieldsets = (
         (
             "Toggles",
             {
-                "fields": ("enabled", "signups_open", "advance_to_next_match"),
+                "fields": (
+                    "enabled",
+                    "signups_open",
+                    "advance_to_next_match",
+                    "reset_bracket",
+                ),
                 "description": (
                     "enabled = site is live, signups_open = /voreday/enter works, "
-                    "advance_to_next_match = check + save to kick off the next vote."
+                    "advance_to_next_match = kick off the next Discord vote, "
+                    "reset_bracket = wipe + reshuffle (keeps contestants)."
+                ),
+            },
+        ),
+        (
+            "Discord voting",
+            {
+                "fields": ("discord_channel_id", "vote_duration_minutes"),
+                "description": (
+                    "Needs DISCORD_BOT_TOKEN in the env. "
+                    "Bot must be able to post + add reactions in this channel. "
+                    "Votes auto-close on a background timer; /voreday/ also sweeps due ones."
                 ),
             },
         ),
@@ -56,14 +73,25 @@ class MatchAdmin(admin.ModelAdmin):
         "contestant_b",
         "winner",
         "voting_open",
+        "voting_ends_at",
+        "votes_left",
+        "votes_right",
     ]
     list_filter = ["round_number", "voting_open"]
     search_fields = [
         "contestant_a__display_name",
         "contestant_b__display_name",
+        "discord_message_id",
+    ]
+    readonly_fields = [
+        "discord_channel_id",
+        "discord_message_id",
+        "voting_ends_at",
+        "votes_left",
+        "votes_right",
     ]
     autocomplete_fields = ["contestant_a", "contestant_b", "winner"]
-    actions = ["open_next_for_voting"]
+    actions = ["open_next_for_voting", "resolve_due_now"]
 
     @admin.action(description="Open next match for voting")
     def open_next_for_voting(self, request, queryset):
@@ -81,3 +109,24 @@ class MatchAdmin(admin.ModelAdmin):
                 f"Now voting on: {match}",
                 level=messages.SUCCESS,
             )
+
+    @admin.action(description="Resolve due / selected votes now")
+    def resolve_due_now(self, request, queryset):
+        from .voting.runner import resolve_due_votes, resolve_vote
+
+        # If they selected open matches, force those; otherwise sweep due ones
+        open_selected = queryset.filter(voting_open=True)
+        if open_selected.exists():
+            n = 0
+            for match in open_selected:
+                try:
+                    if resolve_vote(match, force=True):
+                        n += 1
+                except Exception as e:
+                    self.message_user(
+                        request, f"Failed on {match}: {e}", level=messages.ERROR
+                    )
+            self.message_user(request, f"Resolved {n} selected vote(s).")
+        else:
+            n = resolve_due_votes()
+            self.message_user(request, f"Resolved {n} due vote(s).")

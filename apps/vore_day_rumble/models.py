@@ -24,6 +24,23 @@ class RumbleSettings(models.Model):
         default=False,
         help_text="Check + save to open the next match for voting. Clears itself after.",
     )
+    reset_bracket = models.BooleanField(
+        default=False,
+        help_text="Check + save to wipe winners/votes and reshuffle everyone. Clears itself after.",
+    )
+    discord_channel_id = models.CharField(
+        max_length=40,
+        blank=True,
+        help_text="Discord channel ID where matchup votes get posted",
+    )
+    vote_duration_minutes = models.PositiveIntegerField(
+        default=30,
+        help_text="How long each Discord vote stays open",
+    )
+    champion_announced = models.BooleanField(
+        default=False,
+        help_text="Internal: already posted the WINNER card for this bracket.",
+    )
 
     class Meta:
         verbose_name = "Rumble Settings"
@@ -34,9 +51,13 @@ class RumbleSettings(models.Model):
 
     def save(self, *args, **kwargs):
         should_advance = self.advance_to_next_match
+        should_reset = self.reset_bracket
         self.advance_to_next_match = False
+        self.reset_bracket = False
         self.pk = 1
         super().save(*args, **kwargs)
+        if should_reset:
+            reshuffle_bracket()
         if should_advance:
             open_next_match_for_voting()
 
@@ -112,6 +133,19 @@ class Match(models.Model):
         default=False,
         help_text="Is this the match folks are voting on right now?",
     )
+    discord_channel_id = models.CharField(max_length=40, blank=True)
+    discord_message_id = models.CharField(max_length=40, blank=True)
+    voting_ends_at = models.DateTimeField(null=True, blank=True)
+    votes_left = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Final left-emoji tally (contestant A)",
+    )
+    votes_right = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Final right-emoji tally (contestant B)",
+    )
 
     class Meta:
         ordering = ["round_number", "position"]
@@ -172,6 +206,10 @@ def reshuffle_bracket():
 
     # Signups still open = wipe the whole tree and rebuild
     Match.objects.all().delete()
+    settings = RumbleSettings.get()
+    if settings.champion_announced:
+        settings.champion_announced = False
+        settings.save(update_fields=["champion_announced"])
 
     size = next_power_of_2(len(contestants))
     if size == 0:
@@ -207,40 +245,79 @@ def reshuffle_bracket():
     advance_winners_into_next_rounds()
 
 
-@transaction.atomic
 def open_next_match_for_voting():
-    """Close the current match, open the next unfinished one. Returns it (or None)."""
-    Match.objects.filter(voting_open=True).update(voting_open=False)
+    """
+    Resolve any open vote, then open the next unfinished matchup and
+    kick off its Discord vote. Returns the newly opened Match, or None.
+    """
+    current = Match.objects.filter(voting_open=True).first()
+    if current:
+        from .voting.runner import resolve_vote
 
-    nxt = (
-        Match.objects.filter(winner__isnull=True)
-        .filter(contestant_a__isnull=False, contestant_b__isnull=False)
-        .order_by("round_number", "position")
-        .first()
-    )
-    if nxt is None:
-        # Maybe a half-filled match with a bye slipped through
-        bye = (
-            Match.objects.filter(winner__isnull=True, contestant_a__isnull=False)
-            .filter(contestant_b__isnull=True)
-            .order_by("round_number", "position")
-            .first()
-        )
-        if bye is None:
-            bye = (
-                Match.objects.filter(winner__isnull=True, contestant_b__isnull=False)
-                .filter(contestant_a__isnull=True)
+        try:
+            resolve_vote(current, force=True)
+        except Exception:
+            Match.objects.filter(pk=current.pk).update(voting_open=False)
+
+    match = _claim_next_matchup()
+    if match is None:
+        # Nothing left to vote on - if the finals are done, show the WINNER card
+        from .voting.runner import announce_champion_if_crowned
+
+        announce_champion_if_crowned()
+        return None
+    return _start_discord_for(match)
+
+
+def _claim_next_matchup():
+    """
+    Find the next votable match (auto-resolving byes along the way)
+    and mark it voting_open. Discord happens after this returns.
+    """
+    while True:
+        with transaction.atomic():
+            nxt = (
+                Match.objects.filter(winner__isnull=True)
+                .filter(contestant_a__isnull=False, contestant_b__isnull=False)
                 .order_by("round_number", "position")
                 .first()
             )
-        if bye is None:
-            return None
-        bye.winner = bye.contestant_a or bye.contestant_b
-        bye.voting_open = False
-        bye.save(update_fields=["winner", "voting_open"])
-        advance_winners_into_next_rounds()
-        return open_next_match_for_voting()
+            if nxt is not None:
+                nxt.voting_open = True
+                nxt.save(update_fields=["voting_open"])
+                return nxt
 
-    nxt.voting_open = True
-    nxt.save(update_fields=["voting_open"])
-    return nxt
+            bye = (
+                Match.objects.filter(
+                    winner__isnull=True,
+                    round_number=1,  # Only round-1 padding byes, not "waiting on feeder"
+                )
+                .exclude(contestant_a__isnull=True, contestant_b__isnull=True)
+                .filter(
+                    models.Q(contestant_a__isnull=True)
+                    | models.Q(contestant_b__isnull=True)
+                )
+                .order_by("round_number", "position")
+                .first()
+            )
+            if bye is None:
+                return None
+
+            bye.winner = bye.contestant_a or bye.contestant_b
+            bye.voting_open = False
+            bye.save(update_fields=["winner", "voting_open"])
+            advance_winners_into_next_rounds()
+
+
+def _start_discord_for(match):
+    from .voting.runner import start_vote
+
+    try:
+        start_vote(match)
+    except Exception:
+        import logging
+
+        logging.getLogger(__name__).exception(
+            "Failed to start Discord vote for match %s", match.pk
+        )
+    return match
