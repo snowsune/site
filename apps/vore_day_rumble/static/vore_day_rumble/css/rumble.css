@@ -45,6 +45,11 @@
   border: 1px solid var(--border-color);
 }
 
+/* clickable ppl */
+#rumble-bracket .side-wrapper {
+  cursor: pointer;
+}
+
 /* Winner mark: vore day tile instead of the default check */
 #rumble-bracket .winner-mark {
   width: 28px;

@@ -39,6 +39,14 @@ if (dataEl && wrapper) {
       liveMatchBgColor: sidebar,
       matchStatusBgColor: accent,
       matchMinVerticalGap: 20,
+      onMatchSideClick(match, sideIndex) {
+        const side = match.sides && match.sides[sideIndex];
+        if (!side || !side.contestantId) return;
+        const entry = data.contestants && data.contestants[side.contestantId];
+        if (entry && entry.profileUrl) {
+          window.location.href = entry.profileUrl;
+        }
+      },
       getRoundTitleElement() {
         const el = document.createElement("div");
         el.style.cssText = "height:0;overflow:hidden;padding:0;margin:0;";

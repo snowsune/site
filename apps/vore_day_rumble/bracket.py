@@ -19,7 +19,7 @@ def build_bracketry_data():
     Returns a dict ready for Bracketry's createBracket().
     Empty dict-ish structure if nobody's entered yet.
     """
-    contestants = list(Contestant.objects.all())
+    contestants = list(Contestant.objects.select_related("user").all())
     matches = list(
         Match.objects.select_related(
             "contestant_a", "contestant_b", "winner"
@@ -48,6 +48,7 @@ def build_bracketry_data():
                     "nationality": pfp,
                 }
             ],
+            "profileUrl": c.user.get_absolute_url(),
         }
 
     rounds = [{} for _ in range(total_rounds)]
