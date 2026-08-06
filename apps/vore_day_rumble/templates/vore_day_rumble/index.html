@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Vixi's Vore Day Rumble{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'vore_day_rumble/css/rumble.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+{% if bracket_data.rounds %}
+{{ bracket_data|json_script:"bracket-data" }}
+<script type="module" src="{% static 'vore_day_rumble/js/bracket.js' %}"></script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Vixi's Vore Day Rumble</h1>
+
+  <p>
+    {% if settings.signups_open %}
+    Signups are open!
+    <a href="{% url 'vore_day_rumble:enter' %}">Enter the rumble</a>.
+    {% else %}
+    Signups are currently closed.
+    {% endif %}
+  </p>
+
+  <p>{{ contestant_count }} contestant{{ contestant_count|pluralize }} entered.</p>
+
+  {% if active_match %}
+  <h2>Now voting</h2>
+  <p>
+    {{ active_match.contestant_a.display_name }}
+    vs
+    {% if active_match.contestant_b %}
+    {{ active_match.contestant_b.display_name }}
+    {% else %}
+    BYE
+    {% endif %}
+  </p>
+  {% endif %}
+
+  <h2>Bracket</h2>
+  <div id="rumble-bracket"></div>
+</section>
+{% endblock %}

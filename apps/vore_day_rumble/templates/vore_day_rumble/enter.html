@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Enter - Vixi's Vore Day Rumble{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Enter the Rumble</h1>
+
+  {% if signups_closed and not existing %}
+  <p>Signups are closed. Come back when entries reopen!</p>
+  <p><a href="{% url 'vore_day_rumble:index' %}">Back to the rumble</a></p>
+  {% else %}
+    {% if signups_closed %}
+    <p>Signups are closed. You can peek at your entry below, but can't change it.</p>
+    {% endif %}
+
+    {% if existing %}
+    <p>You're entered as <strong>{{ existing.display_name }}</strong>.</p>
+    {% if existing.profile_picture %}
+    <p>
+      <img src="{{ existing.profile_picture.url }}" alt="{{ existing.display_name }}" width="96" height="96" />
+    </p>
+    {% endif %}
+    {% endif %}
+
+    {% if not signups_closed and form %}
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">
+        {% if existing %}Update entry{% else %}Enter the rumble{% endif %}
+      </button>
+    </form>
+    {% endif %}
+
+  <p><a href="{% url 'vore_day_rumble:index' %}">Back to the rumble</a></p>
+  {% endif %}
+</section>
+{% endblock %}

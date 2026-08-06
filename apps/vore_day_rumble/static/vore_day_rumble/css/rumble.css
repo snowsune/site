@@ -1,0 +1,10 @@
+#rumble-bracket {
+  width: 100%;
+  min-height: 420px;
+  margin: 1rem 0 2rem;
+}
+
+#rumble-bracket:empty::before {
+  content: "Nobody's entered yet!";
+  opacity: 0.7;
+}

@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     "apps.bookclub",  # Comic book club app
     "apps.custompages",  # Custom pages with markdown
     "apps.tanks_manager",  # Per-user tank pages + editor
+    "apps.vore_day_rumble",  # Vixi's Vore Day Rumble
 ]
 
 MIDDLEWARE = [
