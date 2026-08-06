@@ -50,7 +50,7 @@ def start_vote(match):
         f"**Vixi's Vore Day Rumble!**\n"
         f"**{a.display_name}** vs **{b.display_name}**\n"
         f"Vote on snowsune.net: <{vote_url}>\n"
-        f"Closes <t:{ends_unix}:R>."
+        f"Closes <t:{ends_unix}:R>!"
     )
 
     message_id = discord_api.post_matchup(channel_id, content, image)
