@@ -19,17 +19,6 @@
   let pollTimer = null;
   let countdownTimer = null;
 
-  function getCookie(name) {
-    const match = document.cookie.match(
-      new RegExp("(?:^|; )" + name.replace(/([.$?*|{}()[\]\\/+^])/g, "\\$1") + "=([^;]*)")
-    );
-    return match ? decodeURIComponent(match[1]) : "";
-  }
-
-  function csrfToken() {
-    return csrf || getCookie("csrftoken");
-  }
-
   function applyStatus(data) {
     if (!data || data.voting_open === false) {
       if (countdownEl) countdownEl.textContent = "Voting closed! Refresh for the next match!";
@@ -122,7 +111,7 @@
         headers: {
           Accept: "application/json",
           "Content-Type": "application/x-www-form-urlencoded",
-          "X-CSRFToken": csrfToken(),
+          "X-CSRFToken": csrf,
         },
         credentials: "same-origin",
         cache: "no-store",

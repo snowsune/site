@@ -65,10 +65,28 @@ class ContestantAdmin(admin.ModelAdmin):
     readonly_fields = ["bracket_position", "created_at", "updated_at"]
     autocomplete_fields = ["user"]
     ordering = ["bracket_position"]
+    actions = ["kick_from_rumble"]
 
     @admin.display(boolean=True, description="Has PFP")
     def has_pfp(self, obj):
         return bool(obj.profile_picture)
+
+    @admin.action(description="Kick from rumble (delete + reshuffle bracket)")
+    def kick_from_rumble(self, request, queryset):
+        from .models import reshuffle_bracket
+
+        names = list(queryset.values_list("display_name", flat=True))
+        n = queryset.count()
+        queryset.delete()
+        reshuffle_bracket()
+        who = ", ".join(names[:8])
+        if len(names) > 8:
+            who += f", +{len(names) - 8} more"
+        self.message_user(
+            request,
+            f"Kicked {n}: {who}. Bracket reshuffled.",
+            level=messages.SUCCESS,
+        )
 
 
 @admin.register(Match)
