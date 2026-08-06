@@ -37,16 +37,34 @@ def _backdrop_path():
     )
 
 
-def _load_font(size):
-    for path in (
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "arial.ttf",
-    ):
+def _font_dir():
+    return (
+        Path(settings.BASE_DIR)
+        / "apps"
+        / "vore_day_rumble"
+        / "static"
+        / "vore_day_rumble"
+        / "fonts"
+    )
+
+
+def _load_font(size, bold=True):
+    """
+    Prefer fonts we ship with the app - prod slim images often have none,
+    and Pillow's default bitmap font is tiny.
+    """
+    bundled = _font_dir() / ("DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf")
+    candidates = [
+        bundled,
+        Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"),
+        Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+    ]
+    for path in candidates:
         try:
-            return ImageFont.truetype(path, size)
+            return ImageFont.truetype(str(path), size)
         except OSError:
             continue
+    logger.warning("No TTF font found - text will be tiny. Ship fonts or install fonts-dejavu-core.")
     return ImageFont.load_default()
 
 
@@ -109,8 +127,8 @@ def create_matchup_image(contestant_a, contestant_b):
     _paste_centered(card, right, RIGHT_CENTER)
 
     draw = ImageDraw.Draw(card)
-    name_font = _load_font(36)
-    vs_font = _load_font(72)
+    name_font = _load_font(52)
+    vs_font = _load_font(100)
 
     left_name = (contestant_a.display_name if contestant_a else "-")[:28]
     right_name = (contestant_b.display_name if contestant_b else "-")[:28]
@@ -152,8 +170,8 @@ def create_winner_image(contestant):
     _paste_centered(card, pfp, CENTER)
 
     draw = ImageDraw.Draw(card)
-    name_font = _load_font(40)
-    winner_font = _load_font(80)
+    name_font = _load_font(56)
+    winner_font = _load_font(96)
     name = (contestant.display_name if contestant else "-")[:28]
 
     _draw_centered_text(
