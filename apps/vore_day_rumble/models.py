@@ -31,11 +31,11 @@ class RumbleSettings(models.Model):
     discord_channel_id = models.CharField(
         max_length=40,
         blank=True,
-        help_text="Discord channel ID where matchup votes get posted",
+        help_text="Discord channel ID for matchup announcements + results",
     )
     vote_duration_minutes = models.PositiveIntegerField(
         default=30,
-        help_text="How long each Discord vote stays open",
+        help_text="How long each site vote stays open",
     )
     champion_announced = models.BooleanField(
         default=False,
@@ -139,12 +139,12 @@ class Match(models.Model):
     votes_left = models.PositiveIntegerField(
         null=True,
         blank=True,
-        help_text="Final left-emoji tally (contestant A)",
+        help_text="Final tally for contestant A (set when vote closes)",
     )
     votes_right = models.PositiveIntegerField(
         null=True,
         blank=True,
-        help_text="Final right-emoji tally (contestant B)",
+        help_text="Final tally for contestant B (set when vote closes)",
     )
 
     class Meta:
@@ -157,6 +157,46 @@ class Match(models.Model):
         b = self.contestant_b.display_name if self.contestant_b else "BYE"
         status = " [voting]" if self.voting_open else ""
         return f"R{self.round_number} M{self.position}: {a} vs {b}{status}"
+
+    def live_vote_counts(self):
+        """Current site tallies (A / B)."""
+        from django.db.models import Count, Q
+
+        agg = self.votes.aggregate(
+            left=Count("id", filter=Q(choice=MatchVote.CHOICE_A)),
+            right=Count("id", filter=Q(choice=MatchVote.CHOICE_B)),
+        )
+        return agg["left"] or 0, agg["right"] or 0
+
+
+class MatchVote(models.Model):
+    """One anonymous site vote per snowsune account, per match."""
+
+    CHOICE_A = "a"
+    CHOICE_B = "b"
+    CHOICE_CHOICES = [
+        (CHOICE_A, "Contestant A"),
+        (CHOICE_B, "Contestant B"),
+    ]
+
+    match = models.ForeignKey(
+        Match, on_delete=models.CASCADE, related_name="votes"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="vore_day_rumble_votes",
+    )
+    choice = models.CharField(max_length=1, choices=CHOICE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [["match", "user"]]
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user_id} -> {self.choice} on match {self.match_id}"
 
 
 def next_power_of_2(n):
@@ -248,7 +288,7 @@ def reshuffle_bracket():
 def open_next_match_for_voting():
     """
     Resolve any open vote, then open the next unfinished matchup and
-    kick off its Discord vote. Returns the newly opened Match, or None.
+    announce it (site voting + Discord). Returns the newly opened Match, or None.
     """
     current = Match.objects.filter(voting_open=True).first()
     if current:

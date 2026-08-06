@@ -1,10 +1,12 @@
 """
-Talks to discord with the fops/site token
+Talks to Discord with the site bot token.
+
+Posts matchup cards, results, and winner announcements.
+Voting itself happens on snowsune.net now.
 """
 
 import logging
 import time
-from urllib.parse import quote
 
 import requests
 from django.conf import settings
@@ -12,11 +14,6 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 API = "https://discord.com/api/v10"
-
-# Left = contestant A, Right = contestant B
-LEFT_EMOJI = "◀"
-RIGHT_EMOJI = "▶"
-
 MAX_RETRIES = 5
 
 
@@ -28,9 +25,7 @@ def _headers():
 
 
 def _request(method, url, **kwargs):
-    """
-    Discord API call that backs off on 429s using retry_after.
-    """
+    """Discord API call that backs off on 429s using retry_after."""
     timeout = kwargs.pop("timeout", 30)
     for attempt in range(1, MAX_RETRIES + 1):
         resp = requests.request(
@@ -45,7 +40,6 @@ def _request(method, url, **kwargs):
         except Exception:
             wait = float(resp.headers.get("Retry-After", 1))
 
-        # Tiny cushion so we don't bounce off the same window
         wait = max(wait, 0.2) + 0.15
         logger.warning(
             "Discord 429 on %s %s (attempt %s/%s), sleeping %.2fs",
@@ -61,10 +55,7 @@ def _request(method, url, **kwargs):
 
 
 def post_matchup(channel_id, content, image_bytes, filename="matchup.png"):
-    """
-    Post the VS card to a channel.
-    Returns the message id (str).
-    """
+    """Post an image + caption. Returns message id (str)."""
     files = {"files[0]": (filename, image_bytes, "image/png")}
     data = {"content": content}
     resp = _request(
@@ -75,50 +66,23 @@ def post_matchup(channel_id, content, image_bytes, filename="matchup.png"):
         timeout=30,
     )
     if resp.status_code >= 400:
-        logger.error("Discord post failed (%s): %s", resp.status_code, resp.text)
+        hint = ""
+        try:
+            code = resp.json().get("code")
+            if code == 50001:
+                hint = (
+                    " (bot can't see this channel - wrong channel id, bot not in the "
+                    "server, or missing View Channel / Send Messages / Attach Files)"
+                )
+            elif code == 50013:
+                hint = " (bot lacks permission in this channel)"
+        except Exception:
+            pass
+        logger.error(
+            "Discord post failed (%s)%s: %s", resp.status_code, hint, resp.text
+        )
         resp.raise_for_status()
     return str(resp.json()["id"])
-
-
-def add_reaction(channel_id, message_id, emoji):
-    """Add a reaction as the bot (retries on rate limit)."""
-    encoded = quote(emoji)
-    resp = _request(
-        "PUT",
-        f"{API}/channels/{channel_id}/messages/{message_id}/reactions/{encoded}/@me",
-        timeout=15,
-    )
-    if resp.status_code >= 400:
-        logger.error(
-            "Discord react failed (%s) emoji=%s: %s",
-            resp.status_code,
-            emoji,
-            resp.text,
-        )
-        resp.raise_for_status()
-
-
-def count_reactions(channel_id, message_id, emoji):
-    """
-    How many people reacted with this emoji (excluding the bot itself).
-    Discord caps this endpoint at 100 users; fine for our scale.
-    """
-    encoded = quote(emoji)
-    resp = _request(
-        "GET",
-        f"{API}/channels/{channel_id}/messages/{message_id}/reactions/{encoded}",
-        params={"limit": 100},
-        timeout=15,
-    )
-    if resp.status_code >= 400:
-        logger.error(
-            "Discord reaction fetch failed (%s): %s", resp.status_code, resp.text
-        )
-        resp.raise_for_status()
-
-    users = resp.json()
-    bot_id = _bot_user_id()
-    return sum(1 for u in users if str(u.get("id")) != bot_id)
 
 
 def post_text(channel_id, content):
@@ -133,16 +97,3 @@ def post_text(channel_id, content):
         logger.error("Discord text post failed (%s): %s", resp.status_code, resp.text)
         resp.raise_for_status()
     return str(resp.json()["id"])
-
-
-_cached_bot_id = None
-
-
-def _bot_user_id():
-    global _cached_bot_id
-    if _cached_bot_id:
-        return _cached_bot_id
-    resp = _request("GET", f"{API}/users/@me", timeout=10)
-    resp.raise_for_status()
-    _cached_bot_id = str(resp.json()["id"])
-    return _cached_bot_id

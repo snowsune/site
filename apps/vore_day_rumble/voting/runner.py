@@ -2,23 +2,20 @@
 BIG runner!
 Has all the steps in order (ish~)
 
-
-start_vote(match)   - composite, post to Discord, seed reacts, set timer
-resolve_vote(match) - tally reacts, pick a winner, advance bracket
+start_vote(match)   - composite, post to Discord (with link + countdown), set timer
+resolve_vote(match) - tally site votes, pick a winner, post results to Discord
 resolve_due_votes() - sweep anything whose timer already elapsed
-  (also called from /voreday/ and as a fallback if the worker restarted)
 """
 
 import logging
 import random
 import threading
-import time
 from datetime import timedelta
 
+from django.conf import settings
 from django.db import close_old_connections
-from django.utils import timezone
-
 from django.db.models import Max
+from django.utils import timezone
 
 from ..models import Match, RumbleSettings, advance_winners_into_next_rounds
 from . import discord as discord_api
@@ -29,37 +26,38 @@ logger = logging.getLogger(__name__)
 
 def start_vote(match):
     """
-    Kick off Discord voting for an open match.
-    Safe to call only when both sides are filled <3
+    Kick off a match vote: announce on Discord, open site voting, set timer.
     """
-
     if not match.contestant_a or not match.contestant_b:
-        logger.warning("Match %s isn't a real matchup, skipping vote", match.pk) # like if blank from the js lib
+        logger.warning("Match %s isn't a real matchup, skipping vote", match.pk)
         return False
 
-    settings = RumbleSettings.get()
-    channel_id = (settings.discord_channel_id or "").strip()
+    rumble = RumbleSettings.get()
+    channel_id = (rumble.discord_channel_id or "").strip()
     if not channel_id:
         logger.error("No discord_channel_id set on Rumble Settings")
         return False
 
     a = match.contestant_a
     b = match.contestant_b
-    minutes = settings.vote_duration_minutes or 30
-
-    image = create_matchup_image(a, b)
+    minutes = rumble.vote_duration_minutes or 30
     ends_at = timezone.now() + timedelta(minutes=minutes)
     ends_unix = int(ends_at.timestamp())
+    vote_url = f"{settings.SITE_URL.rstrip('/')}/voreday/"
+
+    image = create_matchup_image(a, b)
     content = (
         f"**Vixi's Vore Day Rumble!**\n"
-        f"{discord_api.LEFT_EMOJI} **{a.display_name}** vs "
-        f"**{b.display_name}** {discord_api.RIGHT_EMOJI}\n"
-        f"React to vote! Closes <t:{ends_unix}:R>."
+        f"**{a.display_name}** vs **{b.display_name}**\n"
+        f"Vote on snowsune.net: {vote_url}\n"
+        f"Closes <t:{ends_unix}:R>."
     )
 
     message_id = discord_api.post_matchup(channel_id, content, image)
 
-    # Persist the Discord message ASAP so a flaky react doesn't leave us stranded
+    # Fresh site tallies for this match window
+    match.votes.all().delete()
+
     match.discord_channel_id = channel_id
     match.discord_message_id = message_id
     match.voting_ends_at = ends_at
@@ -76,19 +74,6 @@ def start_vote(match):
             "voting_open",
         ]
     )
-
-    # Seed reacts one at a time with a tiny gap (Discord rate-limits :<)
-    for emoji in (discord_api.LEFT_EMOJI, discord_api.RIGHT_EMOJI):
-        try:
-            discord_api.add_reaction(channel_id, message_id, emoji)
-        except Exception:
-            logger.exception(
-                "Couldn't seed %s react on match %s (msg %s) - vote is still live",
-                emoji,
-                match.pk,
-                message_id,
-            )
-        time.sleep(0.4)
 
     _schedule_resolve(match.pk, match.voting_ends_at)
     logger.info(
@@ -124,20 +109,11 @@ def _schedule_resolve(match_id, ends_at):
 
 def resolve_vote(match, force=False):
     """
-    Tally reactions and crown a winner.
+    Tally site votes and crown a winner. Posts results to Discord.
     Returns the winning Contestant, or None if nothing to do.
     """
     if match.winner_id and not force:
         return match.winner
-
-    if not match.discord_message_id or not match.discord_channel_id:
-        logger.warning(
-            "Match %s has no Discord message to tally - closing vote without a winner",
-            match.pk,
-        )
-        match.voting_open = False
-        match.save(update_fields=["voting_open"])
-        return None
 
     if (
         not force
@@ -149,15 +125,13 @@ def resolve_vote(match, force=False):
         )
         return None
 
-    channel_id = match.discord_channel_id
-    message_id = match.discord_message_id
+    if not match.contestant_a or not match.contestant_b:
+        logger.warning("Match %s missing contestants, closing vote", match.pk)
+        match.voting_open = False
+        match.save(update_fields=["voting_open"])
+        return None
 
-    left = discord_api.count_reactions(
-        channel_id, message_id, discord_api.LEFT_EMOJI
-    )
-    right = discord_api.count_reactions(
-        channel_id, message_id, discord_api.RIGHT_EMOJI
-    )
+    left, right = match.live_vote_counts()
 
     tie = False
     if left > right:
@@ -185,18 +159,22 @@ def resolve_vote(match, force=False):
     a_name = match.contestant_a.display_name
     b_name = match.contestant_b.display_name
     result = (
-        f"**Results!** {discord_api.LEFT_EMOJI} {a_name}: **{left}** | "
-        f"{b_name}: **{right}** {discord_api.RIGHT_EMOJI}\n"
+        f"**Results!** **{a_name}**: **{left}** | **{b_name}**: **{right}**\n"
     )
     if tie:
         result += f"Omg a tie! Coin flip goes to **{winner.display_name}**!~"
     else:
         result += f"**{winner.display_name}** advances!~"
 
-    try:
-        discord_api.post_text(channel_id, result)
-    except Exception as e:
-        logger.error("Couldn't post results message: %s", e)
+    channel_id = (match.discord_channel_id or "").strip()
+    if not channel_id:
+        channel_id = (RumbleSettings.get().discord_channel_id or "").strip()
+
+    if channel_id:
+        try:
+            discord_api.post_text(channel_id, result)
+        except Exception as e:
+            logger.error("Couldn't post results message: %s", e)
 
     logger.info(
         "Resolved match %s: %s wins (%s-%s)%s",
@@ -207,9 +185,7 @@ def resolve_vote(match, force=False):
         " [tie]" if tie else "",
     )
 
-    # Finals done???? Post the big WINNER card!
-    announce_champion_if_crowned(channel_id=channel_id)
-
+    announce_champion_if_crowned(channel_id=channel_id or None)
     return winner
 
 
@@ -242,11 +218,11 @@ def announce_champion_if_crowned(channel_id=None):
     if champion is None:
         return None
 
-    settings = RumbleSettings.get()
-    if settings.champion_announced:
+    rumble = RumbleSettings.get()
+    if rumble.champion_announced:
         return champion
 
-    channel_id = (channel_id or settings.discord_channel_id or "").strip()
+    channel_id = (channel_id or rumble.discord_channel_id or "").strip()
     if not channel_id:
         logger.error("No discord channel for winner announcement")
         return champion
@@ -260,8 +236,8 @@ def announce_champion_if_crowned(channel_id=None):
         discord_api.post_matchup(
             channel_id, content, image, filename="winner.png"
         )
-        settings.champion_announced = True
-        settings.save(update_fields=["champion_announced"])
+        rumble.champion_announced = True
+        rumble.save(update_fields=["champion_announced"])
         logger.info("Posted WINNER card for %s", champion.display_name)
     except Exception:
         logger.exception("Failed to post WINNER card for %s", champion.display_name)

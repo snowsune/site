@@ -22,6 +22,71 @@
   margin: var(--spacing-md) 0;
 }
 
+.rumble-vote-countdown {
+  margin: 0 0 0.75rem;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+.rumble-vote-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.rumble-vote-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 8rem;
+  text-align: center;
+}
+
+.rumble-vote-pfp {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.rumble-vote-name {
+  margin: 0;
+  font-weight: 600;
+}
+
+.rumble-vote-tally {
+  margin: 0;
+  font-size: 1.4rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.rumble-vote-vs {
+  margin: 2.5rem 0 0;
+  opacity: 0.7;
+  font-weight: 600;
+}
+
+.rumble-vote-btn {
+  margin-top: 0.25rem;
+  cursor: pointer;
+}
+
+.rumble-vote-btn.is-selected {
+  outline: 2px solid var(--link-color, currentColor);
+  outline-offset: 2px;
+}
+
+.rumble-vote-hint {
+  margin: 0.85rem 0 0;
+  opacity: 0.8;
+  font-size: 0.95em;
+  text-align: center;
+}
+
 #rumble-bracket {
   width: 100%;
   margin: 0.5rem 0 1rem;

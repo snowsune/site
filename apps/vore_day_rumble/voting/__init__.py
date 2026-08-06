@@ -1,8 +1,8 @@
 """
-VIXI'S VORE REACTION THINGY
+Vixi's Vore Day Rumble voting.
 
 Flow:
-  1. composite.py  - build the versuses image
-  2. discord.py    - post it, add left/right reacts, read counts
-  3. runner.py     - start a vote / resolve when time's up
+  1. composite.py  - build the matchup / winner images
+  2. discord.py    - announce matchups, countdowns, and results
+  3. runner.py     - open a vote window / resolve from site tallies
 """

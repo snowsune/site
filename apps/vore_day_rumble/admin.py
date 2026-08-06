@@ -1,6 +1,12 @@
 from django.contrib import admin, messages
 
-from .models import Contestant, Match, RumbleSettings, open_next_match_for_voting
+from .models import (
+    Contestant,
+    Match,
+    MatchVote,
+    RumbleSettings,
+    open_next_match_for_voting,
+)
 
 
 @admin.register(RumbleSettings)
@@ -18,19 +24,21 @@ class RumbleSettingsAdmin(admin.ModelAdmin):
                 ),
                 "description": (
                     "enabled = site is live, signups_open = /voreday/enter works, "
-                    "advance_to_next_match = kick off the next Discord vote, "
+                    "advance_to_next_match = open the next match for site voting "
+                    "(Discord still announces), "
                     "reset_bracket = wipe + reshuffle (keeps contestants)."
                 ),
             },
         ),
         (
-            "Discord voting",
+            "Discord + voting window",
             {
                 "fields": ("discord_channel_id", "vote_duration_minutes"),
                 "description": (
-                    "Needs DISCORD_BOT_TOKEN in the env. "
-                    "Bot must be able to post + add reactions in this channel. "
-                    "Votes auto-close on a background timer; /voreday/ also sweeps due ones."
+                    "Votes are cast on snowsune.net. Discord gets the matchup image, "
+                    "countdown, and results. Needs DISCORD_BOT_TOKEN; bot must post "
+                    "images/text in this channel. Votes auto-close on a timer; "
+                    "/voreday/ also sweeps due ones."
                 ),
             },
         ),
@@ -130,3 +138,12 @@ class MatchAdmin(admin.ModelAdmin):
         else:
             n = resolve_due_votes()
             self.message_user(request, f"Resolved {n} due vote(s).")
+
+
+@admin.register(MatchVote)
+class MatchVoteAdmin(admin.ModelAdmin):
+    list_display = ["match", "user", "choice", "created_at", "updated_at"]
+    list_filter = ["choice", "created_at"]
+    search_fields = ["user__username", "match__contestant_a__display_name"]
+    autocomplete_fields = ["match", "user"]
+    readonly_fields = ["created_at", "updated_at"]

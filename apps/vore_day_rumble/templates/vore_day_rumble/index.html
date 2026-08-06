@@ -20,6 +20,10 @@
 {{ bracket_data|json_script:"bracket-data" }}
 <script type="module" src="{% static 'vore_day_rumble/js/bracket.js' %}"></script>
 {% endif %}
+{% if active_match and vote_status %}
+{{ vote_status|json_script:"vote-status-data" }}
+<script src="{% static 'vore_day_rumble/js/voting.js' %}" defer></script>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -40,7 +44,7 @@
     <a href="{% url 'vore_day_rumble:enter' %}">Enter with your OC!</a>
     {% else %}
     Closed signups!
-    
+
     {% for contestant in contestants %}
       {% if contestant.user == request.user %}
         <br>
@@ -54,18 +58,66 @@
 
   <p class="rumble-meta">{{ contestant_count }} contestant{{ contestant_count|pluralize }} entered.</p>
 
-  {% if active_match %}
-  <div class="rumble-now-voting">
+  {% if active_match and active_match.contestant_a and active_match.contestant_b %}
+  <div
+    class="rumble-now-voting"
+    id="rumble-now-voting"
+    data-vote-url="{% url 'vore_day_rumble:cast_vote' %}"
+    data-status-url="{% url 'vore_day_rumble:vote_status' %}"
+    data-logged-in="{% if request.user.is_authenticated %}1{% else %}0{% endif %}"
+  >
+    {% csrf_token %}
     <h2>Now voting</h2>
-    <p>
-      {{ active_match.contestant_a.display_name }}
-      vs
-      {% if active_match.contestant_b %}
-      {{ active_match.contestant_b.display_name }}
-      {% else %}
-      -
-      {% endif %}
+    <p class="rumble-vote-countdown" id="rumble-vote-countdown" aria-live="polite">
+      Closing soon…
     </p>
+
+    <div class="rumble-vote-row">
+      <div class="rumble-vote-side" data-side="a">
+        {% if active_match.contestant_a.profile_picture %}
+        <img
+          class="rumble-vote-pfp"
+          src="{{ active_match.contestant_a.profile_picture.url }}"
+          alt="{{ active_match.contestant_a.display_name }}"
+          width="96"
+          height="96"
+        >
+        {% endif %}
+        <p class="rumble-vote-name">{{ active_match.contestant_a.display_name }}</p>
+        <p class="rumble-vote-tally" data-tally="left">{{ vote_status.votes_left }}</p>
+        {% if request.user.is_authenticated %}
+        <button type="button" class="rumble-vote-btn" data-choice="a">Vote</button>
+        {% endif %}
+      </div>
+
+      <p class="rumble-vote-vs">vs</p>
+
+      <div class="rumble-vote-side" data-side="b">
+        {% if active_match.contestant_b.profile_picture %}
+        <img
+          class="rumble-vote-pfp"
+          src="{{ active_match.contestant_b.profile_picture.url }}"
+          alt="{{ active_match.contestant_b.display_name }}"
+          width="96"
+          height="96"
+        >
+        {% endif %}
+        <p class="rumble-vote-name">{{ active_match.contestant_b.display_name }}</p>
+        <p class="rumble-vote-tally" data-tally="right">{{ vote_status.votes_right }}</p>
+        {% if request.user.is_authenticated %}
+        <button type="button" class="rumble-vote-btn" data-choice="b">Vote</button>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if request.user.is_authenticated %}
+    <p class="rumble-vote-hint" id="rumble-vote-hint">Vote here! (You can switch until it closes~)</p>
+    {% else %}
+    <p class="rumble-vote-hint">
+      <a href="{% url 'login' %}?next={% url 'vore_day_rumble:index' %}">Log in</a>
+      with a snowsune.net account to cast a vote!
+    </p>
+    {% endif %}
   </div>
   {% endif %}
 
