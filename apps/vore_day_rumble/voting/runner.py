@@ -117,11 +117,7 @@ def resolve_vote(match, force=False):
     if match.winner_id and not force:
         return match.winner
 
-    if (
-        not force
-        and match.voting_ends_at
-        and match.voting_ends_at > timezone.now()
-    ):
+    if not force and match.voting_ends_at and match.voting_ends_at > timezone.now():
         logger.info(
             "Match %s vote still running until %s", match.pk, match.voting_ends_at
         )
@@ -161,9 +157,7 @@ def resolve_vote(match, force=False):
 
     a_name = match.contestant_a.display_name
     b_name = match.contestant_b.display_name
-    result = (
-        f"**Results!** **{a_name}**: **{left}** | **{b_name}**: **{right}**\n"
-    )
+    result = f"**Results!** **{a_name}**: **{left}** | **{b_name}**: **{right}**\n"
     if tie:
         result += f"Omg a tie! Coin flip goes to **{winner.display_name}**!~"
     else:
@@ -236,9 +230,7 @@ def announce_champion_if_crowned(channel_id=None):
             f"**The Vore Day Rumble is over!**\n"
             f"**{champion.display_name}** wins!~ (Uurp~)"
         )
-        discord_api.post_matchup(
-            channel_id, content, image, filename="winner.png"
-        )
+        discord_api.post_matchup(channel_id, content, image, filename="winner.png")
         rumble.champion_announced = True
         rumble.save(update_fields=["champion_announced"])
         logger.info("Posted WINNER card for %s", champion.display_name)

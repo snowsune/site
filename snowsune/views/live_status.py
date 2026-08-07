@@ -51,10 +51,15 @@ def get_server_offset():
     try:
         resp = requests.get(
             f"{ha_url_setting.value}/api/states/sensor.server_offset_percentage",
-            headers={"Authorization": f"Bearer {ha_token_setting.value}", "Content-Type": "application/json"},
+            headers={
+                "Authorization": f"Bearer {ha_token_setting.value}",
+                "Content-Type": "application/json",
+            },
             timeout=5,
         )
-        value = resp.json().get("state", "Unknown") if resp.status_code == 200 else "Error"
+        value = (
+            resp.json().get("state", "Unknown") if resp.status_code == 200 else "Error"
+        )
     except Exception as e:
         logger.info("Home Assistant server offset unavailable: %s", e)
         value = "Offline"
@@ -81,6 +86,7 @@ def live_status_view(request):
     )
     response["Cache-Control"] = "public, max-age=30"
     response["Vary"] = "Cookie"
-    response["Expires"] = (timezone.now() + timedelta(seconds=30)).strftime("%a, %d %b %Y %H:%M:%S GMT")
+    response["Expires"] = (timezone.now() + timedelta(seconds=30)).strftime(
+        "%a, %d %b %Y %H:%M:%S GMT"
+    )
     return response
-

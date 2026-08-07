@@ -161,9 +161,7 @@ def iter_sse(user) -> Iterator[str]:
         while True:
             payload = snapshot_for(user, base=snap)
             yield (
-                f"id: {version}\n"
-                f"event: status\n"
-                f"data: {json.dumps(payload)}\n\n"
+                f"id: {version}\n" f"event: status\n" f"data: {json.dumps(payload)}\n\n"
             )
             if not snap.get("voting_open"):
                 return

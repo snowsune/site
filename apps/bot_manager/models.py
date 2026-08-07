@@ -12,13 +12,11 @@ class FopsDatabase:
         """Get list of tables in Fops database"""
         with get_fops_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute(
-                    """
+                cur.execute("""
                     SELECT table_name 
                     FROM information_schema.tables 
                     WHERE table_schema = 'public'
-                """
-                )
+                """)
                 return [row["table_name"] for row in cur.fetchall()]
 
 

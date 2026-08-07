@@ -17,7 +17,6 @@ from snowsune.views.health import health_check
 from snowsune.views.redirects import matrix_redirect
 from apps.thank_yous.views import thank_you_view
 
-
 urlpatterns = [
     # django
     path("admin/", admin.site.urls),

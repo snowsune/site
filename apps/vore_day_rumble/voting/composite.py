@@ -64,7 +64,9 @@ def _load_font(size, bold=True):
             return ImageFont.truetype(str(path), size)
         except OSError:
             continue
-    logger.warning("No TTF font found - text will be tiny. Ship fonts or install fonts-dejavu-core.")
+    logger.warning(
+        "No TTF font found - text will be tiny. Ship fonts or install fonts-dejavu-core."
+    )
     return ImageFont.load_default()
 
 
@@ -115,8 +117,10 @@ def create_matchup_image(contestant_a, contestant_b):
     """
     backdrop_path = _backdrop_path()
     if backdrop_path.exists():
-        card = Image.open(backdrop_path).convert("RGBA").resize(
-            CARD_SIZE, Image.Resampling.LANCZOS
+        card = (
+            Image.open(backdrop_path)
+            .convert("RGBA")
+            .resize(CARD_SIZE, Image.Resampling.LANCZOS)
         )
     else:
         card = Image.new("RGBA", CARD_SIZE, (32, 32, 40, 255))
@@ -160,8 +164,10 @@ def create_winner_image(contestant):
     """
     backdrop_path = _backdrop_path()
     if backdrop_path.exists():
-        card = Image.open(backdrop_path).convert("RGBA").resize(
-            CARD_SIZE, Image.Resampling.LANCZOS
+        card = (
+            Image.open(backdrop_path)
+            .convert("RGBA")
+            .resize(CARD_SIZE, Image.Resampling.LANCZOS)
         )
     else:
         card = Image.new("RGBA", CARD_SIZE, (32, 32, 40, 255))

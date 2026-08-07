@@ -179,9 +179,7 @@ class MatchVote(models.Model):
         (CHOICE_B, "Contestant B"),
     ]
 
-    match = models.ForeignKey(
-        Match, on_delete=models.CASCADE, related_name="votes"
-    )
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name="votes")
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

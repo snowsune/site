@@ -140,12 +140,12 @@ def _editor_data(site):
             "tankBottomOffset": site.tank_bottom_offset,
             "character_name": site.character_name,
             "character_url": site.character_url,
-            "stage_background_url": site.stage_background.url
-            if site.stage_background
-            else "",
-            "stage_foreground_url": site.stage_foreground.url
-            if site.stage_foreground
-            else "",
+            "stage_background_url": (
+                site.stage_background.url if site.stage_background else ""
+            ),
+            "stage_foreground_url": (
+                site.stage_foreground.url if site.stage_foreground else ""
+            ),
         },
         "logs": [
             {"date": g.date, "text": g.text}

@@ -72,5 +72,5 @@ def seasonal_css(request):
     # If no exact match, check for month-only match (month,)
     if not css_file:
         css_file = seasonal_dates.get((today.month,))
-    
+
     return {"seasonal_css": f"css/seasonal/{css_file}" if css_file else None}
