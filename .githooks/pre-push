@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Format Python with black before push (matches CI: . --exclude '/migrations/').
+# If black rewrites files, abort so the changes can be committed first.
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+run_black() {
+  if command -v pipenv >/dev/null 2>&1 && [[ -f Pipfile ]]; then
+    pipenv run black "$@"
+  elif command -v black >/dev/null 2>&1; then
+    black "$@"
+  else
+    echo "pre-push: black not found (install black, or use pipenv with black available)" >&2
+    exit 1
+  fi
+}
+
+echo "pre-push: running black..."
+run_black . --exclude '/migrations/'
+
+if ! git diff --quiet -- '*.py'; then
+  echo "" >&2
+  echo "pre-push: black reformatted Python files. Commit them and push again:" >&2
+  git --no-pager diff --stat -- '*.py' >&2
+  exit 1
+fi
+
+echo "pre-push: black ok"

@@ -87,11 +87,30 @@
   text-align: center;
 }
 
+.rumble-bracket-scroll {
+  width: 100%;
+  max-width: 100%;
+  margin: 0.5rem 0 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+}
+
 #rumble-bracket {
   width: 100%;
-  margin: 0.5rem 0 1rem;
   background: transparent;
   color: var(--text-color);
+}
+
+@media (max-width: 768px) {
+  .rumble-bracket-scroll {
+    /* Full-bleed within the content column so swipes aren't cramped */
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    padding: 0 0.5rem 0.35rem;
+  }
 }
 
 #rumble-bracket:empty {

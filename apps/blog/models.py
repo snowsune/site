@@ -361,7 +361,9 @@ class Comment(models.Model):
             # Only format username as a link if the user is authenticated
             if self.user and self.user.is_authenticated:
                 profile_path = reverse("user-profile", args=[self.get_display_name()])
-                username_display = f"[{self.get_display_name()}](<{settings.SITE_URL}{profile_path}>)"
+                username_display = (
+                    f"[{self.get_display_name()}](<{settings.SITE_URL}{profile_path}>)"
+                )
             else:
                 username_display = f'"{self.get_display_name()}"'
 

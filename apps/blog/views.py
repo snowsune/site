@@ -431,7 +431,9 @@ class BlogRSSFeed(Feed):
 
     # "Enclosure" stuff so we can use the preview images in the rss feeds
     def item_enclosure_url(self, item):
-        if getattr(item, "featured_image", None) and getattr(item.featured_image, "url", None):
+        if getattr(item, "featured_image", None) and getattr(
+            item.featured_image, "url", None
+        ):
             return self._absolute_url(item.featured_image.url)
         return None
 

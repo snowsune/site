@@ -2,14 +2,15 @@ from functools import wraps
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from .bracket import build_bracketry_data
 from .forms import ContestantEntryForm
-from .models import Contestant, Match, MatchVote, RumbleSettings, reshuffle_bracket
+from .models import Contestant, MatchVote, RumbleSettings, reshuffle_bracket
+from .voting import live as vote_live
 
 
 def rumble_enabled_required(view_func):
@@ -29,34 +30,9 @@ def rumble_enabled_required(view_func):
     return _wrapped
 
 
-def _vote_payload(match, user=None):
-    """JSON-friendly status for the live voting panel."""
-    left, right = match.live_vote_counts()
-    my_choice = None
-    if user is not None and user.is_authenticated:
-        vote = MatchVote.objects.filter(match=match, user=user).first()
-        if vote:
-            my_choice = vote.choice
-
-    ends_at = match.voting_ends_at
-    return {
-        "match_id": match.pk,
-        "voting_open": match.voting_open,
-        "votes_left": left,
-        "votes_right": right,
-        "my_choice": my_choice,
-        "ends_at": ends_at.isoformat() if ends_at else None,
-        "ends_at_unix": int(ends_at.timestamp()) if ends_at else None,
-        "server_now_unix": int(timezone.now().timestamp()),
-        "name_a": match.contestant_a.display_name if match.contestant_a else None,
-        "name_b": match.contestant_b.display_name if match.contestant_b else None,
-    }
-
-
 @rumble_enabled_required
 def index(request):
     """Main rumble page."""
-    # Sweep any votes whose timer already elapsed
     from .voting.runner import resolve_due_votes
 
     try:
@@ -66,15 +42,10 @@ def index(request):
 
     settings = RumbleSettings.get()
     contestants = Contestant.objects.select_related("user").all()
-    active_match = (
-        Match.objects.filter(voting_open=True)
-        .select_related("contestant_a", "contestant_b")
-        .first()
-    )
-
+    active_match = vote_live.active_match()
     vote_status = None
     if active_match and active_match.contestant_a and active_match.contestant_b:
-        vote_status = _vote_payload(active_match, request.user)
+        vote_status = vote_live.snapshot_for(request.user, active_match)
 
     return render(
         request,
@@ -92,19 +63,14 @@ def index(request):
 
 @rumble_enabled_required
 @require_GET
-def vote_status(request):
-    """Live tallies + countdown for the open match (poll this)."""
-    match = (
-        Match.objects.filter(voting_open=True)
-        .select_related("contestant_a", "contestant_b")
-        .first()
+def vote_stream(request):
+    """SSE status feed — tallies + this viewer's my_choice."""
+    response = StreamingHttpResponse(
+        vote_live.iter_sse(request.user),
+        content_type="text/event-stream",
     )
-    if match is None:
-        response = JsonResponse({"voting_open": False})
-    else:
-        response = JsonResponse(_vote_payload(match, request.user))
-    # Must not be cached: tallies change constantly and are cookie-sensitive
-    response["Cache-Control"] = "private, no-store"
+    response["Cache-Control"] = "no-cache, no-store"
+    response["X-Accel-Buffering"] = "no"
     return response
 
 
@@ -119,11 +85,7 @@ def cast_vote(request):
     if choice not in (MatchVote.CHOICE_A, MatchVote.CHOICE_B):
         return JsonResponse({"error": "Invalid choice"}, status=400)
 
-    match = (
-        Match.objects.filter(voting_open=True)
-        .select_related("contestant_a", "contestant_b")
-        .first()
-    )
+    match = vote_live.active_match()
     if match is None or not match.contestant_a or not match.contestant_b:
         return JsonResponse({"error": "No match is open for voting"}, status=400)
 
@@ -141,7 +103,8 @@ def cast_vote(request):
         user=request.user,
         defaults={"choice": choice},
     )
-    response = JsonResponse(_vote_payload(match, request.user))
+    vote_live.notify()
+    response = JsonResponse(vote_live.snapshot_for(request.user, match))
     response["Cache-Control"] = "private, no-store"
     return response
 
@@ -179,7 +142,6 @@ def enter(request):
             contestant = form.save(commit=False)
             contestant.user = request.user
             contestant.save()
-            # New signup? reshuffle. Just an update? leave the bracket alone.
             if existing is None:
                 reshuffle_bracket()
                 messages.success(request, "You're in the rumble!")
