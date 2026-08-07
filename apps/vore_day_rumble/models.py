@@ -100,6 +100,32 @@ class Contestant(models.Model):
     def __str__(self):
         return self.display_name
 
+    def prey(self):
+        """
+        Full stack of previous prey!! >:3 Counts if you get double-ate too!
+        """
+        latest = (
+            self.matches_won.select_related("contestant_a", "contestant_b")
+            .order_by("-round_number", "-position")
+            .first()
+        )
+        if not latest:
+            return []
+
+        if latest.winner_id == latest.contestant_a_id:
+            loser = latest.contestant_b
+            my_side, loser_side = "a", "b"
+        else:
+            loser = latest.contestant_a
+            my_side, loser_side = "b", "a"
+
+        out = []
+        if loser:
+            out.append(loser)
+            out.extend(latest.previous_prey(loser_side))
+        out.extend(latest.previous_prey(my_side))
+        return out
+
 
 class Match(models.Model):
     """One matchup in a round. Round 1 gets rebuilt whenever someone signs up."""
@@ -167,6 +193,51 @@ class Match(models.Model):
             right=Count("id", filter=Q(choice=MatchVote.CHOICE_B)),
         )
         return agg["left"] or 0, agg["right"] or 0
+
+    def previous_prey(self, side):
+        """
+        Contestants this side already ate on the way here.
+        Beating someone also absorbs their prey stack.
+        Newest elimination first.
+        side: "a" or "b"
+        """
+        if side == "a":
+            contestant = self.contestant_a
+            pos = self.position * 2
+        elif side == "b":
+            contestant = self.contestant_b
+            pos = self.position * 2 + 1
+        else:
+            raise ValueError(f"side must be 'a' or 'b', got {side!r}")
+
+        if not contestant or self.round_number <= 1:
+            return []
+
+        out = []
+        for r in range(self.round_number - 1, 0, -1):
+            feeder = (
+                Match.objects.select_related("contestant_a", "contestant_b", "winner")
+                .filter(round_number=r, position=pos)
+                .first()
+            )
+            if not feeder or feeder.winner_id != contestant.id:
+                break
+
+            if feeder.winner_id == feeder.contestant_a_id:
+                loser = feeder.contestant_b
+                loser_side = "b"
+                pos = feeder.position * 2
+            else:
+                loser = feeder.contestant_a
+                loser_side = "a"
+                pos = feeder.position * 2 + 1
+
+            if loser:
+                out.append(loser)
+                # Inherit everyone the loser had already eaten
+                out.extend(feeder.previous_prey(loser_side))
+
+        return out
 
 
 class MatchVote(models.Model):

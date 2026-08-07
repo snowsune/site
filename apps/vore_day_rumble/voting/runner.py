@@ -46,7 +46,12 @@ def start_vote(match):
     ends_unix = int(ends_at.timestamp())
     vote_url = f"{settings.SITE_URL.rstrip('/')}/voreday/"
 
-    image = create_matchup_image(a, b)
+    image = create_matchup_image(
+        a,
+        b,
+        prey_a=match.previous_prey("a"),
+        prey_b=match.previous_prey("b"),
+    )
     content = (
         f"**Vixi's Vore Day Rumble!**\n"
         f"**{a.display_name}** vs **{b.display_name}**\n"
@@ -225,7 +230,7 @@ def announce_champion_if_crowned(channel_id=None):
         return champion
 
     try:
-        image = create_winner_image(champion)
+        image = create_winner_image(champion, prey=champion.prey())
         content = (
             f"**The Vore Day Rumble is over!**\n"
             f"**{champion.display_name}** wins!~ (Uurp~)"
