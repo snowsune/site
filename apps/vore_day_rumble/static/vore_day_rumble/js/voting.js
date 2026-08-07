@@ -3,10 +3,9 @@
   if (!root) return;
 
   const voteUrl = root.dataset.voteUrl;
-  const statusUrl = root.dataset.statusUrl;
+  const streamUrl = root.dataset.streamUrl;
   const loggedIn = root.dataset.loggedIn === "1";
-  const csrfInput = root.querySelector("[name=csrfmiddlewaretoken]");
-  const csrf = csrfInput ? csrfInput.value : "";
+  const csrf = root.querySelector("[name=csrfmiddlewaretoken]")?.value || "";
 
   const countdownEl = document.getElementById("rumble-vote-countdown");
   const hintEl = document.getElementById("rumble-vote-hint");
@@ -16,18 +15,19 @@
 
   let endsAtUnix = null;
   let clockSkewMs = 0;
-  let pollTimer = null;
-  let countdownTimer = null;
+  let source = null;
 
   function applyStatus(data) {
     if (!data || data.voting_open === false) {
-      if (countdownEl) countdownEl.textContent = "Voting closed! Refresh for the next match!";
+      if (countdownEl) {
+        countdownEl.textContent = "Voting closed! Refresh for the next match!";
+      }
       buttons.forEach((btn) => {
         btn.disabled = true;
       });
-      if (pollTimer) {
-        clearInterval(pollTimer);
-        pollTimer = null;
+      if (source) {
+        source.close();
+        source = null;
       }
       return;
     }
@@ -64,16 +64,15 @@
     const s = seconds % 60;
     if (m >= 60) {
       const h = Math.floor(m / 60);
-      const rm = m % 60;
-      return `Closes in ${h}h ${rm}m`;
+      return `Closes in ${h}h ${m % 60}m`;
     }
     return `Closes in ${m}:${String(s).padStart(2, "0")}`;
   }
 
   function tickCountdown() {
     if (!countdownEl || endsAtUnix == null) return;
-    const nowUnix = Math.floor((Date.now() - clockSkewMs) / 1000);
-    const remaining = endsAtUnix - nowUnix;
+    const remaining =
+      endsAtUnix - Math.floor((Date.now() - clockSkewMs) / 1000);
     countdownEl.textContent = formatRemaining(remaining);
     if (remaining <= 0) {
       buttons.forEach((btn) => {
@@ -82,20 +81,15 @@
     }
   }
 
-  async function pollStatus() {
-    try {
-      const resp = await fetch(`${statusUrl}?_=${Date.now()}`, {
-        headers: { Accept: "application/json" },
-        credentials: "same-origin",
-        cache: "no-store",
-      });
-      if (!resp.ok) return;
-      const data = await resp.json();
-      applyStatus(data);
-      tickCountdown();
-    } catch (_) {
-      /* ignore transient poll errors */
-    }
+  function startStream() {
+    if (!streamUrl || typeof EventSource === "undefined") return;
+    source = new EventSource(streamUrl);
+    source.addEventListener("status", (event) => {
+      try {
+        applyStatus(JSON.parse(event.data));
+        tickCountdown();
+      } catch (_) {}
+    });
   }
 
   async function castVote(choice) {
@@ -104,8 +98,7 @@
       btn.disabled = true;
     });
     try {
-      const body = new URLSearchParams();
-      body.set("choice", choice);
+      const body = new URLSearchParams({ choice });
       const resp = await fetch(voteUrl, {
         method: "POST",
         headers: {
@@ -115,13 +108,11 @@
         },
         credentials: "same-origin",
         cache: "no-store",
-        body: body.toString(),
+        body,
       });
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok) {
-        if (hintEl) {
-          hintEl.textContent = data.error || "Could not cast vote :<";
-        }
+        if (hintEl) hintEl.textContent = data.error || "Could not cast vote :<";
         buttons.forEach((btn) => {
           btn.disabled = false;
         });
@@ -145,12 +136,10 @@
   if (boot) {
     try {
       applyStatus(JSON.parse(boot.textContent));
-    } catch (_) {
-      /* ignore bad boot JSON */
-    }
+    } catch (_) {}
   }
 
   tickCountdown();
-  countdownTimer = setInterval(tickCountdown, 1000);
-  pollTimer = setInterval(pollStatus, 4000);
+  setInterval(tickCountdown, 1000);
+  startStream();
 })();

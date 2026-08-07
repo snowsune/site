@@ -13,4 +13,11 @@ echo "0 */6 * * * /app/manage.py ensure_sitemap >> /var/log/cron.log 2>&1" | cro
 service cron start
 
 # Start the application
-exec gunicorn snowsune.wsgi:application --bind 0.0.0.0:80 --workers 4 --timeout 120 --access-logfile - --error-logfile -
+exec gunicorn snowsune.wsgi:application \
+  --bind 0.0.0.0:80 \
+  --worker-class gthread \
+  --workers 3 \
+  --threads 25 \
+  --timeout 120 \
+  --access-logfile - \
+  --error-logfile -

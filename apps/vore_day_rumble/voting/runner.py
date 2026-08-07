@@ -20,6 +20,7 @@ from django.utils import timezone
 from ..models import Match, RumbleSettings, advance_winners_into_next_rounds
 from . import discord as discord_api
 from .composite import create_matchup_image, create_winner_image
+from .live import notify as notify_vote_live
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,7 @@ def start_vote(match):
     )
 
     _schedule_resolve(match.pk, match.voting_ends_at)
+    notify_vote_live()
     logger.info(
         "Started vote for match %s (msg %s, ends %s)",
         match.pk,
@@ -155,6 +157,7 @@ def resolve_vote(match, force=False):
         ]
     )
     advance_winners_into_next_rounds()
+    notify_vote_live()
 
     a_name = match.contestant_a.display_name
     b_name = match.contestant_b.display_name

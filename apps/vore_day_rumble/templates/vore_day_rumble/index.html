@@ -63,7 +63,7 @@
     class="rumble-now-voting"
     id="rumble-now-voting"
     data-vote-url="{% url 'vore_day_rumble:cast_vote' %}"
-    data-status-url="{% url 'vore_day_rumble:vote_status' %}"
+    data-stream-url="{% url 'vore_day_rumble:vote_stream' %}"
     data-logged-in="{% if request.user.is_authenticated %}1{% else %}0{% endif %}"
   >
     {% csrf_token %}
