@@ -15,6 +15,14 @@ if (dataEl && wrapper) {
     const sidebar = css.getPropertyValue("--sidebar-bg").trim() || "#eee";
 
     const pfpSize = 44;
+    const matchMaxWidth = 220;
+    const matchHorMargin = 16;
+    const roundCount = data.rounds.length;
+    // Keep rounds readable on narrow screens; parent .rumble-bracket-scroll pans horizontally
+    const minBracketWidth = roundCount * (matchMaxWidth + matchHorMargin * 2);
+    if (window.matchMedia("(max-width: 768px)").matches) {
+      wrapper.style.minWidth = `${minBracketWidth}px`;
+    }
 
     createBracket(data, wrapper, {
       width: "100%",
@@ -26,6 +34,8 @@ if (dataEl && wrapper) {
       verticalScrollMode: "native",
       roundTitlesFontSize: 0,
       roundTitlesVerticalPadding: 0,
+      matchMaxWidth,
+      matchHorMargin,
       rootBgColor: tile,
       rootBorderColor: "transparent",
       wrapperBorderColor: "transparent",
