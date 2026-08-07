@@ -7,8 +7,10 @@ from django.urls import reverse
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib import messages
 from django import forms
+from django.urls import reverse_lazy
 import logging
 from .models import CustomUser
 from .utils import send_verification_email, verify_email_token
@@ -95,6 +97,15 @@ def register_view(request):
     else:
         form = CustomRegisterForm()
     return render(request, "users/register.html", {"form": form})
+
+
+class AccountPasswordChangeView(PasswordChangeView):
+    template_name = "users/password_change.html"
+    success_url = reverse_lazy("account-edit")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Password updated successfully!")
+        return super().form_valid(form)
 
 
 # Account editing
