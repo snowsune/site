@@ -1,11 +1,14 @@
 from django.contrib import admin, messages
+from django.db.models import Q
 
 from .models import (
     Contestant,
     Match,
     MatchVote,
     RumbleSettings,
+    apply_match_forfeit,
     open_next_match_for_voting,
+    winner_if_withdrawal,
 )
 
 
@@ -57,19 +60,55 @@ class ContestantAdmin(admin.ModelAdmin):
         "display_name",
         "user",
         "bracket_position",
+        "withdrawn",
         "has_pfp",
         "created_at",
     ]
-    list_filter = ["created_at"]
+    list_filter = ["withdrawn", "created_at"]
     search_fields = ["display_name", "user__username"]
     readonly_fields = ["bracket_position", "created_at", "updated_at"]
     autocomplete_fields = ["user"]
     ordering = ["bracket_position"]
-    actions = ["kick_from_rumble"]
+    actions = ["mark_withdrawn", "clear_withdrawn", "kick_from_rumble"]
 
     @admin.display(boolean=True, description="Has PFP")
     def has_pfp(self, obj):
         return bool(obj.profile_picture)
+
+    @admin.action(description="Mark withdrawn (keep bracket, auto-forfeit upcoming)")
+    def mark_withdrawn(self, request, queryset):
+        ids = list(queryset.values_list("pk", flat=True))
+        n = Contestant.objects.filter(pk__in=ids).update(withdrawn=True)
+        forfeited = 0
+        open_matches = (
+            Match.objects.select_related("contestant_a", "contestant_b")
+            .filter(voting_open=True)
+            .filter(Q(contestant_a_id__in=ids) | Q(contestant_b_id__in=ids))
+        )
+        for match in open_matches:
+            winner = winner_if_withdrawal(match)
+            if winner is None:
+                continue
+            apply_match_forfeit(match, winner)
+            forfeited += 1
+            from .voting.live import notify as notify_vote_live
+
+            notify_vote_live()
+        self.message_user(
+            request,
+            f"Marked {n} withdrawn. Closed {forfeited} open match(es) via forfeit. "
+            "Bracket otherwise unchanged — they'll auto-lose when their next match is claimed.",
+            level=messages.SUCCESS,
+        )
+
+    @admin.action(description="Clear withdrawn (they can play again)")
+    def clear_withdrawn(self, request, queryset):
+        n = queryset.update(withdrawn=False)
+        self.message_user(
+            request,
+            f"Cleared withdrawn on {n} contestant(s).",
+            level=messages.SUCCESS,
+        )
 
     @admin.action(description="Kick from rumble (delete + reshuffle bracket)")
     def kick_from_rumble(self, request, queryset):

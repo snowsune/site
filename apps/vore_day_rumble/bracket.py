@@ -40,15 +40,19 @@ def build_bracketry_data():
     contestants_data = {}
     for c in contestants:
         pfp = c.profile_picture.url if c.profile_picture else ""
+        title = c.display_name
+        if c.withdrawn:
+            title = f"{title} (out)"
         contestants_data[str(c.pk)] = {
             "players": [
                 {
-                    "title": c.display_name,
+                    "title": title,
                     # Bracketry renders this via getNationalityHTML (we use it for pfps)
                     "nationality": pfp,
                 }
             ],
             "profileUrl": c.user.get_absolute_url(),
+            "withdrawn": c.withdrawn,
         }
 
     rounds = [{} for _ in range(total_rounds)]

@@ -91,6 +91,10 @@ class Contestant(models.Model):
         default=0,
         help_text="Slot in the bracket",
     )
+    withdrawn = models.BooleanField(
+        default=False,
+        help_text="Dropped out. Stays on the bracket; upcoming matches auto-forfeit to the opponent.",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -124,7 +128,7 @@ class Contestant(models.Model):
             out.append(loser)
             out.extend(latest.previous_prey(loser_side))
         out.extend(latest.previous_prey(my_side))
-        return out
+        return [c for c in out if not c.withdrawn]
 
 
 class Match(models.Model):
@@ -237,7 +241,7 @@ class Match(models.Model):
                 # Inherit everyone the loser had already eaten
                 out.extend(feeder.previous_prey(loser_side))
 
-        return out
+        return [c for c in out if not c.withdrawn]
 
 
 class MatchVote(models.Model):
@@ -299,13 +303,42 @@ def advance_winners_into_next_rounds():
             nxt.save(update_fields=["contestant_a", "contestant_b"])
 
 
+def winner_if_withdrawal(match):
+    """
+    If one/both sides withdrew, return who should advance without voting.
+    None = both still active (open a normal vote).
+    """
+    a, b = match.contestant_a, match.contestant_b
+    if not a or not b:
+        return None
+    a_out = bool(a.withdrawn)
+    b_out = bool(b.withdrawn)
+    if not a_out and not b_out:
+        return None
+    if a_out and not b_out:
+        return b
+    if b_out and not a_out:
+        return a
+    # Both out — pick one so the tree doesn't stall
+    return random.choice([a, b])
+
+
+def apply_match_forfeit(match, winner):
+    """Crown a winner without tallying votes (bracket stays otherwise intact)."""
+    match.winner = winner
+    match.voting_open = False
+    match.save(update_fields=["winner", "voting_open"])
+    advance_winners_into_next_rounds()
+    return winner
+
+
 @transaction.atomic
 def reshuffle_bracket():
     """
     Shuffle everyone and rebuild a full single-elim tree
     (padded to the next power of 2, with bye auto-wins).
     """
-    contestants = list(Contestant.objects.all())
+    contestants = list(Contestant.objects.filter(withdrawn=False))
     random.shuffle(contestants)
 
     for i, contestant in enumerate(contestants):
@@ -359,14 +392,25 @@ def open_next_match_for_voting():
     Resolve any open vote, then open the next unfinished matchup and
     announce it (site voting + Discord). Returns the newly opened Match, or None.
     """
-    current = Match.objects.filter(voting_open=True).first()
+    current = (
+        Match.objects.select_related("contestant_a", "contestant_b")
+        .filter(voting_open=True)
+        .first()
+    )
     if current:
-        from .voting.runner import resolve_vote
+        forfeit_winner = winner_if_withdrawal(current)
+        if forfeit_winner is not None:
+            apply_match_forfeit(current, forfeit_winner)
+            from .voting.live import notify as notify_vote_live
 
-        try:
-            resolve_vote(current, force=True)
-        except Exception:
-            Match.objects.filter(pk=current.pk).update(voting_open=False)
+            notify_vote_live()
+        else:
+            from .voting.runner import resolve_vote
+
+            try:
+                resolve_vote(current, force=True)
+            except Exception:
+                Match.objects.filter(pk=current.pk).update(voting_open=False)
 
     match = _claim_next_matchup()
     if match is None:
@@ -380,18 +424,24 @@ def open_next_match_for_voting():
 
 def _claim_next_matchup():
     """
-    Find the next votable match (auto-resolving byes along the way)
+    Find the next votable match (auto-resolving byes + withdrawals along the way)
     and mark it voting_open. Discord happens after this returns.
     """
     while True:
         with transaction.atomic():
             nxt = (
-                Match.objects.filter(winner__isnull=True)
+                Match.objects.select_related("contestant_a", "contestant_b")
+                .filter(winner__isnull=True)
                 .filter(contestant_a__isnull=False, contestant_b__isnull=False)
                 .order_by("round_number", "position")
                 .first()
             )
             if nxt is not None:
+                forfeit_winner = winner_if_withdrawal(nxt)
+                if forfeit_winner is not None:
+                    apply_match_forfeit(nxt, forfeit_winner)
+                    continue
+
                 nxt.voting_open = True
                 nxt.save(update_fields=["voting_open"])
                 return nxt
