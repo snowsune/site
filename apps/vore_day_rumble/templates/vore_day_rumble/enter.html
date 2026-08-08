@@ -11,14 +11,25 @@
 {% block og_image_alt %}Vixi's Vore Day Rumble{% endblock %}
 {% block twitter_image_alt %}Vixi's Vore Day Rumble{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'vore_day_rumble/css/rumble.css' %}">
+{% endblock %}
+
 {% block content %}
-<section>
+<section class="rumble-page">
   <h1>Enter the Rumble</h1>
 
   {% if signups_closed and not existing %}
   <p>Signups are closed. Come back when entries reopen!</p>
   <p><a href="{% url 'vore_day_rumble:index' %}">Back to the rumble</a></p>
   {% else %}
+    <p class="rumble-role-notice">
+      <strong>Impawtant!</strong> the OC you enter may end up as
+      <strong>PRED</strong> <em>or</em> <strong>PREY</strong>.
+      This is a single-elimination game,
+      Only enter someone you're okay with in either role! (I.E, no prey-only or pred-only!)
+    </p>
+
     {% if signups_closed %}
     <p>Signups are closed. You can peek at your entry below, but can't change it rn :<</p>
     {% endif %}
