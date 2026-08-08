@@ -7,8 +7,6 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
-from django.db.models import Count, Q
-
 from .bracket import build_bracketry_data
 from .forms import ContestantEntryForm
 from .models import Contestant, Match, MatchVote, RumbleSettings, reshuffle_bracket
@@ -49,16 +47,8 @@ def index(request):
     if active_match and active_match.contestant_a and active_match.contestant_b:
         vote_status = vote_live.snapshot_for(request.user, active_match)
 
-    rounds = list(
-        Match.objects.values("round_number")
-        .annotate(
-            total=Count("id"),
-            done=Count("id", filter=Q(winner__isnull=False)),
-        )
-        .order_by("round_number")
-    )
-    rounds_total = len(rounds)
-    rounds_played = sum(1 for r in rounds if r["total"] and r["done"] == r["total"])
+    matches_total = Match.objects.count()
+    matches_played = Match.objects.filter(winner__isnull=False).count()
 
     return render(
         request,
@@ -70,8 +60,8 @@ def index(request):
             "vote_status": vote_status,
             "contestant_count": contestants.count(),
             "bracket_data": build_bracketry_data(),
-            "rounds_played": rounds_played,
-            "rounds_total": rounds_total,
+            "matches_played": matches_played,
+            "matches_total": matches_total,
         },
     )
 
