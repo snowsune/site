@@ -2,7 +2,12 @@
 
 import math
 
+from django.templatetags.static import static
+
 from .models import Contestant, Match, next_power_of_2
+
+WITHDRAWN_TITLE = "Withdrawn Player"
+WITHDRAWN_PFP = "stickers/foxi-sticker-ERROR.png"
 
 
 def _side_for(contestant, winner_id):
@@ -36,23 +41,34 @@ def build_bracketry_data():
         size = max(size, 2**max_round)
 
     total_rounds = int(math.log2(size)) if size >= 2 else 1
+    withdrawn_pfp = static(WITHDRAWN_PFP)
 
     contestants_data = {}
     for c in contestants:
-        pfp = c.profile_picture.url if c.profile_picture else ""
-        title = c.display_name
         if c.withdrawn:
-            title = f"{title} (out)"
+            contestants_data[str(c.pk)] = {
+                "players": [
+                    {
+                        "title": WITHDRAWN_TITLE,
+                        "nationality": withdrawn_pfp,
+                    }
+                ],
+                "profileUrl": "",
+                "withdrawn": True,
+            }
+            continue
+
+        pfp = c.profile_picture.url if c.profile_picture else ""
         contestants_data[str(c.pk)] = {
             "players": [
                 {
-                    "title": title,
+                    "title": c.display_name,
                     # Bracketry renders this via getNationalityHTML (we use it for pfps)
                     "nationality": pfp,
                 }
             ],
             "profileUrl": c.user.get_absolute_url(),
-            "withdrawn": c.withdrawn,
+            "withdrawn": False,
         }
 
     rounds = [{} for _ in range(total_rounds)]
