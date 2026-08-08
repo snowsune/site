@@ -7,9 +7,11 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
+from django.db.models import Count, Q
+
 from .bracket import build_bracketry_data
 from .forms import ContestantEntryForm
-from .models import Contestant, MatchVote, RumbleSettings, reshuffle_bracket
+from .models import Contestant, Match, MatchVote, RumbleSettings, reshuffle_bracket
 from .voting import live as vote_live
 
 
@@ -47,6 +49,17 @@ def index(request):
     if active_match and active_match.contestant_a and active_match.contestant_b:
         vote_status = vote_live.snapshot_for(request.user, active_match)
 
+    rounds = list(
+        Match.objects.values("round_number")
+        .annotate(
+            total=Count("id"),
+            done=Count("id", filter=Q(winner__isnull=False)),
+        )
+        .order_by("round_number")
+    )
+    rounds_total = len(rounds)
+    rounds_played = sum(1 for r in rounds if r["total"] and r["done"] == r["total"])
+
     return render(
         request,
         "vore_day_rumble/index.html",
@@ -57,6 +70,8 @@ def index(request):
             "vote_status": vote_status,
             "contestant_count": contestants.count(),
             "bracket_data": build_bracketry_data(),
+            "rounds_played": rounds_played,
+            "rounds_total": rounds_total,
         },
     )
 

@@ -122,6 +122,9 @@
   {% endif %}
 
   <h2>Nom-nom Bracket</h2>
+  {% if rounds_total %}
+  <p class="rumble-meta">{{ rounds_played }}/{{ rounds_total }} rounds played</p>
+  {% endif %}
   <div class="rumble-bracket-scroll">
     <div id="rumble-bracket"></div>
   </div>
