@@ -392,7 +392,7 @@ def upload_chunk(request):
     TODO: this is basically copy and paste from that lib, so maybe we could backport/pr
     to restore the lib functionality?
     """
-    
+
     if not request.user.is_authenticated:
         return JsonResponse({"error": "Authentication required"}, status=401)
 
@@ -456,9 +456,7 @@ def upload_file(request):
 
     safe_name = clean_upload_filename(uploaded.name)
     if not safe_name:
-        return JsonResponse(
-            {"error": "That file type can't be uploaded."}, status=400
-        )
+        return JsonResponse({"error": "That file type can't be uploaded."}, status=400)
 
     uploaded.name = safe_name
     saved = BlogImage.objects.create(
