@@ -84,7 +84,7 @@ INSTALLED_APPS = [
     "apps.custompages",  # Custom pages with markdown
     "apps.tanks_manager",  # Per-user tank pages + editor
     "apps.vore_day_rumble",  # Vixi's Vore Day Rumble
-    "django_cleanup.apps.CleanupConfig" ,# Deletes FileField/ImageField files when their rows are removed.
+    "django_cleanup.apps.CleanupConfig",  # Deletes FileField/ImageField files when their rows are removed.
 ]
 
 MIDDLEWARE = [
@@ -205,7 +205,7 @@ STATICFILES_DIRS = [
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.environ.get("MEDIA_ROOT", str(BASE_DIR / "media"))
 
-# Uploads larger than this are streamed to disk. 
+# Uploads larger than this are streamed to disk.
 # BLOG_MAX_UPLOAD_BYTES is the cap
 # RP in front needs a body
 # limit at least this large!
