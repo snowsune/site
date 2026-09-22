@@ -699,6 +699,33 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
     margin-bottom: 1em;
 }
 
+.blog-download {
+    display: inline-block;
+    max-width: 100%;
+    margin: 0.75em 0;
+    padding: 0.5em 0.75em;
+    border: 1px solid var(--text-color);
+    box-sizing: border-box;
+}
+
+.blog-download-name {
+    display: inline-block;
+    max-width: 100%;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+.blog-download-meta {
+    margin-top: 0.25em;
+    font-size: 0.8rem;
+    opacity: 0.75;
+    overflow-wrap: anywhere;
+}
+
+.blog-download-checksum {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 .post-footer {
     margin-top: 1em;
     padding-top: 1em;

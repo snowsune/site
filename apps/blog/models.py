@@ -11,7 +11,7 @@ from django.utils.html import strip_tags
 from django.conf import settings
 from snowsune.models import SiteSetting
 
-from .uploads import image_extensions
+from .uploads import enhance_download_links, file_sha256, image_extensions
 
 User = get_user_model()
 
@@ -84,8 +84,10 @@ class BlogPost(models.Model):
 
         # Generate HTML content from markdown
         if self.content:
-            self.content_html = markdown.markdown(
-                self.content, extensions=["extra", "codehilite", "toc"]
+            self.content_html = enhance_download_links(
+                markdown.markdown(
+                    self.content, extensions=["extra", "codehilite", "toc"]
+                )
             )
             # Generate excerpt from first paragraph
             if not self.excerpt:
@@ -196,8 +198,6 @@ class BlogImage(models.Model):
     """
     Images uploaded to the blog editor/interface!
     I also kinda tried to do some other file-stuff in here as well..
-
-    TODO: add maybe a way to render these inline like, size and checksum?
     """
 
     # Paths inserted into post markdown. Older uploads live under blog/images/.
@@ -207,6 +207,8 @@ class BlogImage(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
     filename = models.CharField(max_length=255, blank=True)
+    size = models.PositiveBigIntegerField(null=True, blank=True)
+    checksum = models.CharField(max_length=64, blank=True)
 
     class Meta:
         ordering = ["-uploaded_at"]
@@ -215,9 +217,22 @@ class BlogImage(models.Model):
         return self.filename or self.image.name
 
     def save(self, *args, **kwargs):
-        if not self.filename:
+        if not self.filename and self.image:
             self.filename = os.path.basename(self.image.name)
         super().save(*args, **kwargs)
+        if self.image and (self.size is None or not self.checksum):
+            try:
+                self.size = self.image.size
+            except Exception:
+                self.size = self.size or 0
+            if not self.checksum:
+                try:
+                    self.checksum = file_sha256(self.image)
+                except Exception:
+                    self.checksum = self.checksum or ""
+            type(self).objects.filter(pk=self.pk).update(
+                size=self.size, checksum=self.checksum
+            )
 
     @property
     def is_image(self):

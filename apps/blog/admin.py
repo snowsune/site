@@ -96,11 +96,13 @@ class BlogImageAdmin(admin.ModelAdmin):
         "image_preview",
         "uploaded_by",
         "uploaded_at",
+        "size",
+        "checksum",
         "markdown_link",
     ]
     list_filter = ["uploaded_at", "uploaded_by"]
-    search_fields = ["filename", "uploaded_by__username"]
-    readonly_fields = ["uploaded_at", "markdown_link"]
+    search_fields = ["filename", "uploaded_by__username", "checksum"]
+    readonly_fields = ["uploaded_at", "size", "checksum", "markdown_link"]
 
     def image_preview(self, obj):
         if obj.image and obj.is_image:

@@ -1103,6 +1103,8 @@ class BlogUploadAndVRChatTests(TransactionTestCase):
         self.assertIn("[world.unitypackage](", markdown)
         upload = BlogImage.objects.get()
         stored_path = upload.image.path
+        self.assertEqual(upload.size, 3)
+        self.assertEqual(len(upload.checksum), 64)
 
         post = BlogPost.objects.create(
             title="World",
@@ -1113,6 +1115,10 @@ class BlogUploadAndVRChatTests(TransactionTestCase):
             published_at=timezone.now(),
         )
         self.assertTrue(BlogImage.objects.filter(pk=upload.pk).exists())
+        self.assertIn('class="blog-download"', post.content_html)
+        self.assertIn("world.unitypackage", post.content_html)
+        self.assertIn("SHA-256", post.content_html)
+        self.assertIn(upload.checksum, post.content_html)
 
         other = BlogPost.objects.create(
             title="Also",
