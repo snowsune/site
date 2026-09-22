@@ -14,10 +14,15 @@ User = get_user_model()
 class PollTestMixin:
     def make_user(self, username="voter", **kwargs):
         return User.objects.create_user(
-            username=username, email=f"{username}@example.com", password="testpass123", **kwargs
+            username=username,
+            email=f"{username}@example.com",
+            password="testpass123",
+            **kwargs,
         )
 
-    def make_poll(self, *, status=Poll.STATUS_OPEN, choice_type=Poll.CHOICE_SINGLE, **kwargs):
+    def make_poll(
+        self, *, status=Poll.STATUS_OPEN, choice_type=Poll.CHOICE_SINGLE, **kwargs
+    ):
         author = kwargs.pop("created_by", None)
         if author is None:
             author = User.objects.filter(username="vixi").first()
@@ -54,7 +59,9 @@ class PollModelTests(PollTestMixin, TestCase):
         self.assertIn("Community", tag_names)
 
     def test_draft_poll_skips_blog_post(self):
-        poll = self.make_poll(status=Poll.STATUS_DRAFT, slug="draft-poll", title="Draft")
+        poll = self.make_poll(
+            status=Poll.STATUS_DRAFT, slug="draft-poll", title="Draft"
+        )
         self.assertIsNone(poll.blog_post)
 
     def test_closes_at_ends_voting(self):

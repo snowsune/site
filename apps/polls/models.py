@@ -158,7 +158,9 @@ class Poll(models.Model):
             return {}
         if not isinstance(value, dict):
             raise ValidationError(
-                {"discord_votes": "Discord votes must be a JSON object of label/id → count."}
+                {
+                    "discord_votes": "Discord votes must be a JSON object of label/id → count."
+                }
             )
         cleaned = {}
         for key, raw in value.items():
@@ -258,9 +260,7 @@ class Poll(models.Model):
     def user_choice_ids(self, user):
         if not user or not user.is_authenticated:
             return []
-        return list(
-            self.votes.filter(user=user).values_list("choice_id", flat=True)
-        )
+        return list(self.votes.filter(user=user).values_list("choice_id", flat=True))
 
     def sync_blog_post(self):
         """Create or update the linked blog post so the poll appears in the feed."""
@@ -269,7 +269,9 @@ class Poll(models.Model):
         User = get_user_model()
         author = self.created_by
         if not author:
-            author = User.objects.filter(is_superuser=True).first() or User.objects.first()
+            author = (
+                User.objects.filter(is_superuser=True).first() or User.objects.first()
+            )
         if not author:
             return None
 
