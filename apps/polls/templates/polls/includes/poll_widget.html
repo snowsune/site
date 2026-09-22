@@ -1,0 +1,74 @@
+{% load static %}
+
+<div class="poll-widget{% if compact %} poll-widget-compact{% endif %}">
+    <div class="poll-widget-header">
+        {% if poll.flair %}
+        <span class="poll-flair">{{ poll.flair }}</span>
+        {% endif %}
+        <span class="poll-type">
+            {% if poll.choice_type == poll.CHOICE_MULTI %}
+            Multi choice{% if poll.max_choices %} (up to {{ poll.max_choices }}){% endif %}
+            {% else %}
+            Single choice
+            {% endif %}
+        </span>
+        {% if poll.is_open and poll.closes_at %}
+        <span class="poll-closes">Closes {{ poll.closes_at|date:"M j, Y g:i A" }}</span>
+        {% elif poll.has_ended %}
+        <span class="poll-closed">Closed</span>
+        {% endif %}
+    </div>
+
+    {% if show_results %}
+    <div class="poll-results" role="list">
+        {% for row in results %}
+        <div class="poll-result-row" role="listitem">
+            <div class="poll-result-label">
+                <span>{{ row.choice.text }}</span>
+                <span class="poll-result-count">{{ row.total }}
+                    {% if include_discord and row.discord_votes %}
+                    <span class="poll-result-breakdown">({{ row.site_votes }} site + {{ row.discord_votes }} Discord)</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="poll-bar-track" aria-hidden="true">
+                <div class="poll-bar-fill" style="width: {{ row.percent }}%"></div>
+            </div>
+            <div class="poll-result-percent">{{ row.percent }}%</div>
+        </div>
+        {% empty %}
+        <p class="poll-empty">No votes yet.</p>
+        {% endfor %}
+        {% if voter_count %}
+        <p class="poll-voter-count">{{ voter_count }} site voter{{ voter_count|pluralize }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if poll.is_open %}
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'polls:vote' poll.slug %}" class="poll-vote-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <fieldset>
+                <legend class="poll-legend">{% if selected_ids %}Change your vote{% else %}Cast your vote{% endif %}</legend>
+                {{ form }}
+            </fieldset>
+            <button type="submit" class="poll-vote-btn">
+                {% if selected_ids %}Update vote{% else %}Vote{% endif %}
+            </button>
+        </form>
+        {% else %}
+        <ul class="poll-choice-preview">
+            {% for choice in choices %}
+            <li>{{ choice.text }}</li>
+            {% endfor %}
+        </ul>
+        <p class="poll-login-prompt">
+            <a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to vote on this poll.
+        </p>
+        {% endif %}
+    {% elif not show_results %}
+        <p class="poll-empty">This poll is not open.</p>
+    {% endif %}
+</div>

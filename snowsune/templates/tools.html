@@ -140,6 +140,15 @@
                     <a href="{% url 'bookclub:index' %}" class="tool-button">Join the comic book club!</a>
                 </div>
             </div>
+
+            <!-- Polls -->
+            <div class="tool-card">
+                <div class="tool-content">
+                    <h3>Polls</h3>
+                    <p>Vote on site polls! Single or multi choice, and closed polls hang out in the archive.</p>
+                    <a href="{% url 'polls:list' %}" class="tool-button">Vote on polls</a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -227,6 +236,7 @@
         <h3>Resources</h3>
         <ul class="sidebar-links">
             <li><a href="{% url 'bookclub:index' %}">Comic Book Club</a></li>
+            <li><a href="{% url 'polls:list' %}">Polls</a></li>
             <li><a href="https://new.belfrycomics.net/">Belfry Webcomics</a></li>
             <li><a href="https://vixencontrolled.net/">Vixen Controlled Archive</a></li>
         </ul>

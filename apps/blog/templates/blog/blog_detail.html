@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load image_tags %}
+{% load poll_tags %}
 
 {% block title %}{{ post.title }} - Snowsune Blog{% endblock %}
 
@@ -20,6 +21,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+<link rel="stylesheet" href="{% static 'polls/css/polls.css' %}">
 {% endblock %}
 
 {% block extra_head %}
@@ -99,6 +101,16 @@
         <div class="post-content markdown-content">
             {{ post.content_html|safe }}
         </div>
+
+        {% if post.poll %}
+        <section class="post-poll">
+            <h2>Poll</h2>
+            {% poll_widget post.poll %}
+            <p class="poll-discuss">
+                <a href="{{ post.poll.get_absolute_url }}">Open poll page →</a>
+            </p>
+        </section>
+        {% endif %}
 
         <!-- Post Footer -->
         <footer class="post-footer">
