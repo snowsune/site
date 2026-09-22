@@ -14,6 +14,7 @@ from snowsune.views.image_utils import format_preview_view
 from snowsune.views.randal_fanclub import RandalFanclubView
 from snowsune.views.calendar import CalendarView, CalendarEventsAPIView
 from snowsune.views.health import health_check
+from apps.blog.views import VRChatListView
 from snowsune.views.redirects import matrix_redirect
 from apps.thank_yous.views import thank_you_view
 
@@ -46,6 +47,7 @@ urlpatterns = [
     ),
     # "app" urls
     path("blog/", include("apps.blog.urls")),
+    path("vrchat/", VRChatListView.as_view(), name="vrchat"),
     path("comics/", include("apps.comics.urls")),
     path("commorganizer/", include("apps.commorganizer.urls")),
     path("characters/", include("apps.characters.urls")),

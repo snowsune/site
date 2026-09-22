@@ -18,6 +18,6 @@ exec gunicorn snowsune.wsgi:application \
   --worker-class gthread \
   --workers 3 \
   --threads 25 \
-  --timeout 120 \
+  --timeout 600 \
   --access-logfile - \
   --error-logfile -

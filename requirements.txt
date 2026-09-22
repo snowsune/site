@@ -21,3 +21,4 @@ pytz
 
 # WSGI
 gunicorn
+django-cleanup

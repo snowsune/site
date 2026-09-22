@@ -14,8 +14,6 @@ from django.views.generic import (
 )
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
 from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -25,6 +23,7 @@ from django.utils.feedgenerator import Rss201rev2Feed
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from .models import BlogPost, Tag, BlogImage, Comment
+from .uploads import clean_upload_filename
 from .forms import BlogPostForm, BlogPostCreateForm, TagForm, CommentForm
 from apps.notifications.utils import (
     show_success_notification,
@@ -262,7 +261,14 @@ def moderate_comment(request, comment_id, action):
         return redirect(comment.post.get_absolute_url())
 
 
-class BlogCreateView(LoginRequiredMixin, CreateView):
+class BlogEditorMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["max_upload_bytes"] = settings.BLOG_MAX_UPLOAD_BYTES
+        return context
+
+
+class BlogCreateView(BlogEditorMixin, LoginRequiredMixin, CreateView):
     model = BlogPost
     form_class = BlogPostCreateForm
     template_name = "blog/blog_form.html"
@@ -281,7 +287,7 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
 
-class BlogUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class BlogUpdateView(BlogEditorMixin, LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = BlogPost
     form_class = BlogPostForm
     template_name = "blog/blog_form.html"
@@ -362,34 +368,80 @@ def blog_dashboard(request):
     return render(request, "blog/blog_dashboard.html", context)
 
 
-@csrf_exempt
-@require_http_methods(["POST"])
-def upload_image(request):
-    """Handle image uploads for the blog editor"""
+@require_POST
+def upload_file(request):
+    """
+    Save an upload from the blogpost editor and return
+    a link to it (url)
+
+    TODO: Custom style/file encoding on return?
+    """
     if not request.user.is_authenticated:
         return JsonResponse({"error": "Authentication required"}, status=401)
 
     try:
-        image_file = request.FILES.get("image")
-        if not image_file:
-            return JsonResponse({"error": "No image file provided"}, status=400)
+        content_length = int(request.META.get("CONTENT_LENGTH") or 0)
+    except (TypeError, ValueError):
+        content_length = 0
+    if content_length > settings.BLOG_MAX_UPLOAD_BYTES + (1024 * 1024):
+        return _upload_too_large()
 
-        # Create BlogImage instance
-        blog_image = BlogImage.objects.create(
-            image=image_file, uploaded_by=request.user, filename=image_file.name
-        )
+    uploaded = request.FILES.get("file") or request.FILES.get("image")
+    if not uploaded:
+        return JsonResponse({"error": "No file provided"}, status=400)
+    if uploaded.size > settings.BLOG_MAX_UPLOAD_BYTES:
+        return _upload_too_large()
 
+    safe_name = clean_upload_filename(uploaded.name)
+    if not safe_name:
         return JsonResponse(
-            {
-                "success": True,
-                "url": blog_image.image.url,
-                "markdown_link": blog_image.markdown_link,
-                "filename": blog_image.filename,
-            }
+            {"error": "That file type can't be uploaded."}, status=400
         )
 
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+    uploaded.name = safe_name
+    saved = BlogImage.objects.create(
+        image=uploaded, uploaded_by=request.user, filename=safe_name
+    )
+    return JsonResponse(
+        {
+            "success": True,
+            "url": saved.image.url,
+            "markdown": saved.markdown_link,
+            "filename": saved.filename,
+        }
+    )
+
+
+def _upload_too_large():
+    return JsonResponse(
+        {"error": "That file is too large."},
+        status=413,
+    )
+
+
+class VRChatListView(BlogListView):
+    """Published posts tagged VRChat, using the normal blog list."""
+
+    def get_queryset(self):
+        queryset = (
+            BlogPost.objects.filter(status="published")
+            .filter(Q(tags__slug__iexact="vrchat") | Q(tags__name__iexact="VRChat"))
+            .select_related("author")
+            .prefetch_related("tags")
+            .distinct()
+        )
+        search_query = self.request.GET.get("search")
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) | Q(content__icontains=search_query)
+            ).distinct()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["page_title"] = "VRChat"
+        context["recent_posts"] = self.get_queryset()[:5]
+        return context
 
 
 class BlogRSSFeed(Feed):

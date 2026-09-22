@@ -88,6 +88,37 @@
     font-size: 0.875rem;
 }
 
+.upload-hint {
+    margin-top: 0.35em !important;
+}
+
+.blog-file-input {
+    display: none;
+}
+
+.upload-progress {
+    height: 6px;
+    margin: 0.75em auto 0;
+    max-width: 240px;
+    background: var(--tile-background);
+    border: 1px solid var(--text-color);
+}
+
+.upload-progress-bar {
+    height: 100%;
+    width: 0;
+    background: var(--link-default);
+}
+
+.upload-status {
+    margin: 0.5em 0 0;
+    font-size: 0.875rem;
+}
+
+#blogFileButton {
+    margin-top: 0.75em;
+}
+
 /* Current image display */
 .current-image {
     margin-top: 0.5em;

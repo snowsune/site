@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Blog Posts - Snowsune{% endblock %}
+{% block title %}{% if page_title %}{{ page_title }}{% else %}Blog Posts{% endif %} - Snowsune{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/blog.css' %}">
@@ -9,10 +9,12 @@
 
 {% block content %}
 <div class="blog-container">
-    <!-- <div class="blog-header">
-        <h1>Blog Posts</h1>
-        <p>List of all blog posts!</p>
-    </div> -->
+    {% if page_title %}
+    <div class="blog-header">
+        <h1>{{ page_title }}</h1>
+        <p>Posts tagged VRChat (for testing for now!)</p>
+    </div>
+    {% endif %}
 
     <!-- Search and Filter Bar -->
     <div class="blog-controls">
@@ -24,6 +26,7 @@
             </div>
         </form>
 
+        {% if not page_title %}
         <div class="tag-filter">
             <span class="filter-label">Filter by tag:</span>
             <a href="{% url 'blog:blog_list' %}" class="tag-link {% if not request.GET.tag %}active{% endif %}">All</a>
@@ -34,6 +37,7 @@
             </a>
             {% endfor %}
         </div>
+        {% endif %}
     </div>
 
     <!-- Blog Posts Grid -->
