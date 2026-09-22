@@ -9,8 +9,10 @@ import hashlib
 import html
 import os
 import re
+import shutil
 
 from django.conf import settings
+from django.core.files import File
 from django.template.defaultfilters import filesizeformat
 from django.utils.safestring import mark_safe
 from django.utils.text import get_valid_filename
@@ -44,6 +46,8 @@ _DOWNLOAD_LINK = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 
+_SAFE_UPLOAD_ID = re.compile(r"^[A-Za-z0-9_-]{1,200}$")
+
 
 def blocked_upload_extensions():
     return getattr(
@@ -57,6 +61,14 @@ def image_extensions():
     return getattr(settings, "BLOG_IMAGE_EXTENSIONS", DEFAULT_IMAGE_EXTENSIONS)
 
 
+def upload_chunk_bytes():
+    return int(getattr(settings, "BLOG_UPLOAD_CHUNK_BYTES", 4 * 1024 * 1024))
+
+
+def max_upload_bytes():
+    return int(getattr(settings, "BLOG_MAX_UPLOAD_BYTES", 2 * 1024 * 1024 * 1024))
+
+
 def clean_upload_filename(raw_name):
     base = get_valid_filename(os.path.basename(raw_name or "").replace("\x00", ""))
     root, ext = os.path.splitext(base)
@@ -66,6 +78,66 @@ def clean_upload_filename(raw_name):
     if len(base) > 180:
         base = root[: 180 - len(ext)] + ext
     return base
+
+
+def clean_upload_id(raw_id):
+    if not raw_id or not _SAFE_UPLOAD_ID.match(raw_id):
+        return None
+    return raw_id
+
+
+def chunk_dir(user_id, upload_id):
+    return os.path.join(settings.MEDIA_ROOT, "blog", "chunks", str(user_id), upload_id)
+
+
+def chunk_path(user_id, upload_id, chunk_number):
+    return os.path.join(chunk_dir(user_id, upload_id), f"{int(chunk_number):06d}.part")
+
+
+def chunk_exists(user_id, upload_id, chunk_number):
+    path = chunk_path(user_id, upload_id, chunk_number)
+    return os.path.isfile(path) and os.path.getsize(path) > 0
+
+
+def save_chunk(user_id, upload_id, chunk_number, uploaded_file):
+    directory = chunk_dir(user_id, upload_id)
+    os.makedirs(directory, exist_ok=True)
+    path = chunk_path(user_id, upload_id, chunk_number)
+    with open(path, "wb") as out:
+        for piece in uploaded_file.chunks():
+            out.write(piece)
+    return path
+
+
+def all_chunks_present(user_id, upload_id, total_chunks):
+    return all(
+        chunk_exists(user_id, upload_id, number)
+        for number in range(1, int(total_chunks) + 1)
+    )
+
+
+def assemble_chunks(user_id, upload_id, total_chunks, safe_name):
+    """Merge parts into a BlogImage and delete the temporary chunk dir."""
+    from .models import BlogImage
+
+    directory = chunk_dir(user_id, upload_id)
+    assembled = os.path.join(directory, "assembled.bin")
+    with open(assembled, "wb") as out:
+        for number in range(1, int(total_chunks) + 1):
+            part = chunk_path(user_id, upload_id, number)
+            with open(part, "rb") as src:
+                shutil.copyfileobj(src, out, length=1024 * 1024)
+
+    try:
+        with open(assembled, "rb") as handle:
+            blog_file = File(handle, name=safe_name)
+            return BlogImage.objects.create(
+                image=blog_file,
+                uploaded_by_id=user_id,
+                filename=safe_name,
+            )
+    finally:
+        shutil.rmtree(directory, ignore_errors=True)
 
 
 def file_sha256(file_obj):
@@ -137,7 +209,6 @@ def enhance_download_links(content_html):
     if not content_html:
         return content_html
 
-    # Local import: models import helpers from this module.
     from .models import BlogImage
 
     def replace(match):

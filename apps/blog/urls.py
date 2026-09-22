@@ -10,6 +10,7 @@ urlpatterns = [
     path("edit/<slug:slug>/", views.BlogUpdateView.as_view(), name="post_edit"),
     path("delete/<slug:slug>/", views.BlogDeleteView.as_view(), name="post_delete"),
     path("dashboard/", views.blog_dashboard, name="dashboard"),
+    path("upload-chunk/", views.upload_chunk, name="upload_chunk"),
     path("upload-file/", views.upload_file, name="upload_file"),
     path("upload-image/", views.upload_file, name="upload_image"),
     path("feed/", views.BlogRSSFeed(), name="rss_feed"),

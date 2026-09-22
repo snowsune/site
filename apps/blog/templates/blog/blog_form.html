@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/resumable.min.js' %}"></script>
 <script src="{% static 'js/blog-editor.js' %}"></script>
 {% endblock %}
 
@@ -45,7 +46,8 @@
                         </div>
                         {{ form.content }}
                         <div class="image-upload-zone" id="imageUploadZone"
-                            data-max-bytes="{{ max_upload_bytes }}">
+                            data-max-bytes="{{ max_upload_bytes }}"
+                            data-chunk-bytes="{{ upload_chunk_bytes }}">
                             <div class="upload-prompt">
                                 <i class="fas fa-cloud-upload-alt"></i>
                                 <p>Drop a file here, or paste an image. Up to {{ max_upload_bytes|filesizeformat }}.</p>

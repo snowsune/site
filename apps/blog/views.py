@@ -20,10 +20,19 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Rss201rev2Feed
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth.decorators import login_required
 from .models import BlogPost, Tag, BlogImage, Comment
-from .uploads import clean_upload_filename
+from .uploads import (
+    all_chunks_present,
+    assemble_chunks,
+    chunk_exists,
+    clean_upload_filename,
+    clean_upload_id,
+    max_upload_bytes,
+    save_chunk,
+    upload_chunk_bytes,
+)
 from .forms import BlogPostForm, BlogPostCreateForm, TagForm, CommentForm
 from apps.notifications.utils import (
     show_success_notification,
@@ -265,6 +274,7 @@ class BlogEditorMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["max_upload_bytes"] = settings.BLOG_MAX_UPLOAD_BYTES
+        context["upload_chunk_bytes"] = settings.BLOG_UPLOAD_CHUNK_BYTES
         return context
 
 
@@ -370,33 +380,85 @@ def blog_dashboard(request):
     return render(request, "blog/blog_dashboard.html", context)
 
 
+@require_http_methods(["GET", "POST"])
+def upload_chunk(request):
+    """
+    So this is kinda a big one >.<
+
+    This should take chunks from resumable.js (which is what i have on the editor page)
+    But there is/was a django library that did this! https://github.com/jeanphix/django-resumable
+
+    it was really old tho.. not updated, i opted not to try and port it or anything BUT
+    TODO: this is basically copy and paste from that lib, so maybe we could backport/pr
+    to restore the lib functionality?
+    """
+    
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Authentication required"}, status=401)
+
+    params = request.GET if request.method == "GET" else request.POST
+    upload_id = clean_upload_id(params.get("resumableIdentifier"))
+    filename = clean_upload_filename(params.get("resumableFilename"))
+    try:
+        chunk_number = int(params.get("resumableChunkNumber") or 0)
+        total_chunks = int(params.get("resumableTotalChunks") or 0)
+        total_size = int(params.get("resumableTotalSize") or 0)
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "Invalid upload metadata."}, status=400)
+
+    if not upload_id or not filename or chunk_number < 1 or total_chunks < 1:
+        return JsonResponse({"error": "Invalid upload metadata."}, status=400)
+    if total_size > max_upload_bytes():
+        return JsonResponse({"error": "That file is too large."}, status=413)
+
+    if request.method == "GET":
+        if chunk_exists(request.user.pk, upload_id, chunk_number):
+            return HttpResponse(status=200)
+        return HttpResponse(status=204)
+
+    uploaded = request.FILES.get("file")
+    if not uploaded:
+        return JsonResponse({"error": "No chunk provided"}, status=400)
+    if uploaded.size > upload_chunk_bytes() + (256 * 1024):
+        return JsonResponse({"error": "Chunk too large."}, status=400)
+
+    save_chunk(request.user.pk, upload_id, chunk_number, uploaded)
+
+    if not all_chunks_present(request.user.pk, upload_id, total_chunks):
+        return JsonResponse({"success": True, "complete": False})
+
+    saved = assemble_chunks(request.user.pk, upload_id, total_chunks, filename)
+    return JsonResponse(
+        {
+            "success": True,
+            "complete": True,
+            "url": saved.image.url,
+            "markdown": saved.markdown_link,
+            "filename": saved.filename,
+        }
+    )
+
+
 @require_POST
 def upload_file(request):
     """
-    Save an upload from the blogpost editor and return
-    a link to it (url)
-
-    TODO: Custom style/file encoding on return?
+    Small single-shot upload (kept for tests / simple clients).
+    The editor uses upload_chunk for large files.
     """
     if not request.user.is_authenticated:
         return JsonResponse({"error": "Authentication required"}, status=401)
 
-    try:
-        content_length = int(request.META.get("CONTENT_LENGTH") or 0)
-    except (TypeError, ValueError):
-        content_length = 0
-    if content_length > settings.BLOG_MAX_UPLOAD_BYTES + (1024 * 1024):
-        return _upload_too_large()
-
     uploaded = request.FILES.get("file") or request.FILES.get("image")
     if not uploaded:
         return JsonResponse({"error": "No file provided"}, status=400)
-    if uploaded.size > settings.BLOG_MAX_UPLOAD_BYTES:
-        return _upload_too_large()
+    if uploaded.size > max_upload_bytes():
+        return JsonResponse({"error": "That file is too large."}, status=413)
 
     safe_name = clean_upload_filename(uploaded.name)
     if not safe_name:
-        return JsonResponse({"error": "That file type can't be uploaded."}, status=400)
+        return JsonResponse(
+            {"error": "That file type can't be uploaded."}, status=400
+        )
 
     uploaded.name = safe_name
     saved = BlogImage.objects.create(
@@ -409,13 +471,6 @@ def upload_file(request):
             "markdown": saved.markdown_link,
             "filename": saved.filename,
         }
-    )
-
-
-def _upload_too_large():
-    return JsonResponse(
-        {"error": "That file is too large."},
-        status=413,
     )
 
 

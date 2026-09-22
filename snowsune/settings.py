@@ -206,14 +206,17 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.environ.get("MEDIA_ROOT", str(BASE_DIR / "media"))
 
 # Uploads larger than this are streamed to disk.
-# BLOG_MAX_UPLOAD_BYTES is the cap
-# RP in front needs a body
-# limit at least this large!
+# BLOG_MAX_UPLOAD_BYTES is the total file cap. The editor uploads in
+# BLOG_UPLOAD_CHUNK_BYTES pieces so a reverse proxy only needs to allow
+# one chunk (plus a little multipart overhead), not the whole file.
 FILE_UPLOAD_MAX_MEMORY_SIZE = int(
     os.environ.get("FILE_UPLOAD_MAX_MEMORY_SIZE", str(10 * 1024 * 1024))
 )
 BLOG_MAX_UPLOAD_BYTES = int(
     os.environ.get("BLOG_MAX_UPLOAD_BYTES", str(2 * 1024 * 1024 * 1024))
+)
+BLOG_UPLOAD_CHUNK_BYTES = int(
+    os.environ.get("BLOG_UPLOAD_CHUNK_BYTES", str(4 * 1024 * 1024))
 )
 
 # Default primary key field type

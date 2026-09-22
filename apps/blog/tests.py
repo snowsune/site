@@ -1149,6 +1149,56 @@ class BlogUploadAndVRChatTests(TransactionTestCase):
         self.assertEqual(oversized.status_code, 413)
         self.assertFalse(BlogImage.objects.exists())
 
+    def test_chunked_upload_assembles_file(self):
+        content = b"chunk-one" + b"chunk-two"
+        upload_id = "world-unitypackage-18"
+        params = {
+            "resumableIdentifier": upload_id,
+            "resumableFilename": "world.unitypackage",
+            "resumableTotalChunks": "2",
+            "resumableTotalSize": str(len(content)),
+        }
+
+        missing = self.client.get(
+            reverse("blog:upload_chunk"),
+            {**params, "resumableChunkNumber": "1"},
+        )
+        self.assertEqual(missing.status_code, 204)
+
+        first = self.client.post(
+            reverse("blog:upload_chunk"),
+            {
+                **params,
+                "resumableChunkNumber": "1",
+                "file": SimpleUploadedFile("blob", b"chunk-one"),
+            },
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertFalse(first.json()["complete"])
+        self.assertFalse(BlogImage.objects.exists())
+
+        present = self.client.get(
+            reverse("blog:upload_chunk"),
+            {**params, "resumableChunkNumber": "1"},
+        )
+        self.assertEqual(present.status_code, 200)
+
+        second = self.client.post(
+            reverse("blog:upload_chunk"),
+            {
+                **params,
+                "resumableChunkNumber": "2",
+                "file": SimpleUploadedFile("blob", b"chunk-two"),
+            },
+        )
+        self.assertEqual(second.status_code, 200)
+        payload = second.json()
+        self.assertTrue(payload["complete"])
+        self.assertIn("[world.unitypackage](", payload["markdown"])
+        upload = BlogImage.objects.get()
+        self.assertEqual(upload.image.read(), content)
+        self.assertEqual(upload.size, len(content))
+
     def test_vrchat_page_lists_only_tagged_published_posts(self):
         vrchat = Tag.objects.create(name="VRChat", slug="vrchat")
         other = Tag.objects.create(name="Art", slug="art")
