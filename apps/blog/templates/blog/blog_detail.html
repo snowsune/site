@@ -86,7 +86,11 @@
                     {% if post.tags.all %}
                     <div class="post-tags">
                         {% for tag in post.tags.all %}
+                        {% if tag.slug == "vrchat" %}
+                        <a href="{% url 'vrchat' %}" class="tag">{{ tag.name }}</a>
+                        {% else %}
                         <a href="{% url 'blog:blog_list' %}?tag={{ tag.slug }}" class="tag">{{ tag.name }}</a>
+                        {% endif %}
                         {% endfor %}
                     </div>
                     {% endif %}
@@ -158,15 +162,6 @@
         <!-- Comment Form -->
         <div class="comment-form-container">
             <h4>Leave a Comment</h4>
-
-            <!-- Comment Status Indicator -->
-            <div class="comment-form-status {% if user.is_authenticated %}success{% else %}info{% endif %}">
-                {% if user.is_authenticated %}
-                🚀 <strong>Instant Posting:</strong> Your comment will appear immediately after submission.
-                {% else %}
-                ⏳ <strong>Moderation Required:</strong> Your comment will be reviewed by site staff before appearing.
-                {% endif %}
-            </div>
 
             <form method="post" action="{% url 'blog:submit_comment' post.id %}" class="comment-form" data-comment-form>
                 {% csrf_token %}
@@ -371,5 +366,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/blog-lightbox.js' %}"></script>
 <script src="{% static 'js/blog-comments.js' %}"></script>
 {% endblock %}

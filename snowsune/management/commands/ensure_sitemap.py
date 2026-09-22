@@ -59,6 +59,14 @@ class Command(BaseCommand):
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
     </url>
+
+    <!-- VRChat posts -->
+    <url>
+        <loc>https://{domain}/vrchat/</loc>
+        <lastmod>{timezone.now().strftime('%Y-%m-%d')}</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
     
     <!-- Comics home -->
     <url>

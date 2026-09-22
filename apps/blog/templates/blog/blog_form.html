@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/resumable.min.js' %}"></script>
 <script src="{% static 'js/blog-editor.js' %}"></script>
 {% endblock %}
 
@@ -44,11 +45,20 @@
                             <button type="button" class="toolbar-btn" data-insert="1. ">Numbered List</button>
                         </div>
                         {{ form.content }}
-                        <div class="image-upload-zone" id="imageUploadZone">
+                        <div class="image-upload-zone" id="imageUploadZone"
+                            data-max-bytes="{{ max_upload_bytes }}"
+                            data-chunk-bytes="{{ upload_chunk_bytes }}">
                             <div class="upload-prompt">
                                 <i class="fas fa-cloud-upload-alt"></i>
-                                <p>Drag & drop images here or paste from clipboard</p>
+                                <p>Drop a file here, or paste an image. Up to {{ max_upload_bytes|filesizeformat }}.</p>
+                                <p class="upload-hint">If its an image i'll try to embed it, otherwise it might render as a file-block!</p>
                             </div>
+                            <input type="file" id="blogFileInput" class="blog-file-input" multiple>
+                            <button type="button" class="btn btn-secondary" id="blogFileButton">Choose a file</button>
+                            <div class="upload-progress" id="uploadProgress" hidden>
+                                <div class="upload-progress-bar" id="uploadProgressBar"></div>
+                            </div>
+                            <p class="upload-status" id="uploadStatus" hidden></p>
                         </div>
                     </div>
                     {% if form.content.errors %}

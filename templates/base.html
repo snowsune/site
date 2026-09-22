@@ -143,12 +143,14 @@
           <a href="{% url 'home' %}">Home</a>
           <a href="{% url 'tools' %}">Apps/Tools</a>
           <a href="{% url 'blog:blog_list' %}">Blog</a>
+          <!-- <a href="{% url 'vrchat' %}">VRChat</a> -->
           <a href="{% url 'comics:comic_home' %}">Webcomic</a>
         </div>
         <div class="nav-mobile-links" id="nav-mobile-links">
           <a href="{% url 'home' %}">Home</a>
           <a href="{% url 'tools' %}">Apps/Tools</a>
           <a href="{% url 'blog:blog_list' %}">Blog</a>
+          <!-- <a href="{% url 'vrchat' %}">VRChat</a> -->
           <a href="{% url 'comics:comic_home' %}">Webcomic</a>
           <a href="{% url 'matrix_redirect' %}" class="matrix-navbar-btn js-matrix-widget-open">
             <span class="matrix-navbar-icon">💬</span> Join me on Matrix!
@@ -207,6 +209,7 @@
         <!-- TODO: Change me to a proper about page later -->
         <li><a href="{% url 'tools' %}">Tools</a></li>
         <li><a href="{% url 'blog:blog_list' %}">Blog</a></li>
+        <li><a href="{% url 'vrchat' %}">VRChat</a></li>
         <li><a href="{% url 'comics:comic_home' %}">Webcomic</a></li>
       </ul>
 
@@ -248,8 +251,6 @@
     </div>
   </footer>
 
-  <script src="{% static 'notifications/js/notifications.js' %}"></script>
-
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const hamburger = document.getElementById('nav-hamburger');
@@ -272,22 +273,6 @@
           }
         });
       }
-
-      // Convert Django messages to notifications
-      const djangoMessages = document.querySelectorAll('.message');
-      djangoMessages.forEach(message => {
-        const type = message.classList.contains('message-success') ? 'success' :
-          message.classList.contains('message-error') ? 'error' :
-            message.classList.contains('message-warning') ? 'warning' :
-              message.classList.contains('message-info') ? 'info' :
-                message.classList.contains('message-debug') ? 'info' : 'info';
-
-        const text = message.querySelector('.message-text')?.textContent || message.textContent;
-
-        // Show as notification and remove Django message
-        window.notifications.show(text, type);
-        message.remove();
-      });
     });
   </script>
 

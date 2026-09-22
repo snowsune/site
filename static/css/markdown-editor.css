@@ -20,22 +20,21 @@
 
 .toolbar-btn {
     padding: 0.25em 0.5em;
-    background: var(--tile-background);
-    color: var(--text-color);
+    background: transparent;
+    color: var(--link-default);
     border: 1px solid var(--text-color);
-    border-radius: 4px;
+    border-radius: 0;
     cursor: pointer;
     font-size: 0.75rem;
-    transition: all 0.2s;
-    white-space: nowrap; /* Prevent button text from wrapping */
-    flex-shrink: 0; /* Prevent buttons from shrinking */
-    max-width: 100%; /* Ensure buttons don't exceed container */
+    white-space: nowrap;
+    flex-shrink: 0;
+    max-width: 100%;
 }
 
 .toolbar-btn:hover {
-    background: var(--link-default);
-    color: white;
-    border-color: var(--link-default);
+    text-decoration: underline;
+    color: var(--link-hover);
+    background: transparent;
 }
 
 /* Content textarea */
@@ -86,6 +85,37 @@
 .upload-prompt p {
     margin: 0;
     font-size: 0.875rem;
+}
+
+.upload-hint {
+    margin-top: 0.35em !important;
+}
+
+.blog-file-input {
+    display: none;
+}
+
+.upload-progress {
+    height: 6px;
+    margin: 0.75em auto 0;
+    max-width: 240px;
+    background: var(--tile-background);
+    border: 1px solid var(--text-color);
+}
+
+.upload-progress-bar {
+    height: 100%;
+    width: 0;
+    background: var(--link-default);
+}
+
+.upload-status {
+    margin: 0.5em 0 0;
+    font-size: 0.875rem;
+}
+
+#blogFileButton {
+    margin-top: 0.75em;
 }
 
 /* Current image display */

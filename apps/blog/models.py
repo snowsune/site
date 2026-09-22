@@ -1,13 +1,17 @@
+import os
+import re
+
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils import timezone
-from django.urls import reverse
 import markdown
 from django.utils.html import strip_tags
 from django.conf import settings
 from snowsune.models import SiteSetting
+
+from .uploads import enhance_download_links, file_sha256, image_extensions
 
 User = get_user_model()
 
@@ -80,8 +84,10 @@ class BlogPost(models.Model):
 
         # Generate HTML content from markdown
         if self.content:
-            self.content_html = markdown.markdown(
-                self.content, extensions=["extra", "codehilite", "toc"]
+            self.content_html = enhance_download_links(
+                markdown.markdown(
+                    self.content, extensions=["extra", "codehilite", "toc"]
+                )
             )
             # Generate excerpt from first paragraph
             if not self.excerpt:
@@ -102,6 +108,7 @@ class BlogPost(models.Model):
             self.published_at = timezone.now()
 
         super().save(*args, **kwargs)
+        prune_unreferenced_uploads(self.author_id)
 
         # Send Discord webhook notification when post is newly published
         if is_now_published and not was_published:
@@ -168,6 +175,12 @@ class BlogPost(models.Model):
             # Log error but don't break the save process
             print(f"Failed to send Discord webhook for blog post {self.title}: {e}")
 
+    def delete(self, *args, **kwargs):
+        author_id = self.author_id
+        result = super().delete(*args, **kwargs)
+        prune_unreferenced_uploads(author_id)
+        return result
+
     def get_absolute_url(self):
         return reverse("blog:post_detail", kwargs={"slug": self.slug})
 
@@ -182,12 +195,20 @@ class BlogPost(models.Model):
 
 
 class BlogImage(models.Model):
-    """Model for storing images uploaded via the blog editor"""
+    """
+    Images uploaded to the blog editor/interface!
+    I also kinda tried to do some other file-stuff in here as well..
+    """
 
-    image = models.ImageField(upload_to="blog/images/")
+    # Paths inserted into post markdown. Older uploads live under blog/images/.
+    UPLOAD_PATH = re.compile(r"/media/(blog/(?:images|uploads)/[^\s)\"'<>]+)")
+
+    image = models.FileField(upload_to="blog/uploads/", max_length=500)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
     filename = models.CharField(max_length=255, blank=True)
+    size = models.PositiveBigIntegerField(null=True, blank=True)
+    checksum = models.CharField(max_length=64, blank=True)
 
     class Meta:
         ordering = ["-uploaded_at"]
@@ -196,14 +217,53 @@ class BlogImage(models.Model):
         return self.filename or self.image.name
 
     def save(self, *args, **kwargs):
-        if not self.filename:
-            self.filename = self.image.name
+        if not self.filename and self.image:
+            self.filename = os.path.basename(self.image.name)
         super().save(*args, **kwargs)
+        if self.image and (self.size is None or not self.checksum):
+            try:
+                self.size = self.image.size
+            except Exception:
+                self.size = self.size or 0
+            if not self.checksum:
+                try:
+                    self.checksum = file_sha256(self.image)
+                except Exception:
+                    self.checksum = self.checksum or ""
+            type(self).objects.filter(pk=self.pk).update(
+                size=self.size, checksum=self.checksum
+            )
+
+    @property
+    def is_image(self):
+        """If the file is an image"""
+        name = self.filename or self.image.name
+        return os.path.splitext(name)[1].lower() in image_extensions()
 
     @property
     def markdown_link(self):
-        """Return the markdown image link for this image"""
-        return f"![{self.filename}]({self.image.url})"
+        name = self.filename or os.path.basename(self.image.name)
+        if self.is_image:
+            return f"![{name}]({self.image.url})"
+        return f"[{name}]({self.image.url})"
+
+
+def media_paths(text):
+    return set(BlogImage.UPLOAD_PATH.findall(text or ""))
+
+
+def prune_unreferenced_uploads(owner_id):
+    """Delete uploads that are not linked anywhere"""
+    if not owner_id:
+        return
+    referenced = set()
+    for content in BlogPost.objects.values_list("content", flat=True):
+        referenced.update(media_paths(content))
+    stale = BlogImage.objects.filter(uploaded_by_id=owner_id)
+    if referenced:
+        stale = stale.exclude(image__in=referenced)
+    for upload in stale:
+        upload.delete()
 
 
 class Comment(models.Model):

@@ -121,15 +121,6 @@ function setupFormFeedback() {
             // Add visual feedback to the form
             form.classList.add('form-submitting');
 
-            // Show immediate feedback notification
-            if (window.notifications) {
-                if (document.body.classList.contains('user-authenticated')) {
-                    window.notifications.info('Submitting your comment...', 3000);
-                } else {
-                    window.notifications.info('Submitting comment for moderation...', 3000);
-                }
-            }
-
             // Submit form via AJAX
             submitFormAjax(form, submitBtn, originalText);
         }
@@ -186,29 +177,13 @@ function submitFormAjax(form, submitBtn, originalText) {
             form.classList.remove('form-submitting');
 
             if (data.success) {
-                // Show success notification
-                if (window.notifications) {
-                    if (data.user_authenticated) {
-                        window.notifications.success(data.message, 5000);
-                    } else {
-                        window.notifications.info(data.message, 8000);
-                    }
-                }
-
                 // Clear form
                 form.reset();
 
-                // Reload page after a short delay to show the new comment
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                // Reload so the new comment (or moderation state) shows up
+                window.location.reload();
 
             } else {
-                // Show error notification
-                if (window.notifications) {
-                    window.notifications.error(data.message || 'An error occurred', 10000);
-                }
-
                 // Show field errors if any
                 if (data.errors) {
                     Object.keys(data.errors).forEach(field => {
@@ -234,15 +209,8 @@ function submitFormAjax(form, submitBtn, originalText) {
             submitBtn.classList.remove('btn-loading');
             form.classList.remove('form-submitting');
 
-            // Show error notification
-            if (window.notifications) {
-                window.notifications.error('Network error. Please try again.', 10000);
-            }
-
             // Fallback to regular form submission
-            setTimeout(() => {
-                form.submit();
-            }, 1000);
+            form.submit();
         });
 }
 

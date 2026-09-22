@@ -63,7 +63,7 @@
 }
 
 .search-btn:hover {
-    background: var(--link-hover);
+    text-decoration: underline;
 }
 
 .tag-filter {
@@ -89,9 +89,9 @@
 
 .tag-link:hover,
 .tag-link.active {
-    background: var(--link-default);
-    color: rgb(22, 17, 74);
-    border-color: var(--link-default);
+    text-decoration: underline;
+    color: var(--link-hover);
+    background: transparent;
 }
 
 /* Blog Posts */
@@ -107,13 +107,7 @@
 
 .post-card {
     background: var(--tile-background);
-    border-radius: 8px;
     overflow: hidden;
-    transition: transform 0.2s;
-}
-
-.post-card:hover {
-    transform: translateY(-2px);
 }
 
 .post-image img {
@@ -191,16 +185,16 @@
 }
 
 .page-link:hover {
-    background: var(--link-default);
-    color: white;
-    border-color: var(--link-default);
+    text-decoration: underline;
+    color: var(--link-hover);
+    background: transparent;
 }
 
 .current-page {
     padding: 0.5em 0.75em;
-    background: var(--link-default);
-    color: white;
-    border-radius: 4px;
+    background: transparent;
+    color: var(--text-color);
+    font-weight: bold;
 }
 
 /* Blog Sidebar */
@@ -437,191 +431,21 @@
 .blog-form-container .btn,
 .blog-post-form .btn,
 .blog-form-sidebar .btn {
-    max-width: 100% !important;
-    width: auto !important;
-    box-sizing: border-box !important;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-.blog-form-container .btn-block,
-.blog-post-form .btn-block,
-.blog-form-sidebar .btn-block {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* Very specific button containment with highest specificity */
-div.blog-form-container div.form-actions button.btn,
-div.blog-form-container div.form-actions a.btn,
-div.blog-form-sidebar div.form-actions button.btn,
-div.blog-form-sidebar div.form-actions a.btn {
-    max-width: 100% !important;
-    width: auto !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-}
-
-div.blog-form-container div.form-actions button.btn.btn-primary,
-div.blog-form-container div.form-actions a.btn.btn-primary,
-div.blog-form-container div.form-actions a.btn.btn-secondary,
-div.blog-form-container div.form-actions a.btn.btn-outline {
-    max-width: 100% !important;
-    width: auto !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-}
-
-/* Override any potential min-width issues */
-.blog-form-container button,
-.blog-form-container a.btn,
-.blog-form-sidebar button,
-.blog-form-sidebar a.btn {
-    min-width: 0 !important;
-    max-width: 100% !important;
-}
-
-/* Nuclear option - override everything for buttons */
-.blog-form-container .form-actions button,
-.blog-form-container .form-actions a.btn,
-.blog-form-sidebar .form-actions button,
-.blog-form-sidebar .form-actions a.btn,
-.blog-form-container .form-actions .btn,
-.blog-form-container .form-actions .btn-primary,
-.blog-form-container .form-actions .btn-secondary,
-.blog-form-container .form-actions .btn-outline {
-    max-width: 100% !important;
-    width: auto !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    display: inline-block !important;
-}
-
-/* Force form actions container to respect boundaries */
 .blog-form-container .form-actions,
 .blog-post-form .form-actions {
-    max-width: 100% !important;
-    width: 100% !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    max-width: 100%;
 }
 
-/* Debug styles - add borders to see what's happening */
-.blog-form-container .form-actions {
-    border: 2px solid red !important;
-}
-
-.blog-form-container .form-actions .btn {
-    border: 2px solid blue !important;
-}
-
-/* Force entire blog form layout to respect boundaries */
-.blog-form-container,
-.blog-post-form,
-.blog-form-sidebar {
-    max-width: 100% !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-}
-
-/* Force all child elements to respect boundaries */
-.blog-form-container *,
-.blog-post-form *,
-.blog-form-sidebar * {
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* Override any potential width issues */
-.blog-form-container .form-actions,
-.blog-post-form .form-actions {
-    max-width: 100% !important;
-    width: 100% !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 0.5em !important;
-}
-
-/* Force buttons to be contained */
-.blog-form-container .form-actions .btn,
-.blog-post-form .form-actions .btn {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    width: auto !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-}
-
-/* Override responsive button styles for blog forms */
-@media (max-width: 768px) {
-    .blog-form-container .btn,
-    .blog-post-form .btn,
-    .blog-form-sidebar .btn {
-        width: auto !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        box-sizing: border-box !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-    }
-    
-    .blog-form-container .form-actions .btn,
-    .blog-post-form .form-actions .btn,
-    .blog-form-sidebar .form-actions .btn {
-        flex: 1 1 auto !important;
-        width: auto !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-    }
-}
-
-/* Always ensure sidebar buttons are contained */
-.blog-form-sidebar .btn,
-.blog-form-sidebar button,
-.blog-form-sidebar a.btn {
-    width: auto !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    display: inline-block !important;
-}
-
-/* Override any potential width inheritance */
-.blog-form-sidebar .form-actions .btn {
-    width: auto !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    flex: 1 1 auto !important;
-}
-
-
-
-/* Ensure blog form content doesn't exceed available space */
-.blog-form-container .markdown-editor-container {
-    max-width: 100% !important;
-    overflow: hidden !important;
-}
-
+.blog-form-container .markdown-editor-container,
 .blog-form-container .editor-toolbar {
-    max-width: 100% !important;
-    overflow: hidden !important;
+    max-width: 100%;
 }
 
 /* Blog Post Detail */
@@ -650,10 +474,8 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
     flex-shrink: 0;
     width: 120px;
     height: 120px;
-    border-radius: 8px;
     overflow: hidden;
-    border: 2px solid var(--text-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--text-color);
 }
 
 .post-thumbnail img {
@@ -688,15 +510,73 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
 }
 
 .post-featured-image img {
-    width: 100%;
-    max-height: 400px;
-    object-fit: cover;
-    border-radius: 8px;
+    max-width: 33%;
+    height: auto;
 }
 
 .post-content {
     line-height: 1.6;
     margin-bottom: 1em;
+    overflow-wrap: anywhere;
+}
+
+.post-content img {
+    max-width: 33%;
+    height: auto;
+    cursor: zoom-in;
+}
+
+@media (max-width: 768px) {
+    .post-featured-image img,
+    .post-content img {
+        max-width: 100%;
+    }
+}
+
+.blog-lightbox {
+    padding: 0;
+    border: 1px solid var(--text-color);
+    max-width: 95vw;
+    max-height: 95vh;
+    background: var(--tile-background);
+}
+
+.blog-lightbox::backdrop {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.blog-lightbox img {
+    display: block;
+    max-width: 95vw;
+    max-height: 95vh;
+    cursor: zoom-out;
+}
+
+.blog-download {
+    display: inline-block;
+    max-width: 100%;
+    margin: 0.75em 0;
+    padding: 0.5em 0.75em;
+    border: 1px solid var(--text-color);
+    box-sizing: border-box;
+}
+
+.blog-download-name {
+    display: inline-block;
+    max-width: 100%;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+.blog-download-meta {
+    margin-top: 0.25em;
+    font-size: 0.8rem;
+    opacity: 0.75;
+    overflow-wrap: anywhere;
+}
+
+.blog-download-checksum {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 .post-footer {
@@ -742,13 +622,7 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
 
 .related-post-card {
     background: var(--tile-background);
-    border-radius: 8px;
     overflow: hidden;
-    transition: transform 0.2s;
-}
-
-.related-post-card:hover {
-    transform: translateY(-2px);
 }
 
 .related-post-image img {
@@ -1028,13 +902,7 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
 
 .post-card {
     background: var(--tile-background);
-    border-radius: 8px;
     overflow: hidden;
-    transition: transform 0.2s;
-}
-
-.post-card:hover {
-    transform: translateY(-2px);
 }
 
 .view-all-posts {
@@ -1064,64 +932,36 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
 .btn {
     display: inline-block;
     padding: 0.5em 1em;
-    background: var(--tile-background);
-    color: var(--text-color);
+    background: transparent;
+    color: var(--link-default);
     text-decoration: none;
     border: 1px solid var(--text-color);
-    border-radius: 4px;
+    border-radius: 0;
     cursor: pointer;
     font-size: 1rem;
-    transition: all 0.2s;
 }
 
 .btn:hover {
-    background: var(--link-default);
-    color: white;
-    border-color: var(--link-default);
+    text-decoration: underline;
+    color: var(--link-hover);
 }
 
-.btn-primary {
-    background: var(--link-default);
-    color: rgb(3, 27, 32);
-    border-color: var(--link-default);
-}
-
-.btn-primary:hover {
-    background: var(--link-hover);
-    border-color: var(--link-hover);
-}
-
-.btn-secondary {
-    background: var(--tile-background);
-    color: var(--text-color);
-    border-color: var(--text-color);
-}
-
-.btn-secondary:hover {
-    background: var(--text-color);
-    color: var(--tile-background);
-}
-
-.btn-outline {
-    background: transparent;
-    color: var(--text-color);
-    border-color: var(--text-color);
-}
-
-.btn-outline:hover {
-    background: var(--text-color);
-    color: var(--tile-background);
-}
-
+.btn-primary,
+.btn-secondary,
+.btn-outline,
 .btn-danger {
-    background: #dc3545;
-    color: white;
-    border-color: #dc3545;
+    background: transparent;
+    color: var(--link-default);
+    border-color: var(--text-color);
 }
 
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-outline:hover,
 .btn-danger:hover {
-    background: #c82333;
-    border-color: #bd2130;
+    text-decoration: underline;
+    color: var(--link-hover);
+    background: transparent;
 }
 
 .btn-sm {
@@ -1469,37 +1309,6 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
     font-size: 0.85em;
 }
 
-/* Data attribute enhancements */
-[data-comment-id] {
-    transition: all 0.2s ease;
-}
-
-[data-comment-id]:hover {
-    transform: translateX(2px);
-}
-
-[data-action] {
-    transition: all 0.2s ease;
-}
-
-[data-action]:hover {
-    transform: translateY(-1px);
-}
-
-/* Comment form enhancements */
-[data-comment-form] {
-    transition: all 0.3s ease;
-}
-
-[data-reply-form] {
-    transition: all 0.3s ease;
-    transform-origin: top;
-}
-
-[data-reply-form][style*="display: block"] {
-    animation: slideDown 0.3s ease;
-}
-
 /* Form submission states */
 .form-submitting {
     opacity: 0.8;
@@ -1569,47 +1378,6 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
 .form-control.error:focus + .error-message,
 .form-control.error:valid + .error-message {
     display: none;
-}
-
-/* Comment form status indicators */
-.comment-form-status {
-    margin-top: 1rem;
-    padding: 0.75rem;
-    border-radius: 4px;
-    border: 1px solid;
-    font-size: 0.9em;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.comment-form-status.info {
-    background-color: rgba(23, 162, 184, 0.1);
-    border-color: var(--info-color, #17a2b8);
-    color: var(--info-color, #17a2b8);
-}
-
-.comment-form-status.success {
-    background-color: rgba(40, 167, 69, 0.1);
-    border-color: var(--success-color, #28a745);
-    color: var(--success-color, #28a745);
-}
-
-.comment-form-status.warning {
-    background-color: rgba(255, 193, 7, 0.1);
-    border-color: var(--warning-color, #ffc107);
-    color: var(--warning-color, #ffc107);
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 /* Badges */
@@ -1746,10 +1514,6 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
 } 
 
 /* Dashboard moderation actions */
-.moderation-action {
-    transition: all 0.2s ease;
-}
-
 .moderation-action:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -1774,14 +1538,8 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
     animation: spin 1s linear infinite;
 }
 
-/* Comment row transitions */
-.comment-row {
-    transition: all 0.3s ease;
-}
-
 .comment-row.removing {
-    opacity: 0;
-    transform: translateX(-100%);
+    display: none;
 }
 
 /* Empty state styling */

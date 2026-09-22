@@ -14,17 +14,25 @@ from django.views.generic import (
 )
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
 from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils import timezone
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Rss201rev2Feed
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth.decorators import login_required
 from .models import BlogPost, Tag, BlogImage, Comment
+from .uploads import (
+    all_chunks_present,
+    assemble_chunks,
+    chunk_exists,
+    clean_upload_filename,
+    clean_upload_id,
+    max_upload_bytes,
+    save_chunk,
+    upload_chunk_bytes,
+)
 from .forms import BlogPostForm, BlogPostCreateForm, TagForm, CommentForm
 from apps.notifications.utils import (
     show_success_notification,
@@ -262,7 +270,15 @@ def moderate_comment(request, comment_id, action):
         return redirect(comment.post.get_absolute_url())
 
 
-class BlogCreateView(LoginRequiredMixin, CreateView):
+class BlogEditorMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["max_upload_bytes"] = settings.BLOG_MAX_UPLOAD_BYTES
+        context["upload_chunk_bytes"] = settings.BLOG_UPLOAD_CHUNK_BYTES
+        return context
+
+
+class BlogCreateView(BlogEditorMixin, LoginRequiredMixin, CreateView):
     model = BlogPost
     form_class = BlogPostCreateForm
     template_name = "blog/blog_form.html"
@@ -281,7 +297,9 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
 
-class BlogUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class BlogUpdateView(
+    BlogEditorMixin, LoginRequiredMixin, UserPassesTestMixin, UpdateView
+):
     model = BlogPost
     form_class = BlogPostForm
     template_name = "blog/blog_form.html"
@@ -362,34 +380,121 @@ def blog_dashboard(request):
     return render(request, "blog/blog_dashboard.html", context)
 
 
-@csrf_exempt
-@require_http_methods(["POST"])
-def upload_image(request):
-    """Handle image uploads for the blog editor"""
+@require_http_methods(["GET", "POST"])
+def upload_chunk(request):
+    """
+    So this is kinda a big one >.<
+
+    This should take chunks from resumable.js (which is what i have on the editor page)
+    But there is/was a django library that did this! https://github.com/jeanphix/django-resumable
+
+    it was really old tho.. not updated, i opted not to try and port it or anything BUT
+    TODO: this is basically copy and paste from that lib, so maybe we could backport/pr
+    to restore the lib functionality?
+    """
+
     if not request.user.is_authenticated:
         return JsonResponse({"error": "Authentication required"}, status=401)
 
+    params = request.GET if request.method == "GET" else request.POST
+    upload_id = clean_upload_id(params.get("resumableIdentifier"))
+    filename = clean_upload_filename(params.get("resumableFilename"))
     try:
-        image_file = request.FILES.get("image")
-        if not image_file:
-            return JsonResponse({"error": "No image file provided"}, status=400)
+        chunk_number = int(params.get("resumableChunkNumber") or 0)
+        total_chunks = int(params.get("resumableTotalChunks") or 0)
+        total_size = int(params.get("resumableTotalSize") or 0)
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "Invalid upload metadata."}, status=400)
 
-        # Create BlogImage instance
-        blog_image = BlogImage.objects.create(
-            image=image_file, uploaded_by=request.user, filename=image_file.name
+    if not upload_id or not filename or chunk_number < 1 or total_chunks < 1:
+        return JsonResponse({"error": "Invalid upload metadata."}, status=400)
+    if total_size > max_upload_bytes():
+        return JsonResponse({"error": "That file is too large."}, status=413)
+
+    if request.method == "GET":
+        if chunk_exists(request.user.pk, upload_id, chunk_number):
+            return HttpResponse(status=200)
+        return HttpResponse(status=204)
+
+    uploaded = request.FILES.get("file")
+    if not uploaded:
+        return JsonResponse({"error": "No chunk provided"}, status=400)
+    if uploaded.size > upload_chunk_bytes() + (256 * 1024):
+        return JsonResponse({"error": "Chunk too large."}, status=400)
+
+    save_chunk(request.user.pk, upload_id, chunk_number, uploaded)
+
+    if not all_chunks_present(request.user.pk, upload_id, total_chunks):
+        return JsonResponse({"success": True, "complete": False})
+
+    saved = assemble_chunks(request.user.pk, upload_id, total_chunks, filename)
+    return JsonResponse(
+        {
+            "success": True,
+            "complete": True,
+            "url": saved.image.url,
+            "markdown": saved.markdown_link,
+            "filename": saved.filename,
+        }
+    )
+
+
+@require_POST
+def upload_file(request):
+    """
+    Small single-shot upload (kept for tests / simple clients).
+    The editor uses upload_chunk for large files.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Authentication required"}, status=401)
+
+    uploaded = request.FILES.get("file") or request.FILES.get("image")
+    if not uploaded:
+        return JsonResponse({"error": "No file provided"}, status=400)
+    if uploaded.size > max_upload_bytes():
+        return JsonResponse({"error": "That file is too large."}, status=413)
+
+    safe_name = clean_upload_filename(uploaded.name)
+    if not safe_name:
+        return JsonResponse({"error": "That file type can't be uploaded."}, status=400)
+
+    uploaded.name = safe_name
+    saved = BlogImage.objects.create(
+        image=uploaded, uploaded_by=request.user, filename=safe_name
+    )
+    return JsonResponse(
+        {
+            "success": True,
+            "url": saved.image.url,
+            "markdown": saved.markdown_link,
+            "filename": saved.filename,
+        }
+    )
+
+
+class VRChatListView(BlogListView):
+    """Published posts tagged VRChat, using the normal blog list."""
+
+    def get_queryset(self):
+        queryset = (
+            BlogPost.objects.filter(status="published")
+            .filter(Q(tags__slug__iexact="vrchat") | Q(tags__name__iexact="VRChat"))
+            .select_related("author")
+            .prefetch_related("tags")
+            .distinct()
         )
+        search_query = self.request.GET.get("search")
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) | Q(content__icontains=search_query)
+            ).distinct()
+        return queryset
 
-        return JsonResponse(
-            {
-                "success": True,
-                "url": blog_image.image.url,
-                "markdown_link": blog_image.markdown_link,
-                "filename": blog_image.filename,
-            }
-        )
-
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["page_title"] = "VRChat"
+        context["recent_posts"] = self.get_queryset()[:5]
+        return context
 
 
 class BlogRSSFeed(Feed):

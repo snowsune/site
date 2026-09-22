@@ -47,15 +47,11 @@
 .tool-card {
     background: var(--tile-background);
     border: 2px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 0;
     overflow: hidden;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .tool-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     border-color: var(--accent-color);
 }
 
@@ -95,52 +91,51 @@
 
 .tool-button {
     display: inline-block;
-    background: var(--accent-color);
-    color: var(--invert-text-color);
+    background: transparent;
+    color: var(--link-default);
     padding: 0.8rem 1.5rem;
     text-decoration: none;
-    border-radius: 8px;
+    border-radius: 0;
     font-weight: 600;
-    transition: all 0.3s ease;
-    border: 2px solid var(--accent-color);
+    border: 1px solid var(--text-color);
 }
 
 .tool-button:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
-    transform: translateY(-2px);
+    text-decoration: underline;
+    color: var(--link-hover);
+    background: transparent;
 }
 
 .tool-button.external {
-    background: var(--link-default);
-    border-color: var(--link-default);
+    background: transparent;
+    border-color: var(--text-color);
 }
 
 .tool-button.external:hover {
-    background: var(--link-hover);
-    border-color: var(--link-hover);
+    background: transparent;
+    border-color: var(--text-color);
+    text-decoration: underline;
 }
 
 .tool-button:visited {
-    color: var(--invert-text-color);
+    color: var(--link-visited);
 }
 
 .tool-button.external:visited {
-    color: var(--invert-text-color);
+    color: var(--link-visited);
 }
 
 /* Formal/Boring Tool Styles */
 .tool-card.formal-tool {
     border: 1px solid var(--border-color);
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
+    border-radius: 0;
+    box-shadow: none;
 }
 
 .tool-card.formal-tool:hover {
     transform: none;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-    border-color: var(--border-color);
+    box-shadow: none;
+    border-color: var(--accent-color);
 }
 
 .tool-card.formal-tool .tool-image {
@@ -178,9 +173,10 @@
 }
 
 .tool-card.formal-tool .tool-button:hover {
-    background: var(--border-hover);
-    border-color: var(--accent-color);
-    transform: none;
+    background: transparent;
+    border-color: var(--text-color);
+    text-decoration: underline;
+    color: var(--link-hover);
 }
 
 /* NSFW tools block */

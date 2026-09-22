@@ -233,19 +233,20 @@
 
 .edit-profile-btn {
     display: inline-block;
-    background: var(--accent-color);
-    color: var(--invert-text-color);
+    background: transparent;
+    color: var(--link-default);
     padding: 0.6rem 1.2rem;
     text-decoration: none;
-    border-radius: 4px;
+    border-radius: 0;
     font-weight: 600;
-    transition: all 0.2s ease;
-    border: 2px solid var(--accent-color);
+    border: 1px solid var(--text-color);
 }
 
 .edit-profile-btn:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
+    background: transparent;
+    color: var(--link-hover);
+    text-decoration: underline;
+    border-color: var(--text-color);
 }
 
 /* Mobile */

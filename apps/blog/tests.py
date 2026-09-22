@@ -1,4 +1,11 @@
-from django.test import TestCase, Client, RequestFactory
+from django.test import (
+    TestCase,
+    Client,
+    RequestFactory,
+    TransactionTestCase,
+    override_settings,
+)
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
@@ -8,8 +15,10 @@ from django.contrib.messages.middleware import MessageMiddleware
 from django.http import HttpRequest
 from unittest.mock import patch, MagicMock
 import json
+import os
+import tempfile
 
-from .models import BlogPost, Tag, Comment
+from .models import BlogPost, Tag, Comment, BlogImage
 from .forms import BlogPostForm, CommentForm
 from .views import submit_comment, moderate_comment
 
@@ -1079,3 +1088,149 @@ class BlogPerformanceTest(TestCase):
             # Verify comment was moderated
             comment.refresh_from_db()
             self.assertEqual(comment.status, "approved")
+
+
+@override_settings(BLOG_MAX_UPLOAD_BYTES=1024, MEDIA_ROOT=tempfile.mkdtemp())
+class BlogUploadAndVRChatTests(TransactionTestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="uploader", email="up@example.com", password="testpass123"
+        )
+        self.client.login(username="uploader", password="testpass123")
+
+    def _upload(self, name, content):
+        uploaded = SimpleUploadedFile(name, content)
+        return self.client.post(reverse("blog:upload_file"), {"file": uploaded})
+
+    def test_upload_links_download_and_deletes_when_unreferenced(self):
+        response = self._upload("world.unitypackage", b"pkg")
+        self.assertEqual(response.status_code, 200)
+        markdown = response.json()["markdown"]
+        self.assertIn("[world.unitypackage](", markdown)
+        upload = BlogImage.objects.get()
+        stored_path = upload.image.path
+        self.assertEqual(upload.size, 3)
+        self.assertEqual(len(upload.checksum), 64)
+
+        post = BlogPost.objects.create(
+            title="World",
+            slug="world",
+            content=markdown,
+            author=self.user,
+            status="published",
+            published_at=timezone.now(),
+        )
+        self.assertTrue(BlogImage.objects.filter(pk=upload.pk).exists())
+        self.assertIn('class="blog-download"', post.content_html)
+        self.assertIn("world.unitypackage", post.content_html)
+        self.assertIn("SHA-256", post.content_html)
+        self.assertIn(upload.checksum, post.content_html)
+
+        other = BlogPost.objects.create(
+            title="Also",
+            slug="also",
+            content=markdown,
+            author=self.user,
+            status="published",
+            published_at=timezone.now(),
+        )
+        post.content = "Link removed."
+        post.save()
+        self.assertTrue(BlogImage.objects.filter(pk=upload.pk).exists())
+
+        other.delete()
+        self.assertFalse(BlogImage.objects.filter(pk=upload.pk).exists())
+        self.assertFalse(os.path.exists(stored_path))
+
+    def test_rejects_html_and_oversized_files(self):
+        html = self._upload("page.html", b"<html></html>")
+        self.assertEqual(html.status_code, 400)
+        oversized = self._upload("big.zip", b"x" * 2048)
+        self.assertEqual(oversized.status_code, 413)
+        self.assertFalse(BlogImage.objects.exists())
+
+    def test_chunked_upload_assembles_file(self):
+        content = b"chunk-one" + b"chunk-two"
+        upload_id = "world-unitypackage-18"
+        params = {
+            "resumableIdentifier": upload_id,
+            "resumableFilename": "world.unitypackage",
+            "resumableTotalChunks": "2",
+            "resumableTotalSize": str(len(content)),
+        }
+
+        missing = self.client.get(
+            reverse("blog:upload_chunk"),
+            {**params, "resumableChunkNumber": "1"},
+        )
+        self.assertEqual(missing.status_code, 204)
+
+        first = self.client.post(
+            reverse("blog:upload_chunk"),
+            {
+                **params,
+                "resumableChunkNumber": "1",
+                "file": SimpleUploadedFile("blob", b"chunk-one"),
+            },
+        )
+        self.assertEqual(first.status_code, 200)
+        self.assertFalse(first.json()["complete"])
+        self.assertFalse(BlogImage.objects.exists())
+
+        present = self.client.get(
+            reverse("blog:upload_chunk"),
+            {**params, "resumableChunkNumber": "1"},
+        )
+        self.assertEqual(present.status_code, 200)
+
+        second = self.client.post(
+            reverse("blog:upload_chunk"),
+            {
+                **params,
+                "resumableChunkNumber": "2",
+                "file": SimpleUploadedFile("blob", b"chunk-two"),
+            },
+        )
+        self.assertEqual(second.status_code, 200)
+        payload = second.json()
+        self.assertTrue(payload["complete"])
+        self.assertIn("[world.unitypackage](", payload["markdown"])
+        upload = BlogImage.objects.get()
+        self.assertEqual(upload.image.read(), content)
+        self.assertEqual(upload.size, len(content))
+
+    def test_vrchat_page_lists_only_tagged_published_posts(self):
+        vrchat = Tag.objects.create(name="VRChat", slug="vrchat")
+        other = Tag.objects.create(name="Art", slug="art")
+        shown = BlogPost.objects.create(
+            title="Avatar drop",
+            slug="avatar-drop",
+            content="A world.",
+            author=self.user,
+            status="published",
+            published_at=timezone.now(),
+        )
+        shown.tags.add(vrchat)
+        hidden = BlogPost.objects.create(
+            title="Comic notes",
+            slug="comic-notes",
+            content="Not vr.",
+            author=self.user,
+            status="published",
+            published_at=timezone.now(),
+        )
+        hidden.tags.add(other)
+        draft = BlogPost.objects.create(
+            title="Secret world",
+            slug="secret-world",
+            content="Draft.",
+            author=self.user,
+            status="draft",
+        )
+        draft.tags.add(vrchat)
+
+        response = self.client.get(reverse("vrchat"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Avatar drop")
+        self.assertNotContains(response, "Comic notes")
+        self.assertNotContains(response, "Secret world")
