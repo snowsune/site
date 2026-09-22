@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+{% load poll_tags %}
+
+{% block title %}{{ poll.title }} - Polls - Snowsune.net{% endblock %}
+{% block meta_description %}{% if poll.flair %}{{ poll.flair }} poll: {% endif %}{{ poll.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'polls/css/polls.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="polls-page">
+    <article class="poll-card poll-detail">
+        <header class="polls-header">
+            {% if poll.flair %}
+            <span class="poll-flair">{{ poll.flair }}</span>
+            {% endif %}
+            <h1>{{ poll.title }}</h1>
+            {% if poll.description_html %}
+            <div class="poll-description markdown-content">
+                {{ poll.description_html|safe }}
+            </div>
+            {% endif %}
+        </header>
+
+        {% poll_widget poll %}
+
+        <p class="poll-discuss">
+            {% if poll.blog_post %}
+            <a href="{{ poll.blog_post.get_absolute_url }}">Discuss on the blog →</a>
+            {% endif %}
+            <a href="{% url 'polls:list' %}">All open polls</a>
+            ·
+            <a href="{% url 'polls:archive' %}">Archive</a>
+        </p>
+    </article>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="polls-sidebar">
+    <h2>Polls</h2>
+    <ul>
+        <li><a href="{% url 'polls:list' %}">Open polls</a></li>
+        <li><a href="{% url 'polls:archive' %}">Archive</a></li>
+        <li><a href="{% url 'blog:blog_list' %}?tag=poll">Poll blog posts</a></li>
+    </ul>
+    {% if user.is_staff %}
+    <h3>Staff</h3>
+    <ul>
+        <li><a href="{% url 'admin:polls_poll_change' poll.pk %}">Edit in admin</a></li>
+    </ul>
+    {% endif %}
+</div>
+{% endblock %}

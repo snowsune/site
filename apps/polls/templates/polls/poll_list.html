@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+{% load poll_tags %}
+
+{% block title %}Polls - Snowsune.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'polls/css/polls.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="polls-page">
+    <header class="polls-header">
+        <h1>Polls</h1>
+        <p>Vote on whatever Vixi's asking this week. Closed polls live in the
+            <a href="{% url 'polls:archive' %}">archive</a>{% if ended_count %} ({{ ended_count }}){% endif %}.
+        </p>
+    </header>
+
+    {% if polls %}
+    <div class="polls-list">
+        {% for poll in polls %}
+        <article class="poll-card">
+            <h2><a href="{{ poll.get_absolute_url }}">{{ poll.title }}</a></h2>
+            {% if poll.description_html %}
+            <div class="poll-description markdown-content">
+                {{ poll.description_html|safe }}
+            </div>
+            {% endif %}
+            {% poll_widget poll %}
+            {% if poll.blog_post %}
+            <p class="poll-discuss">
+                <a href="{{ poll.blog_post.get_absolute_url }}">Discuss on the blog →</a>
+            </p>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="polls-empty">No open polls right now. Check the
+        <a href="{% url 'polls:archive' %}">archive</a> for past ones.
+    </p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="polls-sidebar">
+    <h2>Polls</h2>
+    <ul>
+        <li><a href="{% url 'polls:list' %}">Open polls</a></li>
+        <li><a href="{% url 'polls:archive' %}">Archive</a></li>
+        <li><a href="{% url 'blog:blog_list' %}?tag=poll">Poll blog posts</a></li>
+    </ul>
+</div>
+{% endblock %}

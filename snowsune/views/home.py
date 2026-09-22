@@ -9,7 +9,7 @@ class HomeView(View):
         latest_posts = (
             BlogPost.objects.filter(status="published")
             .order_by("-published_at", "-created_at")
-            .select_related("author")
+            .select_related("author", "poll")
             .prefetch_related("tags")[:6]
         )
 

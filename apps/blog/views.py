@@ -42,7 +42,7 @@ class BlogListView(ListView):
     def get_queryset(self):
         queryset = (
             BlogPost.objects.filter(status="published")
-            .select_related("author")
+            .select_related("author", "poll")
             .prefetch_related("tags")
         )
 
@@ -75,7 +75,9 @@ class BlogDetailView(DetailView):
     context_object_name = "post"
 
     def get_queryset(self):
-        return BlogPost.objects.select_related("author").prefetch_related("tags")
+        return BlogPost.objects.select_related("author", "poll").prefetch_related(
+            "tags", "poll__choices"
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

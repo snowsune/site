@@ -116,6 +116,9 @@ creative projects, furry community hub{% endblock %}
                 <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
                 <div class="blog-meta">
                     <span class="blog-date">{{ post.display_date|date:"F j, Y" }}</span>
+                    {% if post.poll %}
+                    <span class="tag">{{ post.poll.flair|default:"Poll" }}</span>
+                    {% endif %}
                     {% if post.tags.exists %}
                     <span class="blog-tags">
                         {% for tag in post.tags.all %}

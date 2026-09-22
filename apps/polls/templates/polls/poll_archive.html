@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+{% load poll_tags %}
+
+{% block title %}Poll archive - Snowsune.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'polls/css/polls.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="polls-page">
+    <header class="polls-header">
+        <h1>Poll archive</h1>
+        <p>Every poll that's already closed.
+            <a href="{% url 'polls:list' %}">Back to open polls</a>
+        </p>
+    </header>
+
+    {% if polls %}
+    <div class="polls-list">
+        {% for poll in polls %}
+        <article class="poll-card">
+            <h2><a href="{{ poll.get_absolute_url }}">{{ poll.title }}</a></h2>
+            {% if poll.flair %}
+            <p class="poll-meta"><span class="poll-flair">{{ poll.flair }}</span>
+                {% if poll.closes_at %}Ended {{ poll.closes_at|date:"F j, Y" }}{% endif %}
+            </p>
+            {% endif %}
+            {% poll_widget poll compact=True %}
+        </article>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <div class="polls-pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">← Newer</a>
+        {% endif %}
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Older →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <p class="polls-empty">No closed polls yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="polls-sidebar">
+    <h2>Polls</h2>
+    <ul>
+        <li><a href="{% url 'polls:list' %}">Open polls</a></li>
+        <li><a href="{% url 'polls:archive' %}">Archive</a></li>
+        <li><a href="{% url 'blog:blog_list' %}?tag=poll">Poll blog posts</a></li>
+    </ul>
+</div>
+{% endblock %}

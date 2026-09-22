@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     "apps.custompages",  # Custom pages with markdown
     "apps.tanks_manager",  # Per-user tank pages + editor
     "apps.vore_day_rumble",  # Vixi's Vore Day Rumble
+    "apps.polls",  # Site polls (also show up as blog posts)
 ]
 
 MIDDLEWARE = [
