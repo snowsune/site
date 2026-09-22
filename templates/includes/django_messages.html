@@ -1,10 +1,7 @@
 {% if messages %}
-{# Consumed by base.html → notifications.js as toasts; kept off-screen until then #}
-<div class="django-messages-bridge" aria-live="polite" hidden>
+<ul class="site-messages">
   {% for message in messages %}
-  <div class="message message-{{ message.level_tag }}">
-    <span class="message-text">{{ message }}</span>
-  </div>
+  <li class="site-message site-message-{{ message.level_tag }}">{{ message }}</li>
   {% endfor %}
-</div>
+</ul>
 {% endif %}

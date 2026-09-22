@@ -614,16 +614,17 @@
 .comic-discussion-section .btn {
     display: inline-block;
     padding: 0.75em 1.5em;
-    background: var(--link-default);
-    color: white;
+    background: transparent;
+    color: var(--link-default);
     text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
+    border: 1px solid var(--text-color);
+    border-radius: 0;
 }
 
 .comic-discussion-section .btn:hover {
-    background: var(--link-hover);
-    color: white;
+    text-decoration: underline;
+    color: var(--link-hover);
+    background: transparent;
 }
 
 .comic-discussion-section em {
@@ -653,14 +654,16 @@
 }
 
 .staff-actions .btn-secondary {
-    background: var(--text-color);
-    color: var(--background-color);
+    background: transparent;
+    color: var(--link-default);
+    border: 1px solid var(--text-color);
     margin-top: 0.5em;
 }
 
 .staff-actions .btn-secondary:hover {
-    background: var(--text-hover);
-    color: var(--background-color);
+    text-decoration: underline;
+    color: var(--link-hover);
+    background: transparent;
 }
 
 /* Markdown Content Styling */

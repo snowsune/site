@@ -251,8 +251,6 @@
     </div>
   </footer>
 
-  <script src="{% static 'notifications/js/notifications.js' %}"></script>
-
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const hamburger = document.getElementById('nav-hamburger');
@@ -275,22 +273,6 @@
           }
         });
       }
-
-      // Convert Django messages to notifications
-      const djangoMessages = document.querySelectorAll('.message');
-      djangoMessages.forEach(message => {
-        const type = message.classList.contains('message-success') ? 'success' :
-          message.classList.contains('message-error') ? 'error' :
-            message.classList.contains('message-warning') ? 'warning' :
-              message.classList.contains('message-info') ? 'info' :
-                message.classList.contains('message-debug') ? 'info' : 'info';
-
-        const text = message.querySelector('.message-text')?.textContent || message.textContent;
-
-        // Show as notification and remove Django message
-        window.notifications.show(text, type);
-        message.remove();
-      });
     });
   </script>
 

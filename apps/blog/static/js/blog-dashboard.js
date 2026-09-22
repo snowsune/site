@@ -9,23 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function initDashboard() {
-    // Show welcome notification if there are pending comments
-    const pendingComments = document.querySelectorAll('[data-moderation-type="pending"] .comment-row');
-    if (pendingComments.length > 0 && window.notifications) {
-        window.notifications.info(
-            `You have ${pendingComments.length} comment(s) awaiting moderation`,
-            8000
-        );
-    }
-    
-    // Set up moderation action handlers
     setupModerationActions();
-    
-    // Add any dashboard-specific functionality here
-    // For now, this is a placeholder for future enhancements
-    
-    // Example: Could add comment moderation shortcuts, bulk actions, etc.
-    console.log('Blog dashboard initialized');
 }
 
 function setupModerationActions() {
@@ -41,7 +25,6 @@ function setupModerationActions() {
 function handleModerationAction(button) {
     const action = button.getAttribute('data-action');
     const commentId = button.getAttribute('data-comment-id');
-    const commentType = button.getAttribute('data-comment-type');
     
     if (!action || !commentId) {
         console.error('Missing action or comment ID');
@@ -54,11 +37,6 @@ function handleModerationAction(button) {
     button.textContent = 'Processing...';
     button.classList.add('btn-loading');
     
-    // Show notification
-    if (window.notifications) {
-        window.notifications.info(`Processing ${action} action...`, 3000);
-    }
-    
     // Make AJAX request
     fetch(`/blog/comment/${commentId}/${action}/`, {
         method: 'GET',
@@ -69,32 +47,13 @@ function handleModerationAction(button) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Show success notification
-            if (window.notifications) {
-                window.notifications.success(data.message, 5000);
-            }
-            
-            // Remove comment row from current section with animation
             const commentRow = document.querySelector(`[data-comment-id="${commentId}"]`);
             if (commentRow) {
-                commentRow.classList.add('removing');
-                setTimeout(() => {
-                    commentRow.remove();
-                    // Update comment counts after removal
-                    updateCommentCounts();
-                }, 300);
+                commentRow.remove();
+                updateCommentCounts();
             }
-            
-            // Refresh the dashboard data
             refreshDashboardData();
-            
         } else {
-            // Show error notification
-            if (window.notifications) {
-                window.notifications.error(data.message || 'Action failed', 10000);
-            }
-            
-            // Re-enable button
             button.disabled = false;
             button.textContent = originalText;
             button.classList.remove('btn-loading');
@@ -102,13 +61,6 @@ function handleModerationAction(button) {
     })
     .catch(error => {
         console.error('Moderation action error:', error);
-        
-        // Show error notification
-        if (window.notifications) {
-            window.notifications.error('Network error. Please try again.', 10000);
-        }
-        
-        // Re-enable button
         button.disabled = false;
         button.textContent = originalText;
         button.classList.remove('btn-loading');
