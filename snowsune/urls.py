@@ -7,6 +7,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from snowsune.views.home import HomeView
+from snowsune.views.munch_maker import MunchMakerView
 from snowsune.views.projects import ProjectsView
 from snowsune.views.tools import ToolsView
 from snowsune.views.live_status import live_status_view
@@ -27,6 +28,7 @@ urlpatterns = [
     path("", HomeView.as_view(), name="home"),
     path("projects/", ProjectsView.as_view(), name="projects"),
     path("tools/", ToolsView.as_view(), name="tools"),
+    path("MunchMaker/", MunchMakerView.as_view(), name="munch_maker"),
     path("calendar/", CalendarView.as_view(), name="calendar"),
     path("thank-you/", thank_you_view, name="thank_you"),
     path("tos/", TemplateView.as_view(template_name="tos.html"), name="tos"),

@@ -38,6 +38,15 @@
     <section class="tools-section tools-section-nsfw" aria-label="NSFW tools">
         <h2>NSFW</h2>
         <div class="tools-grid">
+            <!-- Munch Maker -->
+            <div class="tool-card">
+                <div class="tool-content">
+                    <h3>Munch Maker</h3>
+                    <p>Still not sold on the name~ Play the prototype and let me know what you think!</p>
+                    <a href="{% url 'munch_maker' %}" class="tool-button">Play Munch Maker</a>
+                </div>
+            </div>
+
             <!-- VorePageEditor -->
             <div class="tool-card">
                 <div class="tool-content">
@@ -187,18 +196,11 @@
     <div class="sidebar-section">
         <h3>NSFW</h3>
         <ul class="sidebar-links">
+            <li><a href="{% url 'munch_maker' %}">Munch Maker</a></li>
             <li><a href="{% url 'tanks_manager:hub' %}">VorePageEditor</a></li>
             {% for site in tanks_owned %}
             <li><a href="{% url 'tanks_manager:edit' site.slug %}">{{ site.character_name|default:site.slug }}</a></li>
             {% endfor %}
-            {% if not tanks_owned %}
-            <li>
-                <form method="post" action="{% url 'tanks_manager:create' %}" class="tools-sidebar-create-form">
-                    {% csrf_token %}
-                    <button type="submit" class="tool-button">Create tank page</button>
-                </form>
-            </li>
-            {% endif %}
             <li><a href="https://booru.snowsune.net/" target="_blank" rel="noopener noreferrer">BixiBooru Image Board</a></li>
   
         </ul>
