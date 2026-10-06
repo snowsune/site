@@ -287,7 +287,9 @@ class BlogCreateView(BlogEditorMixin, LoginRequiredMixin, CreateView):
         return kwargs
 
 
-class BlogUpdateView(BlogEditorMixin, LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class BlogUpdateView(
+    BlogEditorMixin, LoginRequiredMixin, UserPassesTestMixin, UpdateView
+):
     model = BlogPost
     form_class = BlogPostForm
     template_name = "blog/blog_form.html"
@@ -394,9 +396,7 @@ def upload_file(request):
 
     safe_name = clean_upload_filename(uploaded.name)
     if not safe_name:
-        return JsonResponse(
-            {"error": "That file type can't be uploaded."}, status=400
-        )
+        return JsonResponse({"error": "That file type can't be uploaded."}, status=400)
 
     uploaded.name = safe_name
     saved = BlogImage.objects.create(
