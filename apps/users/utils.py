@@ -3,12 +3,68 @@ import hashlib
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage, get_connection, send_mail
 from django.urls import reverse
 from django.utils import timezone
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def email_blast_recipients():
+    """Active accounts that have an address. One row per address."""
+    from apps.users.models import CustomUser
+
+    seen = set()
+    recipients = []
+    queryset = (
+        CustomUser.objects.filter(is_active=True)
+        .exclude(email__isnull=True)
+        .exclude(email="")
+        .order_by("id")
+    )
+    for user in queryset.iterator():
+        address = user.email.strip()
+        key = address.lower()
+        if not address or key in seen:
+            continue
+        seen.add(key)
+        recipients.append((user, address))
+    return recipients
+
+
+def send_email_blast(subject, body, recipients):
+    """
+    Send one plain-text message per recipient.
+
+    Returns (sent_count, failed_addresses). A failure for one address does not
+    stop the rest.
+    """
+    sent = 0
+    failed = []
+    connection = get_connection()
+    connection.open()
+    try:
+        for user, address in recipients:
+            message = EmailMessage(
+                subject=subject,
+                body=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[address],
+                connection=connection,
+            )
+            try:
+                message.send(fail_silently=False)
+                sent += 1
+            except Exception:
+                logger.exception(
+                    "Email blast failed for user %s (%s)", user.pk, address
+                )
+                failed.append(address)
+    finally:
+        connection.close()
+    logger.info("Email blast sent=%s failed=%s", sent, len(failed))
+    return sent, failed
 
 
 def generate_verification_token():

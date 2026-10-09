@@ -1,0 +1,10 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools-items %}
+{{ block.super }}
+{% if request.user.is_superuser %}
+<li>
+    <a href="{% url 'admin:users_customuser_email_blast' %}">Email blast</a>
+</li>
+{% endif %}
+{% endblock %}
