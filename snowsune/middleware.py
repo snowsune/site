@@ -3,12 +3,7 @@ from django.shortcuts import render
 from django.utils.cache import patch_vary_headers
 
 # Per-region reference link
-REGION_451_REFERENCES = {
-    "CA": (
-        "https://www.eff.org/deeplinks/2024/02/eff-opposes-california-initiative-would-cause-mass-censorship",
-        "EFF on CA AB 2273",
-    )
-}
+REGION_451_REFERENCES = {}
 
 
 class BlockGeoMiddleware:
