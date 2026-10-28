@@ -467,6 +467,7 @@ a:visited {
   flex: 3; /* Take up more space compared to the sidebar */
   background: var(--background-color); /* White background for content */
   min-height: 60vh;
+  min-width: 0; /* Let a wide image shrink instead of crushing the sidebar */
 }
 
 /* Sidebar Section */

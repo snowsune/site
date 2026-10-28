@@ -152,16 +152,12 @@ def submit_comment(request, post_id):
         }
 
         if request.user.is_authenticated:
-            response_data["message"] = "Your comment has been posted successfully!"
-            show_success_notification(
-                request, "Your comment has been posted successfully!"
-            )
+            response_data["message"] = "Comment posted."
+            show_success_notification(request, "Comment posted.")
         else:
-            response_data["message"] = (
-                "Your comment has been submitted and is awaiting moderation."
-            )
+            response_data["message"] = "Got it. I'll check it before it shows up."
             show_success_notification(
-                request, "Your comment has been submitted and is awaiting moderation."
+                request, "Got it. I'll check it before it shows up."
             )
 
         # Return JSON for AJAX requests, redirect for regular requests
@@ -172,7 +168,7 @@ def submit_comment(request, post_id):
     else:
         # Store form errors in messages with better context
         if form.errors:
-            error_message = "There were issues with your comment submission. Please review the errors below."
+            error_message = "Check the comment and try again."
 
             # Prepare error response data
             response_data = {
@@ -196,11 +192,9 @@ def submit_comment(request, post_id):
                     else:
                         show_error_notification(request, f"{field_name}: {error}")
         else:
-            error_message = "An unexpected error occurred. Please try again."
+            error_message = "Something went wrong. Try again."
             response_data = {"success": False, "message": error_message}
-            show_error_notification(
-                request, "An unexpected error occurred. Please try again."
-            )
+            show_error_notification(request, "Something went wrong. Try again.")
 
         # Return JSON for AJAX requests, redirect for regular requests
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":

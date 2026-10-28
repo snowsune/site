@@ -13,7 +13,7 @@ function initDashboard() {
     const pendingComments = document.querySelectorAll('[data-moderation-type="pending"] .comment-row');
     if (pendingComments.length > 0 && window.notifications) {
         window.notifications.info(
-            `You have ${pendingComments.length} comment(s) awaiting moderation`,
+            `${pendingComments.length} comment(s) to check`,
             8000
         );
     }

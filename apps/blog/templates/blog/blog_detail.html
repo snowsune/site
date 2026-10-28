@@ -162,26 +162,16 @@
         <!-- Comment Form -->
         <div class="comment-form-container">
             <h4>Leave a Comment</h4>
-
-            <!-- Comment Status Indicator -->
-            <div class="comment-form-status {% if user.is_authenticated %}success{% else %}info{% endif %}">
+            <p class="form-help">
                 {% if user.is_authenticated %}
-                🚀 <strong>Instant Posting:</strong> Your comment will appear immediately after submission.
+                Comments show up right away.
                 {% else %}
-                ⏳ <strong>Moderation Required:</strong> Your comment will be reviewed by site staff before appearing.
+                I'll check comments before they show up.
                 {% endif %}
-            </div>
+            </p>
 
             <form method="post" action="{% url 'blog:submit_comment' post.id %}" class="comment-form" data-comment-form>
                 {% csrf_token %}
-
-                <!-- Fallback for when JavaScript is disabled -->
-                <noscript>
-                    <div class="alert alert-warning">
-                        <strong>JavaScript Required:</strong> This form requires JavaScript for the best experience.
-                        It will still work without JavaScript, but you may experience page reloads.
-                    </div>
-                </noscript>
 
                 {% if not user.is_authenticated %}
                 <div class="form-group">
@@ -267,7 +257,7 @@
                 </footer>
 
                 <!-- Reply Form (hidden by default) -->
-                <div class="reply-form" id="reply-form-{{ comment.id }}" style="display: none;" data-reply-form>
+                <div class="reply-form" id="reply-form-{{ comment.id }}" data-reply-form>
                     <form method="post" action="{% url 'blog:submit_comment' post.id %}" class="comment-form">
                         {% csrf_token %}
                         <input type="hidden" name="parent" value="{{ comment.id }}">
@@ -347,7 +337,7 @@
         </div>
         {% else %}
         <div class="no-comments">
-            <p>No comments yet. Be the first to comment!</p>
+            <p>No comments yet.</p>
         </div>
         {% endif %}
     </section>
@@ -358,7 +348,6 @@
 <div class="blog-sidebar">
     <div class="sidebar-widget">
         <h3>Subscribe</h3>
-        <p>Get notified when new posts are published!</p>
         <a href="{% url 'blog:rss_feed' %}" class="btn btn-outline btn-block">
             <i class="fas fa-rss"></i> RSS Feed
         </a>
