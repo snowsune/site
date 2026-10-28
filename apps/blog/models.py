@@ -1,3 +1,4 @@
+import hashlib
 import os
 import re
 
@@ -196,8 +197,6 @@ class BlogImage(models.Model):
     """
     Images uploaded to the blog editor/interface!
     I also kinda tried to do some other file-stuff in here as well..
-
-    TODO: add maybe a way to render these inline like, size and checksum?
     """
 
     # Paths inserted into post markdown. Older uploads live under blog/images/.
@@ -207,6 +206,8 @@ class BlogImage(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
     filename = models.CharField(max_length=255, blank=True)
+    size = models.PositiveBigIntegerField(null=True, blank=True)
+    checksum = models.CharField(max_length=64, blank=True)
 
     class Meta:
         ordering = ["-uploaded_at"]
@@ -215,8 +216,29 @@ class BlogImage(models.Model):
         return self.filename or self.image.name
 
     def save(self, *args, **kwargs):
-        if not self.filename:
+        if self.image and not self.filename:
             self.filename = os.path.basename(self.image.name)
+        if self.image and self.size is None:
+            try:
+                self.size = self.image.size
+            except OSError:
+                self.size = 0
+        if not self.checksum:
+            self.checksum = ""
+            if self.image:
+                try:
+                    self.image.open("rb")
+                    self.checksum = hashlib.file_digest(
+                        self.image, "sha256"
+                    ).hexdigest()
+                except Exception:
+                    self.checksum = ""
+                finally:
+                    # file_digest reads to the end. Rewind so the upload is stored whole.
+                    try:
+                        self.image.seek(0)
+                    except Exception:
+                        pass
         super().save(*args, **kwargs)
 
     @property

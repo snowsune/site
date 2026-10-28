@@ -14,6 +14,7 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from django.contrib.messages.middleware import MessageMiddleware
 from django.http import HttpRequest
 from unittest.mock import patch, MagicMock
+import hashlib
 import json
 import os
 import tempfile
@@ -1108,7 +1109,11 @@ class BlogUploadAndVRChatTests(TransactionTestCase):
         markdown = response.json()["markdown"]
         self.assertIn("[world.unitypackage](", markdown)
         upload = BlogImage.objects.get()
+        self.assertEqual(upload.size, len(b"pkg"))
+        self.assertEqual(upload.checksum, hashlib.sha256(b"pkg").hexdigest())
         stored_path = upload.image.path
+        with open(stored_path, "rb") as stored:
+            self.assertEqual(stored.read(), b"pkg")
 
         post = BlogPost.objects.create(
             title="World",
