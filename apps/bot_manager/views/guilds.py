@@ -133,8 +133,14 @@ def guild_detail(request, guild_id):
         # Get guild-specific subscriptions (virtual module handles debug mode)
         guild_subscriptions = Subscription.get_by_guild(guild_id)
 
-        # Create channel ID to name mapping and enrich subscriptions with channel names
-        channel_map = {str(channel["id"]): channel["name"] for channel in channels}
+        # Map channel and thread IDs to names (forums included, admin picker excludes them)
+        targets = discord_api.get_guild_subscription_targets(guild_id)
+        channel_map = {target["id"]: target["name"] for target in targets}
+        thread_map = {
+            thread["id"]: thread["name"]
+            for target in targets
+            for thread in target["threads"]
+        }
 
         # Get unique user IDs from subscriptions and fetch user info
         user_ids = set(str(sub["user_id"]) for sub in guild_subscriptions)
@@ -148,6 +154,8 @@ def guild_detail(request, guild_id):
         current_time = int(time.time())
         for sub in guild_subscriptions:
             sub["channel_name"] = channel_map.get(str(sub["channel_id"]), None)
+            if sub.get("thread_id"):
+                sub["thread_name"] = thread_map.get(str(sub["thread_id"]), None)
             sub["user_info"] = user_map.get(str(sub["user_id"]), None)
 
             # Really qucik and dirty calculate time since last_ran

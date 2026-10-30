@@ -1,0 +1,81 @@
+{# Channel + optional thread picker. Expects `guild_targets` ({guild_id: [channels]}). #}
+{# On the add page it follows the #guild_id select; on edit pass fixed_guild_id + initial ids. #}
+<div class="form-group">
+    <label for="channel_id">Channel:</label>
+    <select name="channel_id" id="channel_id" required>
+        <option value="">Select a channel</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label for="thread_id">Post in Thread:</label>
+    <select name="thread_id" id="thread_id"></select>
+</div>
+
+{{ guild_targets|json_script:"guild-targets" }}
+<script>
+    (() => {
+        const guildTargets = JSON.parse(document.getElementById('guild-targets').textContent);
+        const guildSelect = document.getElementById('guild_id');
+        const channelSelect = document.getElementById('channel_id');
+        const threadSelect = document.getElementById('thread_id');
+        const fixedGuildId = "{{ fixed_guild_id|default_if_none:'' }}";
+        const initialChannelId = "{{ initial_channel_id|default_if_none:'' }}";
+        const initialThreadId = "{{ initial_thread_id|default_if_none:'' }}";
+
+        function addOption(select, value, text) {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = text;
+            select.appendChild(option);
+            return option;
+        }
+
+        function currentChannels() {
+            const guildId = guildSelect ? guildSelect.value : fixedGuildId;
+            return guildTargets[guildId] || [];
+        }
+
+        function updateThreads(selectedThreadId = '') {
+            const channel = currentChannels().find(c => c.id === channelSelect.value);
+            threadSelect.innerHTML = '';
+
+            // Forums can only be posted to through one of their posts
+            const isForum = Boolean(channel && channel.is_forum);
+            threadSelect.required = isForum;
+            addOption(threadSelect, '', isForum ? 'Select a forum post' : 'No thread (post in the channel)');
+
+            const threads = channel ? channel.threads : [];
+            threads.forEach(thread => addOption(threadSelect, thread.id, '🧵 ' + thread.name));
+
+            // Saved thread may be archived, which drops it from the active list
+            if (selectedThreadId && channelSelect.value === initialChannelId
+                && !threads.some(t => t.id === selectedThreadId)) {
+                addOption(threadSelect, selectedThreadId, `🧵 ID: ${selectedThreadId} (archived or unknown thread)`);
+            }
+            threadSelect.value = selectedThreadId;
+        }
+
+        function updateChannels(selectedChannelId = '', selectedThreadId = '') {
+            channelSelect.innerHTML = '<option value="">Select a channel</option>';
+            const channels = currentChannels();
+            channels.forEach(channel => {
+                addOption(channelSelect, channel.id, (channel.is_forum ? '💬 ' : '#') + channel.name);
+            });
+
+            if (selectedChannelId && !channels.some(c => c.id === selectedChannelId)) {
+                addOption(channelSelect, selectedChannelId, `Channel ID: ${selectedChannelId}`);
+            }
+            channelSelect.value = selectedChannelId;
+            updateThreads(selectedThreadId);
+        }
+
+        // Changing channel clears the thread, it can't belong to the new parent
+        channelSelect.addEventListener('change', () => updateThreads());
+        if (guildSelect) {
+            guildSelect.addEventListener('change', () => updateChannels());
+        }
+
+        updateChannels(initialChannelId, initialThreadId);
+    })();
+</script>

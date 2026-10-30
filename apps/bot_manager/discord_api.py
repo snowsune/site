@@ -100,8 +100,20 @@ def get_user_guilds(user) -> Optional[List[dict]]:
         return None
 
 
-def get_guild_channels(guild_id) -> List[dict]:
-    cache_key = f"guild_{guild_id}_channels"
+# Text (0), announcement (5) and forum (15) channels
+CHANNEL_TYPES = [0, 5, 15]
+FORUM_CHANNEL_TYPE = 15
+
+
+def get_guild_channels(guild_id, include_forums=False) -> List[dict]:
+    channels = _get_guild_postable_channels(guild_id)
+    if include_forums:
+        return channels
+    return [c for c in channels if c.get("type") != FORUM_CHANNEL_TYPE]
+
+
+def _get_guild_postable_channels(guild_id) -> List[dict]:
+    cache_key = f"guild_{guild_id}_postable_channels"
     cached = cache.get(cache_key)
     if cached is not None:
         logger.info(f"Using cached channels for guild {guild_id}")
@@ -110,7 +122,7 @@ def get_guild_channels(guild_id) -> List[dict]:
     if virtual_mode_enabled():
         channels = virtual_discord_api.get_guild_channels(guild_id)
         text_channels = sorted(
-            [c for c in channels if c.get("type") in [0, 5]],
+            [c for c in channels if c.get("type") in CHANNEL_TYPES],
             key=lambda x: x.get("position", 0),
         )
         cache.set(cache_key, text_channels, 300)
@@ -143,7 +155,7 @@ def get_guild_channels(guild_id) -> List[dict]:
 
         channels = response.json()
         text_channels = sorted(
-            [c for c in channels if c["type"] in [0, 5]],
+            [c for c in channels if c["type"] in CHANNEL_TYPES],
             key=lambda x: x.get("position", 0),
         )
         logger.info(f"Guild {guild_id} has {len(text_channels)} text channels")
@@ -153,6 +165,85 @@ def get_guild_channels(guild_id) -> List[dict]:
     except Exception as e:
         logger.error(f"Exception fetching channels for guild {guild_id}: {e}")
         return []
+
+
+# Public (11) and announcement (10) threads; private threads (12) need the bot as a member
+THREAD_TYPES = [10, 11]
+
+
+def get_guild_threads(guild_id) -> List[dict]:
+    """Active (non-archived) threads the bot can post into."""
+    cache_key = f"guild_{guild_id}_threads"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        logger.info(f"Using cached threads for guild {guild_id}")
+        return cached
+
+    if virtual_mode_enabled():
+        threads = [
+            c
+            for c in virtual_discord_api.get_guild_channels(guild_id)
+            if c.get("type") in THREAD_TYPES
+        ]
+        cache.set(cache_key, threads, 300)
+        return threads
+
+    bot_token = getattr(settings, "DISCORD_BOT_TOKEN", None)
+    if not bot_token:
+        logger.warning("Discord bot token not configured")
+        return []
+
+    try:
+        headers = {"Authorization": f"Bot {bot_token}"}
+        response = requests.get(
+            f"https://discord.com/api/guilds/{guild_id}/threads/active",
+            headers=headers,
+        )
+
+        logger.info(f"Guild {guild_id} threads API response: {response.status_code}")
+        if response.status_code != 200:
+            logger.error(
+                f"Failed to fetch threads for guild {guild_id}: {response.text}"
+            )
+            return []
+
+        threads = sorted(
+            [
+                t
+                for t in response.json().get("threads", [])
+                if t["type"] in THREAD_TYPES
+            ],
+            key=lambda x: x.get("name", "").lower(),
+        )
+        logger.info(f"Guild {guild_id} has {len(threads)} active threads")
+
+        cache.set(cache_key, threads, 300)
+        return threads
+    except Exception as e:
+        logger.error(f"Exception fetching threads for guild {guild_id}: {e}")
+        return []
+
+
+def get_guild_subscription_targets(guild_id) -> List[dict]:
+    """
+    Channels a subscription can point at (including forums), each with an
+    `is_forum` flag and the active `threads` under it.
+    """
+    threads_by_parent = {}
+    for thread in get_guild_threads(guild_id):
+        threads_by_parent.setdefault(str(thread.get("parent_id")), []).append(
+            {"id": str(thread["id"]), "name": thread["name"]}
+        )
+
+    return [
+        {
+            "id": str(channel["id"]),
+            "name": channel["name"],
+            "is_forum": channel.get("type") == FORUM_CHANNEL_TYPE,
+            "threads": threads_by_parent.get(str(channel["id"]), []),
+        }
+        for channel in get_guild_channels(guild_id, include_forums=True)
+    ]
 
 
 def get_user_info(user_id) -> Optional[dict]:

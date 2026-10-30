@@ -13,6 +13,32 @@ from ..utils import (
 from .. import discord_api
 
 
+def _clean_thread_id(guild_id, channel_id, thread_id, current=None):
+    """
+    Return the thread_id to save (or None), making sure it belongs to channel_id.
+    Fops refuses to post when a thread's parent doesn't match the channel.
+    """
+    targets = discord_api.get_guild_subscription_targets(guild_id)
+    channel = next((c for c in targets if c["id"] == str(channel_id)), None)
+
+    if not thread_id:
+        if channel and channel["is_forum"]:
+            raise ValueError("Forum channels need a post selected to post into")
+        return None
+
+    if channel and any(t["id"] == str(thread_id) for t in channel["threads"]):
+        return int(thread_id)
+
+    # Archived threads drop out of the active list, so allow keeping the saved one
+    if current and (str(current.get("channel_id")), str(current.get("thread_id"))) == (
+        str(channel_id),
+        str(thread_id),
+    ):
+        return int(thread_id)
+
+    raise ValueError("That thread doesn't belong to the selected channel")
+
+
 @login_required
 def add_subscription(request, guild_id=None):
     """Add a new subscription"""
@@ -55,6 +81,11 @@ def add_subscription(request, guild_id=None):
                 user_id=user_discord_id,
                 guild_id=guild_id,
                 channel_id=request.POST.get("channel_id"),
+                thread_id=_clean_thread_id(
+                    guild_id,
+                    request.POST.get("channel_id"),
+                    request.POST.get("thread_id"),
+                ),
                 search_criteria=request.POST.get("search_criteria"),
                 filters=request.POST.get("filters", ""),
                 is_pm=request.POST.get("is_pm") == "on",
@@ -66,29 +97,18 @@ def add_subscription(request, guild_id=None):
         except Exception as e:
             messages.error(request, f"Error adding subscription: {str(e)}")
 
-    # Get channels for all shared guilds
-    shared_guilds = get_user_fops_guilds(request.user)
-
-    # Fetch channels for each guild (cached)
-    guild_channels = {}
-    for guild in shared_guilds:
-        guild_channels[str(guild["id"])] = discord_api.get_guild_channels(guild["id"])
+    # Get channels (with their active threads) for every guild the user admins
+    admin_guilds = [
+        guild for guild in get_user_fops_guilds(request.user) if guild["is_admin"]
+    ]
 
     context = {
         "service_choices": Subscription.SERVICE_CHOICES,
-        "shared_guilds": [guild for guild in shared_guilds if guild["is_admin"]],
-        "guild_channels": {
-            str(guild["id"]): guild_channels[str(guild["id"])]
-            for guild in shared_guilds
-            if guild["is_admin"]
+        "shared_guilds": admin_guilds,
+        "guild_targets": {
+            str(guild["id"]): discord_api.get_guild_subscription_targets(guild["id"])
+            for guild in admin_guilds
         },
-        "guild_channels_json": json.dumps(
-            {
-                str(guild["id"]): guild_channels[str(guild["id"])]
-                for guild in shared_guilds
-                if guild["is_admin"]
-            }
-        ),
         "preselected_guild_id": guild_id,  # Pass the guild_id to pre-select
     }
     response = render(request, "bot_manager/add_subscription.html", context)
@@ -129,6 +149,12 @@ def edit_subscription(request, subscription_id):
     if request.method == "POST":
         try:
             # Guild cannot be changed in edit mode - use the original guild_id
+            thread_id = _clean_thread_id(
+                guild_id,
+                request.POST.get("channel_id"),
+                request.POST.get("thread_id"),
+                current=subscription_data,
+            )
             # Update subscription in database
             with get_fops_connection() as conn:
                 with conn.cursor() as cur:
@@ -136,13 +162,14 @@ def edit_subscription(request, subscription_id):
                         """
                         UPDATE subscriptions 
                         SET service_type = %s, 
-                            channel_id = %s, search_criteria = %s, 
+                            channel_id = %s, thread_id = %s, search_criteria = %s, 
                             filters = %s, is_pm = %s
                         WHERE id = %s
                         """,
                         (
                             request.POST.get("service_type"),
                             request.POST.get("channel_id"),
+                            thread_id,
                             request.POST.get("search_criteria"),
                             request.POST.get("filters", ""),
                             request.POST.get("is_pm") == "on",
@@ -155,10 +182,6 @@ def edit_subscription(request, subscription_id):
         except Exception as e:
             messages.error(request, f"Error updating subscription: {str(e)}")
 
-    # Get channels for the subscription's guild (cached)
-    guild_id = str(subscription_data["guild_id"])
-    guild_channels = discord_api.get_guild_channels(guild_id)
-
     # Convert timestamp fields to datetime objects for template filters
     subscription_dict = convert_subscription_timestamps(subscription_data)
 
@@ -166,7 +189,9 @@ def edit_subscription(request, subscription_id):
         "subscription": subscription_dict,
         "service_choices": Subscription.SERVICE_CHOICES,
         "shared_guilds": get_user_fops_guilds(request.user),
-        "guild_channels": guild_channels,
+        "guild_targets": {
+            guild_id: discord_api.get_guild_subscription_targets(guild_id)
+        },
     }
     response = render(request, "bot_manager/edit_subscription.html", context)
     response["Vary"] = "Cookie"

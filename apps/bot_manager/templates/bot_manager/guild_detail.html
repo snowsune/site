@@ -229,6 +229,10 @@
                 {% else %}
                 {{ sub.channel_id }}
                 {% endif %}
+                {% if sub.thread_id %}
+                > 🧵 <a target="_blank" rel="noopener noreferrer"
+                    href="https://discord.com/channels/{{ guild.guild_id }}/{{ sub.thread_id }}">{{ sub.thread_name|default:sub.thread_id }}</a>
+                {% endif %}
             </td>
             <td>
                 {% if sub.user_info %}

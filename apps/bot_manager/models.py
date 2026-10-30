@@ -31,7 +31,8 @@ class Subscription(models.Model):
     service_type = models.CharField(max_length=50, choices=SERVICE_CHOICES)
     user_id = models.BigIntegerField()
     guild_id = models.BigIntegerField()
-    channel_id = models.BigIntegerField()
+    channel_id = models.BigIntegerField()  # Always the parent channel
+    thread_id = models.BigIntegerField(null=True, blank=True)  # NULL posts to channel
     search_criteria = models.CharField(max_length=255)
     filters = models.TextField(blank=True, null=True)
     is_pm = models.BooleanField(default=False)
@@ -92,15 +93,17 @@ class Subscription(models.Model):
                 cur.execute(
                     """
                     INSERT INTO subscriptions 
-                    (service_type, user_id, guild_id, channel_id, search_criteria, 
-                     filters, is_pm, last_reported_id, last_ran, subscribed_at)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    (service_type, user_id, guild_id, channel_id, thread_id,
+                     search_criteria, filters, is_pm, last_reported_id, last_ran,
+                     subscribed_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
                     (
                         self.service_type,
                         self.user_id,
                         self.guild_id,
                         self.channel_id,
+                        self.thread_id,
                         self.search_criteria,
                         self.filters if self.filters else None,
                         self.is_pm,
