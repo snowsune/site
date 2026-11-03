@@ -1,0 +1,10 @@
+<div class="post-attachment">
+    <div class="post-attachment-body">
+        <div class="post-attachment-name">{{ label|safe }}</div>
+        <dl class="post-attachment-meta">
+            {% if upload.size is not None %}<div><dt>Size</dt><dd>{{ upload.size|filesizeformat }}</dd></div>{% endif %}
+            {% if upload.checksum %}<div><dt>SHA-256</dt><dd><code class="post-attachment-sha" title="Click to select">{{ upload.checksum }}</code></dd></div>{% endif %}
+        </dl>
+    </div>
+    <a class="btn btn-primary post-attachment-download" href="{{ upload.image.url }}" download="{{ upload.filename }}">Download</a>
+</div>

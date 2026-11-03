@@ -24,6 +24,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from .models import BlogPost, Tag, BlogImage, Comment
 from .uploads import clean_upload_filename
+from .attachments import render_attachments
 from .forms import BlogPostForm, BlogPostCreateForm, TagForm, CommentForm
 from apps.notifications.utils import (
     show_success_notification,
@@ -88,6 +89,7 @@ class BlogDetailView(DetailView):
         comment_tree = self.build_comment_tree(comments)
 
         context["comments"] = comment_tree
+        context["rendered_content"] = render_attachments(self.object.content_html)
         context["comment_form"] = CommentForm(
             user=self.request.user, post=self.object, request=self.request
         )

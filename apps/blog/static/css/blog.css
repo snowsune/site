@@ -665,6 +665,80 @@ div.blog-form-container div.form-actions a.btn.btn-outline {
     height: auto;
 }
 
+/* File attachments in post bodies */
+.post-attachment {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin: 1em 0;
+    padding: 0.75em 1em;
+    border: 1px solid var(--text-color);
+    border-radius: 8px;
+    background: var(--tile-background);
+}
+
+.post-attachment-icon {
+    font-size: 1.75rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.post-attachment-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.post-attachment-name {
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+.post-attachment-meta {
+    margin: 0.25em 0 0 0;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.post-attachment-meta div {
+    display: flex;
+    gap: 0.5em;
+    min-width: 0;
+}
+
+.post-attachment-meta dt {
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.post-attachment-meta dd {
+    margin: 0;
+    min-width: 0;
+}
+
+.post-attachment-sha {
+    font-size: 0.75rem;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+    user-select: all;
+    cursor: text;
+}
+
+.post-attachment-download {
+    flex-shrink: 0;
+    text-decoration: none;
+}
+
+@media (max-width: 600px) {
+    .post-attachment {
+        flex-wrap: wrap;
+    }
+
+    .post-attachment-download {
+        width: 100%;
+        text-align: center;
+    }
+}
+
 .post-footer {
     margin-top: 1em;
     padding-top: 1em;

@@ -1103,6 +1103,26 @@ class BlogUploadAndVRChatTests(TransactionTestCase):
         uploaded = SimpleUploadedFile(name, content)
         return self.client.post(reverse("blog:upload_file"), {"file": uploaded})
 
+    def test_detail_renders_attachment_card(self):
+        markdown = self._upload("world.unitypackage", b"pkg").json()["markdown"]
+        image_md = self._upload("pic.png", b"png").json()["markdown"]
+        post = BlogPost.objects.create(
+            title="Card",
+            slug="card",
+            content=f"Intro text\n\n{markdown}\n\nInline {markdown} link.\n\n{image_md}",
+            author=self.user,
+            status="published",
+            published_at=timezone.now(),
+        )
+        response = self.client.get(post.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertEqual(body.count('class="post-attachment"'), 1)
+        self.assertIn(hashlib.sha256(b"pkg").hexdigest(), body)
+        self.assertIn("3\xa0bytes", body)
+        self.assertIn('download="world.unitypackage"', body)
+        self.assertIn("Inline <a href=", body)
+
     def test_upload_links_download_and_deletes_when_unreferenced(self):
         response = self._upload("world.unitypackage", b"pkg")
         self.assertEqual(response.status_code, 200)
