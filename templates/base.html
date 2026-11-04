@@ -76,6 +76,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <!-- Favicon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.css" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
   <link rel="stylesheet" href="{% static 'quotes/css/quotes.css' %}" />
   {% if seasonal_css %}
@@ -180,8 +181,6 @@
       title="Matrix join widget" loading="lazy" scrolling="no"></iframe>
   </dialog>
 
-  {% include "includes/django_messages.html" %}
-
   <!-- Email Verification Banner -->
   {% if user.is_authenticated and not user.email_verified %}
   <div class="email-verification-banner">
@@ -251,7 +250,27 @@
     </div>
   </footer>
 
-  <script src="{% static 'notifications/js/notifications.js' %}"></script>
+  <!-- THIS IS INCLUDED FROM TOASTIFY!!!!!!
+  TODO: if we ever had a frontend js framework, this would prolly clean up really well :< -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js"></script>
+  <script>
+    function toast(text, type = "info") {
+      const stickers = {
+        success: "{% static 'stickers/bep_bounce.gif' %}",
+        error: "{% static 'stickers/foxi-sticker-ERROR.png' %}",
+      };
+      Toastify({
+        text,
+        className: `toast-${type}`,
+        avatar: stickers[type],
+        duration: type === "error" ? 15000 : 6000,
+        close: true,
+        stopOnFocus: true,
+      }).showToast();
+    }
+    {% for message in messages %}toast("{{ message|escapejs }}", "{{ message.level_tag }}");
+    {% endfor %}
+  </script>
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -275,22 +294,6 @@
           }
         });
       }
-
-      // Convert Django messages to notifications
-      const djangoMessages = document.querySelectorAll('.message');
-      djangoMessages.forEach(message => {
-        const type = message.classList.contains('message-success') ? 'success' :
-          message.classList.contains('message-error') ? 'error' :
-            message.classList.contains('message-warning') ? 'warning' :
-              message.classList.contains('message-info') ? 'info' :
-                message.classList.contains('message-debug') ? 'info' : 'info';
-
-        const text = message.querySelector('.message-text')?.textContent || message.textContent;
-
-        // Show as notification and remove Django message
-        window.notifications.show(text, type);
-        message.remove();
-      });
     });
   </script>
 

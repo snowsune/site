@@ -76,7 +76,6 @@ INSTALLED_APPS = [
     "apps.comics",
     "apps.characters",
     "apps.commorganizer",  # Commission Organizer app
-    "apps.notifications",  # Centralized notification system
     "apps.thank_yous",  # Thank yous management app
     "apps.quotes",  # Quotes scroller app
     "apps.bot_manager",  # Fops Bot management app
@@ -127,7 +126,6 @@ TEMPLATES = [
                 "snowsune.context_processors.ko_fi_url",
                 "snowsune.context_processors.google_analytics_id",
                 "snowsune.context_processors.seasonal_css",
-                "apps.notifications.context_processors.notifications_processor",
             ],
         },
     },
