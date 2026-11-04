@@ -1,32 +1,46 @@
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.views.generic import TemplateView
 from django.http import HttpResponse
 from django.conf import settings
 from django.conf.urls.static import static
 
 from snowsune.views.home import HomeView
+from snowsune.views.munch_maker import MunchMakerView
 from snowsune.views.projects import ProjectsView
 from snowsune.views.tools import ToolsView
 from snowsune.views.live_status import live_status_view
 from snowsune.views.image_utils import format_preview_view
 from snowsune.views.randal_fanclub import RandalFanclubView
+from snowsune.views.calendar import CalendarView, CalendarEventsAPIView
+from snowsune.views.health import health_check
+from apps.blog.views import VRChatListView
+from snowsune.views.redirects import matrix_redirect
 from apps.thank_yous.views import thank_you_view
-
 
 urlpatterns = [
     # django
     path("admin/", admin.site.urls),
+    # Redirect helpers
+    re_path(r"^matrix(?:/.*)?$", matrix_redirect, name="matrix_redirect"),
     # "local" urls
     path("", HomeView.as_view(), name="home"),
     path("projects/", ProjectsView.as_view(), name="projects"),
     path("tools/", ToolsView.as_view(), name="tools"),
+    path("MunchMaker/", MunchMakerView.as_view(), name="munch_maker"),
+    path("calendar/", CalendarView.as_view(), name="calendar"),
     path("thank-you/", thank_you_view, name="thank_you"),
+    path("tos/", TemplateView.as_view(template_name="tos.html"), name="tos"),
     path("login/", HomeView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     # API endpoints
     path("api/live/", live_status_view, name="live_status_api"),
+    path(
+        "api/calendar/events/",
+        CalendarEventsAPIView.as_view(),
+        name="calendar_events_api",
+    ),
     path("api/quotes/", include("apps.quotes.api_urls")),
     path("api/commorganizer/", include("apps.commorganizer.api_urls")),
     # Image formatting for social media previews
@@ -35,6 +49,7 @@ urlpatterns = [
     ),
     # "app" urls
     path("blog/", include("apps.blog.urls")),
+    path("vrchat/", VRChatListView.as_view(), name="vrchat"),
     path("comics/", include("apps.comics.urls")),
     path("commorganizer/", include("apps.commorganizer.urls")),
     path("characters/", include("apps.characters.urls")),
@@ -42,6 +57,9 @@ urlpatterns = [
     path("users/", include("apps.users.urls")),
     path("fops/", include("apps.bot_manager.urls")),
     path("bookclub/", include("apps.bookclub.urls")),
+    path("cust/", include("apps.custompages.urls")),
+    path("tanks/", include("apps.tanks_manager.urls")),
+    path("voreday/", include("apps.vore_day_rumble.urls")),
     # Hidden pages
     path("orfc/", RandalFanclubView.as_view(), name="randal_fanclub"),
     # SEO
@@ -59,6 +77,8 @@ urlpatterns = [
         ),
         name="robots",
     ),
+    # Health checking
+    path("health", health_check, name="health"),
 ]
 
 

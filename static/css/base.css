@@ -14,12 +14,15 @@
   --accent-hover: #0099a8;
   --success-color: #28a745;
   --success-hover: #218838;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
   --border-color: #dee2e6;
   --border-hover: #adb5bd;
   --shadow-color: rgba(0, 0, 0, 0.1);
   --shadow-hover: rgba(0, 0, 0, 0.15);
-  --border-radius: 12px;
-  --border-radius-small: 4px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -43,12 +46,15 @@
   --accent-hover: #00d4e6;
   --success-color: #00ff88;
   --success-hover: #00e676;
+  --warning-color: #ffb300;
+  --error-color: #ff5252;
   --border-color: #444;
   --border-hover: #666;
   --shadow-color: rgba(0, 0, 0, 0.3);
   --shadow-hover: rgba(0, 0, 0, 0.4);
-  --border-radius: 12px;
-  --border-radius-small: 4px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -65,7 +71,7 @@ body {
 
 /* This could go somewhere else but, anything error-list can be styled with this */
 .errorlist {
-  color: red;
+  color: var(--error-color);
   font-weight: bold;
   margin-top: 0.25em;
 }
@@ -82,7 +88,7 @@ a:visited {
 /* My site is divided into chunks, they can inherit that style from here! */
 .tile {
   background: var(--tile-background);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   box-shadow: 0 5px 5px var(--shadow-color);
@@ -102,7 +108,7 @@ a:visited {
   background: var(--navbar-bg);
   color: white;
   padding: 1em;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   gap: 0.5em;
 }
 .header-left {
@@ -127,7 +133,7 @@ a:visited {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  border-radius: var(--border-radius-small);
+  border-radius: var(--radius-md);
   box-shadow: 0 3px 6px var(--shadow-color);
 }
 
@@ -187,11 +193,12 @@ a:visited {
   margin-bottom: 0.5rem; /* Space between logo and stats */
 }
 
+/* Live stats UI */
 .live-stats {
   text-align: center;
   font-size: 0.9rem;
   color: var(--text-color);
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .stat-box {
@@ -201,16 +208,16 @@ a:visited {
   margin-top: 0;
   margin-bottom: 0;
   font-size: 0.9em;
-  border-radius: var(--border-radius-small);
+  border-radius: var(--radius-md);
 }
 
 #active-users-count,
-#server-offset {
-  font-weight: bold;
+#server-offset,
+#ko-fi-progress {
+  font-weight: 700;
   color: var(--link-default);
 }
 
-/* Clickable stat box styling */
 .stat-box-link {
   text-decoration: none;
   color: inherit;
@@ -220,8 +227,6 @@ a:visited {
 .stat-box-link:hover .stat-box {
   background: var(--accent-color);
   color: white;
-  transform: scale(1.05);
-  transition: all 0.2s ease;
 }
 
 /* ==============
@@ -293,34 +298,69 @@ a:visited {
   align-items: flex-end;
 }
 
-.discord-navbar-btn {
+.matrix-navbar-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
-  background: #5865F2;
-  color: #fff;
+  background: var(--accent-color);
+  color: var(--invert-text-color);
   font-weight: 600;
-  border-radius: 999px;
+  border-radius: var(--radius-lg);
   padding: 0.35em 1em 0.35em 0.8em;
   font-size: 1em;
   text-decoration: none;
-  margin-bottom: 0em;
+  margin-bottom: 0;
   margin-right: 0;
-  box-shadow: 0 2px 8px rgba(88,101,242,0.08);
+  box-shadow: 0 2px 8px var(--shadow-color);
   transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
-  animation: discord-bounce 1.2s infinite alternate;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
 }
-.login .discord-navbar-btn {
-  background: #5865F2;
-  color: #fff;
+.matrix-navbar-btn:visited {
+  color: var(--invert-text-color);
+}
+.login .matrix-navbar-btn {
+  background: var(--accent-color);
+  color: var(--invert-text-color);
   margin-bottom: 0.5em;
 }
-.login a:not(.discord-navbar-btn) {
+.login a:not(.matrix-navbar-btn) {
   background: #d90429;
   color: #fff;
 }
-.login a:not(.discord-navbar-btn):hover {
+.login a:not(.matrix-navbar-btn):hover {
   background: #ff616f;
+}
+
+/* Matrix widget modal — bare iframe, sized to the widget card */
+.matrix-widget-modal {
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  width: fit-content;
+  max-width: calc(100vw - 2em);
+  height: fit-content;
+  max-height: calc(100vh - 2em);
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+.matrix-widget-modal::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+.dark-mode .matrix-widget-modal::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+.matrix-widget-iframe {
+  display: block;
+  width: 22rem;
+  max-width: calc(100vw - 2em);
+  /* Fits expanded widget (room + join links) without an inner scrollbar */
+  height: 22rem;
+  max-height: calc(100vh - 2em);
+  border: none;
+  background: transparent;
 }
 
 /* User Info Widget */
@@ -329,9 +369,9 @@ a:visited {
   flex-direction: row;
   align-items: center;
   gap: 0.5em;
-  background: var(--card-bg);
+  background: var(--tile-background);
   border: 2px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   padding: 0.4em 0.6em;
   margin-bottom: 0.5em;
 }
@@ -339,7 +379,7 @@ a:visited {
 .user-avatar {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: var(--radius-lg);
   object-fit: cover;
   border: 2px solid var(--border-color);
 }
@@ -384,7 +424,7 @@ a:visited {
   background: var(--link-default);
   color: var(--invert-text-color);
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   font-size: 0.9rem;
   font-weight: 500;
   transition: all 0.2s;
@@ -427,6 +467,7 @@ a:visited {
   flex: 3; /* Take up more space compared to the sidebar */
   background: var(--background-color); /* White background for content */
   min-height: 60vh;
+  min-width: 0; /* Let a wide image shrink instead of crushing the sidebar */
 }
 
 /* Sidebar Section */
@@ -436,6 +477,23 @@ a:visited {
   background: var(--sidebar-bg); /* Light grey background for sidebar */
   overflow: hidden; /* Prevent content from overflowing */
   word-wrap: break-word; /* Break long words */
+}
+
+.calendar-widget {
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.calendar-widget h2 {
+  margin-bottom: var(--spacing-sm);
+  font-size: 1.2rem;
+}
+
+.calendar-widget iframe {
+  width: 100%;
+  border: none;
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
 /*
@@ -472,29 +530,21 @@ a:visited {
   }
 }
 
-/* Remove old banner styles if present */
-.discord-invite-banner, .discord-animated-link, .discord-icon, .discord-text {
-  display: none !important;
-}
-
-.discord-navbar-btn:hover {
-  background: #4752c4;
+.matrix-navbar-btn:hover {
+  background: var(--accent-hover);
+  color: var(--invert-text-color);
   transform: scale(1.06);
-  box-shadow: 0 4px 16px rgba(88,101,242,0.18);
+  box-shadow: 0 4px 16px var(--shadow-hover);
   text-decoration: none;
 }
-.discord-navbar-icon {
+.matrix-navbar-icon {
   font-size: 1.2em;
   margin-right: 0.2em;
-  animation: discord-pulse 1.2s infinite alternate;
+  animation: matrix-pulse 1.2s infinite alternate;
 }
-@keyframes discord-bounce {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-2px); }
-}
-@keyframes discord-pulse {
+@keyframes matrix-pulse {
   0% { filter: brightness(1); }
-  100% { filter: brightness(1.4); }
+  100% { filter: brightness(1.25); }
 }
 
 /* Responsive Navbar */
@@ -517,7 +567,7 @@ a:visited {
   left: 0;
   width: 100%;
   z-index: 1000;
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   box-shadow: 0 5px 10px rgba(0,0,0,0.2);
 }
 .nav-mobile-links a {
@@ -529,6 +579,57 @@ a:visited {
 }
 .nav-mobile-links a:last-child {
   border-bottom: none;
+}
+/* Login buttons in mobile menu */
+.nav-mobile-links .user-auth-btn {
+  display: inline-block;
+  background: #1e6f9c;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.6em 1em;
+  font-size: 1em;
+  font-weight: 600;
+  margin: 0.5em 1em;
+  text-decoration: none;
+  width: calc(100% - 2em);
+  text-align: center;
+  box-sizing: border-box;
+}
+.nav-mobile-links .user-auth-btn:hover {
+  background: #155a7a;
+}
+.nav-mobile-links .user-auth-btn:last-of-type {
+  border-bottom: 1px solid #fff2;
+  margin-bottom: 0.5em;
+}
+/* Matrix button in mobile menu */
+.nav-mobile-links .matrix-navbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 2em);
+  margin: 0.5em 1em;
+  padding: 0.6em 1em;
+  box-sizing: border-box;
+  border-bottom: 1px solid #fff2;
+}
+/* User info in mobile menu */
+.nav-mobile-links .user-info {
+  display: flex;
+  flex-direction: column;
+  padding: 1em;
+  border-bottom: 1px solid #fff2;
+  gap: 0.5em;
+}
+.nav-mobile-links .user-info .user-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.nav-mobile-links .user-info .user-actions .user-auth-btn {
+  width: 100%;
+  margin: 0;
 }
 
 @media (max-width: 1100px) {
@@ -576,19 +677,20 @@ a:visited {
     margin-top: 0.5em;
     flex-wrap: wrap;
   }
-  .user-auth-btn {
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: 80px;
-    display: inline-block;
-    box-sizing: border-box;
-    padding-left: 0.4em;
-    padding-right: 0.4em;
-    font-size: 0.95em;
-    flex-shrink: 1;
+  .login {
+    display: flex; /* Keep visible for hamburger button */
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
   }
-  .user-auth-btn {
-    display: none !important;
+  .login .user-widget {
+    display: none !important; /* Hide login buttons - moved to menu */
+  }
+  .login .matrix-navbar-btn {
+    display: none !important; /* Hide matrix button - moved to menu */
+  }
+  .login .nav-hamburger {
+    display: block; /* Ensure hamburger is visible */
   }
   .content {
     width: 100vw;
@@ -605,7 +707,7 @@ a:visited {
   background: #1e6f9c;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: 0.4em 1.1em;
   font-size: 1em;
   font-weight: 600;
@@ -637,7 +739,7 @@ a:visited {
 
 .blog-preview {
   background: var(--tile-background);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 1.5em;
   box-shadow: 0 5px 5px rgba(0, 0, 0, 0.5);
   display: flex;
@@ -650,7 +752,7 @@ a:visited {
   width: 200px;
   height: 150px;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
 }
 
 .blog-preview-image img {
@@ -700,7 +802,7 @@ a:visited {
   background: var(--sidebar-bg);
   color: var(--text-color);
   padding: 0.2em 0.6em;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-size: 0.8em;
   font-weight: 500;
 }
@@ -749,7 +851,7 @@ a:visited {
   font-weight: 500;
   padding: 0.5em 1em;
   border: 2px solid var(--link-default);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   transition: all 0.2s ease;
 }
 
@@ -766,7 +868,7 @@ a:visited {
   margin-bottom: 2em;
   padding: 2em 0;
   background: linear-gradient(135deg, var(--tile-background), var(--sidebar-bg));
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color, #444);
 }
 
@@ -789,7 +891,7 @@ a:visited {
   margin-bottom: 3em;
   padding: 1.5em;
   background: var(--tile-background);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color, #444);
   line-height: 1.6;
 }
@@ -803,14 +905,14 @@ a:visited {
   margin-bottom: 0;
 }
 
-.discord-link {
+.matrix-link {
   color: var(--link-default);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
-.discord-link:hover {
+.matrix-link:hover {
   color: var(--link-hover);
 }
 
@@ -865,7 +967,7 @@ a:visited {
 
 .notification {
   margin-bottom: 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   animation: slideInRight 0.3s ease-out;
   overflow: hidden;
@@ -894,6 +996,17 @@ a:visited {
 .notification-icon {
   font-size: 1.2em;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-sticker {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
 }
 
 .notification-text {
@@ -913,7 +1026,7 @@ a:visited {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-lg);
   transition: background-color 0.2s ease;
   flex-shrink: 0;
 }
@@ -986,4 +1099,39 @@ a:visited {
   .notification-text {
     font-size: 0.9em;
   }
+}
+
+/* Terms of Service page */
+.tos-page {
+  max-width: 720px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.tos-page h1 {
+  margin-bottom: 0.25em;
+}
+
+.tos-updated {
+  color: var(--border-hover);
+  font-size: 0.9rem;
+  margin-bottom: 1.5em;
+}
+
+.tos-page section {
+  margin-bottom: 1.5em;
+}
+
+.tos-page h2 {
+  font-size: 1.15rem;
+  margin-bottom: 0.4em;
+}
+
+.tos-page ul {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.tos-page li {
+  margin-bottom: 0.35em;
 }

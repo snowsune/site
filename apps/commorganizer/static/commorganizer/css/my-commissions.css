@@ -8,7 +8,7 @@
 }
 
 .commission-card {
-  background: var(--card-bg, #18304b);
+  background: var(--tile-background);
   border: 1px solid var(--accent-color, #00eaff);
   padding: 1em;
   color: var(--text-color, #fff);
@@ -21,14 +21,14 @@
 }
 
 .commission-card p {
-  color: var(--muted-text, #ccc);
+  color: var(--text-color);
   margin-bottom: 0.5em;
   font-size: 0.9em;
 }
 
 .commission-card .commission-url {
   font-family: monospace;
-  background: var(--muted-bg, #2a2a2a);
+  background: var(--sidebar-bg);
   padding: 0.3em 0.5em;
   font-size: 0.8em;
   color: var(--accent-color, #00eaff);
@@ -42,7 +42,7 @@
 }
 
 .comment-count {
-  background: var(--muted-bg, #2a2a2a);
+  background: var(--sidebar-bg);
   padding: 0.3em 0.5em;
   font-size: 0.8em;
   color: var(--accent-color, #00eaff);
@@ -85,15 +85,15 @@
 }
 
 .btn-danger {
-  background: var(--danger-color, #d90429);
+  background: var(--error-color);
   color: var(--text-color, #fff);
-  border: 1px solid var(--danger-color, #d90429);
+  border: 1px solid var(--error-color);
 }
 
 .no-commissions {
   text-align: center;
   padding: 2em;
-  background: var(--card-bg, #18304b);
+  background: var(--tile-background);
   border: 1px dashed var(--accent-color, #00eaff);
   margin: 1em 0;
 }
@@ -113,9 +113,9 @@
   display: inline-block;
   padding: 0.5em 1em;
   margin: 0 0.5em;
-  background: var(--muted-bg, #2a2a2a);
+  background: var(--sidebar-bg);
   color: var(--text-color, #fff);
-  border: 1px solid var(--muted-text, #ccc);
+  border: 1px solid var(--border-color);
   text-decoration: none;
   border-radius: 4px;
 } 

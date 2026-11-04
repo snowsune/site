@@ -1,4 +1,11 @@
-from django.test import TestCase, Client, RequestFactory
+from django.test import (
+    TestCase,
+    Client,
+    RequestFactory,
+    TransactionTestCase,
+    override_settings,
+)
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
@@ -7,9 +14,12 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from django.contrib.messages.middleware import MessageMiddleware
 from django.http import HttpRequest
 from unittest.mock import patch, MagicMock
+import hashlib
 import json
+import os
+import tempfile
 
-from .models import BlogPost, Tag, Comment
+from .models import BlogPost, Tag, Comment, BlogImage
 from .forms import BlogPostForm, CommentForm
 from .views import submit_comment, moderate_comment
 
@@ -221,7 +231,7 @@ class BlogModelsTest(TestCase):
         site_url = getattr(settings, "SITE_URL", "https://snowsune.net")
 
         self.assertIn(
-            f"[{self.user.username}](<{site_url}/user/{self.user.username}>) commented on [Test Post]",
+            f"[{self.user.username}](<{site_url}/users/{self.user.username}/>) commented on [Test Post]",
             message,
         )
         self.assertIn(">>> This is a test comment from authenticated user", message)
@@ -1079,3 +1089,117 @@ class BlogPerformanceTest(TestCase):
             # Verify comment was moderated
             comment.refresh_from_db()
             self.assertEqual(comment.status, "approved")
+
+
+@override_settings(BLOG_MAX_UPLOAD_BYTES=1024, MEDIA_ROOT=tempfile.mkdtemp())
+class BlogUploadAndVRChatTests(TransactionTestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="uploader", email="up@example.com", password="testpass123"
+        )
+        self.client.login(username="uploader", password="testpass123")
+
+    def _upload(self, name, content):
+        uploaded = SimpleUploadedFile(name, content)
+        return self.client.post(reverse("blog:upload_file"), {"file": uploaded})
+
+    def test_detail_renders_attachment_card(self):
+        markdown = self._upload("world.unitypackage", b"pkg").json()["markdown"]
+        image_md = self._upload("pic.png", b"png").json()["markdown"]
+        post = BlogPost.objects.create(
+            title="Card",
+            slug="card",
+            content=f"Intro text\n\n{markdown}\n\nInline {markdown} link.\n\n{image_md}",
+            author=self.user,
+            status="published",
+            published_at=timezone.now(),
+        )
+        response = self.client.get(post.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertEqual(body.count('class="post-attachment"'), 1)
+        self.assertIn(hashlib.sha256(b"pkg").hexdigest(), body)
+        self.assertIn("3\xa0bytes", body)
+        self.assertIn('download="world.unitypackage"', body)
+        self.assertIn("Inline <a href=", body)
+
+    def test_upload_links_download_and_deletes_when_unreferenced(self):
+        response = self._upload("world.unitypackage", b"pkg")
+        self.assertEqual(response.status_code, 200)
+        markdown = response.json()["markdown"]
+        self.assertIn("[world.unitypackage](", markdown)
+        upload = BlogImage.objects.get()
+        self.assertEqual(upload.size, len(b"pkg"))
+        self.assertEqual(upload.checksum, hashlib.sha256(b"pkg").hexdigest())
+        stored_path = upload.image.path
+        with open(stored_path, "rb") as stored:
+            self.assertEqual(stored.read(), b"pkg")
+
+        post = BlogPost.objects.create(
+            title="World",
+            slug="world",
+            content=markdown,
+            author=self.user,
+            status="published",
+            published_at=timezone.now(),
+        )
+        self.assertTrue(BlogImage.objects.filter(pk=upload.pk).exists())
+
+        other = BlogPost.objects.create(
+            title="Also",
+            slug="also",
+            content=markdown,
+            author=self.user,
+            status="published",
+            published_at=timezone.now(),
+        )
+        post.content = "Link removed."
+        post.save()
+        self.assertTrue(BlogImage.objects.filter(pk=upload.pk).exists())
+
+        other.delete()
+        self.assertFalse(BlogImage.objects.filter(pk=upload.pk).exists())
+        self.assertFalse(os.path.exists(stored_path))
+
+    def test_rejects_html_and_oversized_files(self):
+        html = self._upload("page.html", b"<html></html>")
+        self.assertEqual(html.status_code, 400)
+        oversized = self._upload("big.zip", b"x" * 2048)
+        self.assertEqual(oversized.status_code, 413)
+        self.assertFalse(BlogImage.objects.exists())
+
+    def test_vrchat_page_lists_only_tagged_published_posts(self):
+        vrchat = Tag.objects.create(name="VRChat", slug="vrchat")
+        other = Tag.objects.create(name="Art", slug="art")
+        shown = BlogPost.objects.create(
+            title="Avatar drop",
+            slug="avatar-drop",
+            content="A world.",
+            author=self.user,
+            status="published",
+            published_at=timezone.now(),
+        )
+        shown.tags.add(vrchat)
+        hidden = BlogPost.objects.create(
+            title="Comic notes",
+            slug="comic-notes",
+            content="Not vr.",
+            author=self.user,
+            status="published",
+            published_at=timezone.now(),
+        )
+        hidden.tags.add(other)
+        draft = BlogPost.objects.create(
+            title="Secret world",
+            slug="secret-world",
+            content="Draft.",
+            author=self.user,
+            status="draft",
+        )
+        draft.tags.add(vrchat)
+
+        response = self.client.get(reverse("vrchat"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Avatar drop")
+        self.assertNotContains(response, "Comic notes")
+        self.assertNotContains(response, "Secret world")

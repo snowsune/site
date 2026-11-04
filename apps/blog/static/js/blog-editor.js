@@ -38,54 +38,108 @@ document.addEventListener('DOMContentLoaded', function () {
         imageUploadZone.addEventListener('drop', function (e) {
             e.preventDefault();
             this.classList.remove('drag-over');
-
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleImageUpload(files[0]);
-            }
+            uploadFiles(e.dataTransfer.files);
         });
 
-        // Handle paste from clipboard
+        const fileInput = document.getElementById('blogFileInput');
+        const fileButton = document.getElementById('blogFileButton');
+        if (fileButton && fileInput) {
+            fileButton.addEventListener('click', function () {
+                fileInput.click();
+            });
+            fileInput.addEventListener('change', function () {
+                uploadFiles(fileInput.files);
+                fileInput.value = '';
+            });
+        }
+
         document.addEventListener('paste', function (e) {
-            if (e.clipboardData && e.clipboardData.items) {
-                for (let i = 0; i < e.clipboardData.items.length; i++) {
-                    if (e.clipboardData.items[i].type.indexOf('image') !== -1) {
-                        const file = e.clipboardData.items[i].getAsFile();
-                        handleImageUpload(file);
-                        break;
-                    }
+            if (!e.clipboardData) {
+                return;
+            }
+            const files = [];
+            for (const item of e.clipboardData.items || []) {
+                if (item.type.indexOf('image') !== -1) {
+                    files.push(item.getAsFile());
                 }
+            }
+            if (files.length) {
+                uploadFiles(files);
             }
         });
     }
 
-    function handleImageUpload(file) {
-        if (!file || !file.type.startsWith('image/')) {
+    function uploadFiles(fileList) {
+        const files = Array.from(fileList || []);
+        if (!files.length) {
             return;
         }
-
-        const formData = new FormData();
-        formData.append('image', file);
-
-        fetch('/blog/upload-image/', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const imageMarkdown = `![${file.name}](${data.url})`;
-                    insertAtCursor(imageMarkdown);
-                } else {
-                    console.error('Upload failed:', data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Upload error:', error);
+        const maxBytes = Number(imageUploadZone.dataset.maxBytes) || (2 * 1024 * 1024 * 1024);
+        let chain = Promise.resolve();
+        files.forEach(function (file) {
+            chain = chain.then(function () {
+                return uploadOne(file, maxBytes);
             });
+        });
+    }
+
+    function uploadOne(file, maxBytes) {
+        if (file.size > maxBytes) {
+            setUploadStatus(file.name + ' is too large.');
+            return Promise.resolve();
+        }
+        const formData = new FormData();
+        formData.append('file', file);
+        const progress = document.getElementById('uploadProgress');
+        const bar = document.getElementById('uploadProgressBar');
+        if (progress) {
+            progress.hidden = false;
+        }
+        return new Promise(function (resolve) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/blog/upload-file/');
+            const token = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (token) {
+                xhr.setRequestHeader('X-CSRFToken', token.value);
+            }
+            xhr.upload.onprogress = function (event) {
+                if (!event.lengthComputable || !bar) {
+                    return;
+                }
+                const pct = Math.round((event.loaded / event.total) * 100);
+                bar.style.width = pct + '%';
+                setUploadStatus('Uploading ' + file.name + '… ' + pct + '%');
+            };
+            xhr.onload = function () {
+                let data = {};
+                try {
+                    data = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    data = {};
+                }
+                if (xhr.status >= 200 && xhr.status < 300 && data.success) {
+                    insertAtCursor(data.markdown);
+                    setUploadStatus('Added ' + file.name);
+                } else {
+                    setUploadStatus(data.error || 'Upload failed.');
+                }
+                resolve();
+            };
+            xhr.onerror = function () {
+                setUploadStatus('Upload failed.');
+                resolve();
+            };
+            xhr.send(formData);
+        });
+    }
+
+    function setUploadStatus(message) {
+        const status = document.getElementById('uploadStatus');
+        if (!status) {
+            return;
+        }
+        status.hidden = false;
+        status.textContent = message;
     }
 
     function insertAtCursor(text) {

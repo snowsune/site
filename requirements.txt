@@ -14,5 +14,11 @@ dj-database-url
 psycopg2
 pyyaml
 
+# Calendar
+icalendar
+recurring-ical-events
+pytz
+
 # WSGI
 gunicorn
+django-cleanup

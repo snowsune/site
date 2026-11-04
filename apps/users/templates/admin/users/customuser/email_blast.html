@@ -1,0 +1,32 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:users_customuser_changelist' %}">Users</a>
+    &rsaquo; Email blast
+</div>
+{% endblock %}
+
+{% block content %}
+<p>
+    One plain-text email goes to each active account that has an address.
+    That is {{ recipient_count }} {% if recipient_count == 1 %}person{% else %}people{% endif %}.
+    Addresses are not shared with each other.
+</p>
+<form method="post">
+    {% csrf_token %}
+    <fieldset class="module aligned">
+        {% for field in form %}
+        <div class="form-row">
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {{ field }}
+        </div>
+        {% endfor %}
+    </fieldset>
+    <div class="submit-row">
+        <input type="submit" value="Send" class="default">
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tanks · Snowsune{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tanks_manager/css/tanks_hub.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="tanks-hub">
+  <h1 class="tanks-hub-title">Vore Page Editor</h1>
+  <p class="tanks-hub-lead">
+    Ever wanted your own version of <a href="https://cumtanks.snowsune.net/" target="_blank" rel="noopener noreferrer">VorePageEditor</a>? Now you can!
+    <br>
+    This is all still pretty experimental! Please report any bugs or feedback you have! <a href="mailto:vixi@snowsune.net">vixi@snowsune.net</a>
+    <br>
+    And thank you to <a href="https://booru.snowsune.net/artists/784" target="_blank" rel="noopener noreferrer">Seth</a> for the initial artwork!
+  </p>
+
+  {% if not user.is_authenticated %}
+  <div class="tanks-hub-card">
+    <p>You need to <strong>log in</strong> to create or edit vore pages for your character!</p>
+    
+    <p class="tanks-hub-actions">
+      <a href="{% url 'login' %}?next={% url 'tanks_manager:hub' %}" class="tool-button">Log in</a>
+      <a href="{% url 'register' %}" class="tool-button">Register</a>
+    </p>
+  </div>
+  {% else %}
+
+  {% if tanks_owned %}
+  <section class="tanks-hub-section" aria-label="Your tank pages">
+    <h2>Your pages</h2>
+    <ul class="tanks-hub-list">
+      {% for site in tanks_owned %}
+      <li class="tanks-hub-row">
+        <span class="tanks-hub-row-main">
+          <strong>{{ site.character_name|default:site.slug }}</strong>
+          <code class="tanks-hub-slug">/tanks/{{ site.slug }}/</code>
+        </span>
+        <span class="tanks-hub-row-actions">
+          <a href="{% url 'tanks_manager:edit' site.slug %}" class="tool-button">Edit</a>
+          <a href="{% url 'tanks_manager:show' site.slug %}" class="tool-button">View</a>
+          <form method="post" action="{% url 'tanks_manager:delete' site.slug %}" class="tanks-hub-inline-form"
+            onsubmit="return confirm('Delete “{{ site.character_name|default:site.slug|escapejs }}” permanently? This cannot be undone.');">
+            {% csrf_token %}
+            <button type="submit" class="tool-button tanks-hub-btn-delete">Delete</button>
+          </form>
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <section class="tanks-hub-section" aria-label="Create a tank page">
+
+    <h2>{% if tanks_owned %}Add another character{% else %}Create your first page{% endif %}</h2>
+
+    <form method="post" action="{% url 'tanks_manager:create' %}" class="tanks-hub-create">
+      {% csrf_token %}
+      <label class="tanks-hub-label" for="id-new-slug">URL slug <span class="tanks-hub-muted">(optional)</span></label>
+      <input id="id-new-slug" type="text" name="slug" maxlength="50" autocomplete="off"
+        placeholder="e.g. my-character-name"
+        class="tanks-hub-input" />
+      <p class="tanks-hub-muted">Leave blank to auto-pick from your username (<code>{{ username_slug_hint }}</code> or similar).</p>
+      <button type="submit" class="tool-button">Create tank page</button>
+    </form>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

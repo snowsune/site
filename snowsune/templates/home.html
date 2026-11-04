@@ -30,6 +30,8 @@ creative projects, furry community hub{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/comics.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/calendar.css' %}">
 {% endblock %}
 
 {% block extra_head %}
@@ -56,7 +58,7 @@ creative projects, furry community hub{% endblock %}
     "query-input": "required name=search_term_string"
   },
   "sameAs": [
-    "{{ discord_invite }}"
+    "{{ matrix_widget }}"
   ]
 }
 </script>
@@ -84,17 +86,10 @@ creative projects, furry community hub{% endblock %}
     <p class="lead">My own website! I've got tools, webcomics, projects, art, personal things, blogs, and plenty of
         other furry stuff!
     </p>
+
+    <p><strong>You can always contact me by joining me on <a href="{% url 'matrix_redirect' %}" class="matrix-link js-matrix-widget-open">Matrix</a>
+                or emailing me at <a href="mailto:vixi@snowsune.net">vixi@snowsune.net</a>!</strong></p>
 </header>
-
-<section class="intro-section">
-    <p>Hey there! I'm Vixi, I'm a fox! I'm not amazing at web design but im happy trying, tweaking and getting what I
-        can out there! Im always adding new features here and
-        trying to make tools and spaces for the furry community!
-    </p>
-
-    <p><strong>You can always contact me by joining my <a href="{{ discord_invite }}" class="discord-link">Discord
-                community</a> or emailing me at <a href="mailto:vixi@snowsune.net">vixi@snowsune.net</a>!</strong></p>
-</section>
 
 <!-- Latest Content Section -->
 <div class="latest-content-grid">
@@ -169,4 +164,21 @@ creative projects, furry community hub{% endblock %}
     {% endfor %}
 </ul>
 {% endif %}
+
+<div class="calendar-widget">
+    <h2>Calendar</h2>
+    <div id="homepage-calendar"></div>
+    <p class="calendar-widget-footer">
+        <a href="{% url 'calendar' %}">View full calendar →</a>
+    </p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<script>
+    // Set the API URL for the calendar script
+    window.calendarEventsApiUrl = '{% url "calendar_events_api" %}';
+</script>
+<script src="{% static 'js/calendar.js' %}"></script>
 {% endblock %}

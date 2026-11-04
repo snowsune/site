@@ -1,0 +1,104 @@
+/* Happy Pride Month! */
+
+:root {
+  --pride-bg: linear-gradient(
+    135deg,
+    #e40303,
+    #ff8c00,
+    #ffed00,
+    #008026,
+    #24408e,
+    #732982
+  );
+  --pride-stripes: repeating-linear-gradient(
+    45deg,
+    #e40303 0px,
+    #e40303 40px,
+    #ff8c00 40px,
+    #ff8c00 80px,
+    #ffed00 80px,
+    #ffed00 120px,
+    #008026 120px,
+    #008026 160px,
+    #24408e 160px,
+    #24408e 200px,
+    #732982 200px,
+    #732982 240px
+  );
+
+  --background-color: #fff5fb;
+  --tile-background: #ffffff;
+  --text-color: #1a1024;
+  --invert-text-color: #ffffff;
+  --navbar-bg: #732982;
+  --navbar-text: #ffffff;
+  --sidebar-bg: #fff0f8;
+  --link-hover: #e40303;
+  --link-default: #24408e;
+  --link-visited: #732982;
+  --accent-color: #008026;
+  --accent-hover: #ff8c00;
+  --success-color: #008026;
+  --success-hover: #006b1f;
+  --warning-color: #ff8c00;
+  --error-color: #e40303;
+  --border-color: #d4a5e8;
+  --border-hover: #732982;
+  --shadow-color: rgba(115, 41, 130, 0.15);
+  --shadow-hover: rgba(115, 41, 130, 0.25);
+}
+
+body {
+  background: var(--background-color);
+  position: relative;
+  isolation: isolate;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--pride-bg);
+  -webkit-mask-image: url("/static/background/tile.png");
+  mask-image: url("/static/background/tile.png");
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  pointer-events: none;
+}
+
+.header {
+  background: var(--pride-stripes);
+}
+
+.tile {
+  border: 1px solid var(--border-color);
+}
+
+/* Dark mode overrides */
+.dark-mode {
+  --background-color: #120818;
+  --tile-background: #1e1228;
+  --text-color: #ffe8ff;
+  --invert-text-color: #120818;
+  --navbar-bg: #732982;
+  --navbar-text: #ffffff;
+  --sidebar-bg: #1a1024;
+  --link-hover: #ff8c00;
+  --link-default: #71e5ff;
+  --link-visited: #d4a5e8;
+  --accent-color: #ff8c00;
+  --accent-hover: #ffed00;
+  --success-color: #00ff88;
+  --success-hover: #00e676;
+  --warning-color: #ffb300;
+  --error-color: #ff5252;
+  --border-color: #732982;
+  --border-hover: #d4a5e8;
+  --shadow-color: rgba(228, 3, 3, 0.2);
+  --shadow-hover: rgba(255, 140, 0, 0.3);
+}
+
+.dark-mode body::before {
+  filter: saturate(1.2) brightness(0.85);
+}

@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-psycopg2 \
     gettext \
     cron \
+    fonts-dejavu-core \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -26,6 +27,9 @@ RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
+
+# Make entrypoint executable
+RUN chmod +x bin/entrypoint.sh
 
 # Collect static files
 RUN python manage.py collectstatic --noinput
@@ -38,4 +42,4 @@ ENV GIT_COMMIT=$GIT_COMMIT
 EXPOSE 80
 
 # Entrypoint
-ENTRYPOINT "bin/entrypoint.sh"
+ENTRYPOINT ["/bin/sh", "bin/entrypoint.sh"]

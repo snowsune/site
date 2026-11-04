@@ -19,10 +19,57 @@
 
 {% block content %}
 <div class="tools-container">
-    <!-- <header class="tools-header">
-        <h1>Tools & Utilities</h1>
-        <p class="tools-subtitle">A collection of useful tools I've built and maintain</p>
-    </header> -->
+    {% if user.is_staff %}
+    <section class="tools-section" aria-label="Staff tools">
+        <h2>Site staff</h2>
+        <div class="tools-grid">
+            <div class="tool-card formal-tool">
+                <div class="tool-content">
+                    <h3>Django admin</h3>
+                    <p>Admin system for the WHOLE site :O</p>
+                    <a href="{% url 'admin:index' %}" class="tool-button">Open admin</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    <section class="tools-section tools-section-nsfw" aria-label="NSFW tools">
+        <h2>NSFW</h2>
+        <div class="tools-grid">
+            <!-- Munch Maker -->
+            <div class="tool-card">
+                <div class="tool-content">
+                    <h3>Munch Maker</h3>
+                    <p>Still not sold on the name~ Play the prototype and let me know what you think!</p>
+                    <a href="{% url 'munch_maker' %}" class="tool-button">Play Munch Maker</a>
+                </div>
+            </div>
+
+            <!-- VorePageEditor -->
+            <div class="tool-card">
+                <div class="tool-content">
+                    <h3>VorePageEditor</h3>
+                    <p>Still slightly experimental! Upload your own artwork and make a vore page for your character!</p>
+                    <a href="{% url 'tanks_manager:hub' %}" class="tool-button">Open VorePageEditor</a>
+                </div>
+            </div>
+
+            <!-- BixiBooru -->
+            <div class="tool-card">
+                <div class="tool-image">
+                    <img src="{% static 'stickers/bixibooru.png' %}" alt="BixiBooru Image Board" loading="lazy">
+                </div>
+                <div class="tool-content">
+                    <h3>BixiBooru</h3>
+                    <p>A Danbooru fork image board that I maintain and host. Lots archived on there >:3</p>
+                    <a href="https://booru.snowsune.net/" class="tool-button external">Visit The Booru</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
 
     <section class="tools-section">
         <h2>Vixi's Tools</h2>
@@ -39,18 +86,6 @@
                         with discord webhooks too! And works with a snowsune.net account or not. Please try it and leave
                         feedback!</p>
                     <a href="{% url 'commorganizer' %}" class="tool-button">Try My Organizer!</a>
-                </div>
-            </div>
-
-            <!-- BixiBooru -->
-            <div class="tool-card">
-                <div class="tool-image">
-                    <img src="{% static 'stickers/bixibooru.png' %}" alt="BixiBooru Image Board" loading="lazy">
-                </div>
-                <div class="tool-content">
-                    <h3>BixiBooru</h3>
-                    <p>A Danbooru fork image board that I maintain and host. Lots archived on there >:3</p>
-                    <a href="https://booru.snowsune.net/" class="tool-button external">Visit The Booru</a>
                 </div>
             </div>
 
@@ -147,6 +182,30 @@
 {% block sidebar %}
 <div class="tools-sidebar">
     <h2>Quick Access</h2>
+
+    {% if user.is_staff %}
+    <div class="sidebar-section">
+        <h3>Staff</h3>
+        <ul class="sidebar-links">
+            <li><a href="{% url 'admin:index' %}">Django admin</a></li>
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    <div class="sidebar-section">
+        <h3>NSFW</h3>
+        <ul class="sidebar-links">
+            <li><a href="{% url 'munch_maker' %}">Munch Maker</a></li>
+            <li><a href="{% url 'tanks_manager:hub' %}">VorePageEditor</a></li>
+            {% for site in tanks_owned %}
+            <li><a href="{% url 'tanks_manager:edit' site.slug %}">{{ site.character_name|default:site.slug }}</a></li>
+            {% endfor %}
+            <li><a href="https://booru.snowsune.net/" target="_blank" rel="noopener noreferrer">BixiBooru Image Board</a></li>
+  
+        </ul>
+    </div>
+    {% endif %}
 
     <div class="sidebar-section">
         <h3>Games</h3>

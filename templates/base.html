@@ -125,14 +125,13 @@
       <div class="logo">
         <img src="{% if debug %}{% static 'logos/devlogo.png' %}{% else %}{% static 'logos/logo.png' %}{% endif %}"
           alt="Snowsune Logo" />
-        <div class="live-stats">
+        <div class="live-stats" data-nosnippet>
           <a href="{% url 'user-gallery' %}" class="stat-box-link">
-            <span class="tile stat-box" title="Users online! (Last 15 Minutes)">👥 <span
+            <span class="tile stat-box" title="Logged-in users online">👥 <span
                 id="active-users-count">-</span>
               online</span>
           </a>
-          <span class="tile stat-box" title="Percent of server energy provided by solar!">☀️ <span
-              id="server-offset">-</span>%</span>
+          <span class="tile stat-box" title="Percent of server energy provided by solar!">☀️ <span id="server-offset">-</span>%</span>
           <a href="{{ ko_fi_url }}" target="_blank" rel="noopener" class="stat-box-link">
             <span class="tile stat-box" title="Site Funding~">💝 <span id="ko-fi-progress">-</span>%</span>
           </a>
@@ -144,13 +143,19 @@
           <a href="{% url 'home' %}">Home</a>
           <a href="{% url 'tools' %}">Apps/Tools</a>
           <a href="{% url 'blog:blog_list' %}">Blog</a>
+          <!-- <a href="{% url 'vrchat' %}">VRChat</a> -->
           <a href="{% url 'comics:comic_home' %}">Webcomic</a>
         </div>
         <div class="nav-mobile-links" id="nav-mobile-links">
           <a href="{% url 'home' %}">Home</a>
           <a href="{% url 'tools' %}">Apps/Tools</a>
           <a href="{% url 'blog:blog_list' %}">Blog</a>
+          <!-- <a href="{% url 'vrchat' %}">VRChat</a> -->
           <a href="{% url 'comics:comic_home' %}">Webcomic</a>
+          <a href="{% url 'matrix_redirect' %}" class="matrix-navbar-btn js-matrix-widget-open">
+            <span class="matrix-navbar-icon">💬</span> Join me on Matrix!
+          </a>
+          {% include "users/widget.html" %}
         </div>
       </nav>
 
@@ -162,15 +167,20 @@
     <div class="header-right">
       <div class="login">
         <button class="nav-hamburger" id="nav-hamburger" aria-label="Open navigation">&#9776;</button>
-        {% if discord_invite %}
-        <a href="{{ discord_invite }}" target="_blank" rel="noopener" class="discord-navbar-btn">
-          <span class="discord-navbar-icon">💬</span> Join my Discord!
+        <a href="{% url 'matrix_redirect' %}" class="matrix-navbar-btn js-matrix-widget-open">
+          <span class="matrix-navbar-icon">💬</span> Join me on Matrix!
         </a>
-        {% endif %}
         {% include "users/widget.html" %}
       </div>
     </div>
   </header>
+
+  <dialog id="matrix-widget-modal" class="matrix-widget-modal">
+    <iframe id="matrix-widget-iframe" class="matrix-widget-iframe" data-src="{{ matrix_widget }}"
+      title="Matrix join widget" loading="lazy" scrolling="no"></iframe>
+  </dialog>
+
+  {% include "includes/django_messages.html" %}
 
   <!-- Email Verification Banner -->
   {% if user.is_authenticated and not user.email_verified %}
@@ -199,8 +209,10 @@
         <!-- TODO: Change me to a proper about page later -->
         <li><a href="{% url 'tools' %}">Tools</a></li>
         <li><a href="{% url 'blog:blog_list' %}">Blog</a></li>
+        <li><a href="{% url 'vrchat' %}">VRChat</a></li>
         <li><a href="{% url 'comics:comic_home' %}">Webcomic</a></li>
       </ul>
+
       {% block sidebar %} {% endblock %}
 
       <!-- This adds us to the FONE ring! -->
@@ -217,10 +229,10 @@
         <p>
           &copy; {{ year }} snowsune.net,
           <a href="https://github.com/snowsune/site/commits/{{ version }}">Version {{ version }}</a>
-          • Today's visits: <span id="page-views-count">-</span> • Today's unique visitors: <span
-            id="unique-visitors-count">-</span> • Art by
+          • Art by
           <a href="https://mothwingart.carrd.co/">Mothwing</a>,
-          <a href="https://www.furaffinity.net/user/tailster13">Tailster</a> and others! • If you think my site is
+          <a href="https://www.furaffinity.net/user/tailster13">Tailster</a>,
+          <a href="https://www.furaffinity.net/user/makanix">Makanix</a>, and others! • If you think my site is
           helpful consider
           <a href="{{ ko_fi_url }}">Supporting me!</a>
         </p>
@@ -229,11 +241,17 @@
       <div class="footer-links">
         <a href="{% url 'thank_you' %}" class="footer-credit-link">
           <span class="footer-credit-icon">💝</span>
-          Credits & Thank You
+          Credits & Thank Yous
+        </a>
+        <a href="{% url 'tos' %}" class="footer-credit-link">
+          <span class="footer-credit-icon">📜</span>
+          Terms of Service
         </a>
       </div>
     </div>
   </footer>
+
+  <script src="{% static 'notifications/js/notifications.js' %}"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -264,7 +282,8 @@
         const type = message.classList.contains('message-success') ? 'success' :
           message.classList.contains('message-error') ? 'error' :
             message.classList.contains('message-warning') ? 'warning' :
-              message.classList.contains('message-info') ? 'info' : 'info';
+              message.classList.contains('message-info') ? 'info' :
+                message.classList.contains('message-debug') ? 'info' : 'info';
 
         const text = message.querySelector('.message-text')?.textContent || message.textContent;
 
@@ -275,14 +294,14 @@
     });
   </script>
 
-  <!-- Centralized Notification System (WIP) -->
-  <script src="{% static 'notifications/js/notifications.js' %}"></script>
-
   <!-- Quotes Scroller -->
   <script src="{% static 'quotes/js/quotes-scroller.js' %}"></script>
 
   <!-- Live Stats Script -->
   <script src="{% static 'js/live-stats.js' %}"></script>
+
+  <!-- Matrix widget modal -->
+  <script src="{% static 'js/matrix-widget.js' %}"></script>
 
   {% block extra_js %}{% endblock %}
 </body>

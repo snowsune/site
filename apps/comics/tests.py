@@ -127,16 +127,16 @@ class ComicViewsTest(TestCase):
         """Test that comic home redirects to the latest comic page"""
         response = self.client.get(reverse("comics:comic_home"))
         self.assertEqual(response.status_code, 302)  # Redirect
-        self.assertEqual(response['Location'], reverse("comics:page_detail", args=[1]))
+        self.assertEqual(response["Location"], reverse("comics:page_detail", args=[1]))
 
     def test_comic_home_view_no_comics_redirects_to_home(self):
         """Test that comic home redirects to home when no comics exist"""
         # Delete all comic pages
         ComicPage.objects.all().delete()
-        
+
         response = self.client.get(reverse("comics:comic_home"))
         self.assertEqual(response.status_code, 302)  # Redirect
-        self.assertEqual(response['Location'], reverse("home"))
+        self.assertEqual(response["Location"], reverse("home"))
 
     def test_page_detail_view_unpublished_404(self):
         """Test that unpublished comics return 404"""

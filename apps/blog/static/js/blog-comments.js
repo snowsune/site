@@ -113,22 +113,10 @@ function setupFormFeedback() {
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
 
-            // Show loading state
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
             submitBtn.classList.add('btn-loading');
-
-            // Add visual feedback to the form
             form.classList.add('form-submitting');
-
-            // Show immediate feedback notification
-            if (window.notifications) {
-                if (document.body.classList.contains('user-authenticated')) {
-                    window.notifications.info('Submitting your comment...', 3000);
-                } else {
-                    window.notifications.info('Submitting comment for moderation...', 3000);
-                }
-            }
 
             // Submit form via AJAX
             submitFormAjax(form, submitBtn, originalText);

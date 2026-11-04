@@ -1,0 +1,196 @@
+/* Tank editor (/tanks/<slug>/edit/) */
+
+.tanks-meta {
+  font-size: 0.9rem;
+  opacity: 0.85;
+  margin-bottom: 1rem;
+}
+
+.tanks-meta a {
+  color: var(--link-color, #6cf);
+}
+
+.tanks-card {
+  background: var(--tile-background, #1a1a22);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  position: relative;
+}
+
+.tanks-grid {
+  display: grid;
+  gap: 0.5rem 0.75rem;
+  align-items: end;
+}
+
+@media (min-width: 640px) {
+  .tanks-g5 {
+    grid-template-columns: 1fr 5rem 7rem 1fr 8rem;
+  }
+
+  .tanks-g3 {
+    grid-template-columns: 8rem 1fr auto;
+  }
+
+  .tanks-g2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.tanks-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.tanks-span-2 {
+  grid-column: span 2;
+}
+
+.tanks-card input {
+  padding: 0.35rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--background-color);
+  color: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tanks-card input[type="file"] {
+  width: auto;
+  max-width: 100%;
+}
+
+.tanks-card input[type="number"] {
+  width: 100%;
+  max-width: 8rem;
+}
+
+.tanks-card input[type="color"] {
+  width: 100%;
+  max-width: 7rem;
+  height: 2.35rem;
+  padding: 0.2rem;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--background-color);
+}
+
+.tanks-h2 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1.05rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.25rem;
+}
+
+.tanks-actions button {
+  margin: 0.25rem 0.5rem 0.25rem 0;
+  padding: 0.45rem 0.75rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  background: #2a4a6a;
+  color: #fff;
+}
+
+.tanks-actions button.secondary {
+  background: #444;
+}
+
+.tanks-thumb {
+  max-height: 48px;
+  max-width: 120px;
+  object-fit: contain;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.tanks-upload-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.tanks-default-dl {
+  font-size: 0.85rem;
+}
+
+.tanks-default-dl a {
+  color: var(--link-color, #6cf);
+}
+
+.tanks-cb-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+  position: relative;
+  z-index: 3;
+  pointer-events: auto;
+  font-size: 0.85rem;
+}
+
+.tanks-cb-row input[type="checkbox"] {
+  width: 1.15rem !important;
+  height: 1.15rem !important;
+  min-width: 1.15rem !important;
+  min-height: 1.15rem !important;
+  margin: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: #9cf;
+}
+
+.tanks-cb-row label {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  margin: 0 !important;
+  width: auto !important;
+  font-weight: normal;
+}
+
+button.tanks-remove-row {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 0.4rem;
+  color: var(--link-color, #9cf);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+button.tanks-remove-row:hover {
+  opacity: 0.85;
+}
+
+.tanks-h2-danger {
+  border-bottom-color: #5c2323;
+  color: #e8a0a0;
+}
+
+button.tanks-delete-page {
+  padding: 0.45rem 0.85rem;
+  border-radius: 4px;
+  border: 1px solid #7a3030;
+  cursor: pointer;
+  background: #5c2323;
+  color: #fff;
+  font: inherit;
+}
+
+button.tanks-delete-page:hover {
+  background: #722828;
+}

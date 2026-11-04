@@ -2,6 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
+import mimetypes
+from urllib.parse import urljoin
+from django.conf import settings
 from django.views.generic import (
     ListView,
     DetailView,
@@ -11,8 +14,6 @@ from django.views.generic import (
 )
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
 from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -22,6 +23,8 @@ from django.utils.feedgenerator import Rss201rev2Feed
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from .models import BlogPost, Tag, BlogImage, Comment
+from .uploads import clean_upload_filename
+from .attachments import render_attachments
 from .forms import BlogPostForm, BlogPostCreateForm, TagForm, CommentForm
 from apps.notifications.utils import (
     show_success_notification,
@@ -86,6 +89,7 @@ class BlogDetailView(DetailView):
         comment_tree = self.build_comment_tree(comments)
 
         context["comments"] = comment_tree
+        context["rendered_content"] = render_attachments(self.object.content_html)
         context["comment_form"] = CommentForm(
             user=self.request.user, post=self.object, request=self.request
         )
@@ -150,16 +154,12 @@ def submit_comment(request, post_id):
         }
 
         if request.user.is_authenticated:
-            response_data["message"] = "Your comment has been posted successfully!"
-            show_success_notification(
-                request, "Your comment has been posted successfully!"
-            )
+            response_data["message"] = "Comment posted."
+            show_success_notification(request, "Comment posted.")
         else:
-            response_data["message"] = (
-                "Your comment has been submitted and is awaiting moderation."
-            )
+            response_data["message"] = "Got it. I'll check it before it shows up."
             show_success_notification(
-                request, "Your comment has been submitted and is awaiting moderation."
+                request, "Got it. I'll check it before it shows up."
             )
 
         # Return JSON for AJAX requests, redirect for regular requests
@@ -170,7 +170,7 @@ def submit_comment(request, post_id):
     else:
         # Store form errors in messages with better context
         if form.errors:
-            error_message = "There were issues with your comment submission. Please review the errors below."
+            error_message = "Check the comment and try again."
 
             # Prepare error response data
             response_data = {
@@ -194,11 +194,9 @@ def submit_comment(request, post_id):
                     else:
                         show_error_notification(request, f"{field_name}: {error}")
         else:
-            error_message = "An unexpected error occurred. Please try again."
+            error_message = "Something went wrong. Try again."
             response_data = {"success": False, "message": error_message}
-            show_error_notification(
-                request, "An unexpected error occurred. Please try again."
-            )
+            show_error_notification(request, "Something went wrong. Try again.")
 
         # Return JSON for AJAX requests, redirect for regular requests
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
@@ -259,7 +257,14 @@ def moderate_comment(request, comment_id, action):
         return redirect(comment.post.get_absolute_url())
 
 
-class BlogCreateView(LoginRequiredMixin, CreateView):
+class BlogEditorMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["max_upload_bytes"] = settings.BLOG_MAX_UPLOAD_BYTES
+        return context
+
+
+class BlogCreateView(BlogEditorMixin, LoginRequiredMixin, CreateView):
     model = BlogPost
     form_class = BlogPostCreateForm
     template_name = "blog/blog_form.html"
@@ -278,7 +283,9 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
 
-class BlogUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class BlogUpdateView(
+    BlogEditorMixin, LoginRequiredMixin, UserPassesTestMixin, UpdateView
+):
     model = BlogPost
     form_class = BlogPostForm
     template_name = "blog/blog_form.html"
@@ -359,34 +366,78 @@ def blog_dashboard(request):
     return render(request, "blog/blog_dashboard.html", context)
 
 
-@csrf_exempt
-@require_http_methods(["POST"])
-def upload_image(request):
-    """Handle image uploads for the blog editor"""
+@require_POST
+def upload_file(request):
+    """
+    Save an upload from the blogpost editor and return
+    a link to it (url)
+
+    TODO: Custom style/file encoding on return?
+    """
     if not request.user.is_authenticated:
         return JsonResponse({"error": "Authentication required"}, status=401)
 
     try:
-        image_file = request.FILES.get("image")
-        if not image_file:
-            return JsonResponse({"error": "No image file provided"}, status=400)
+        content_length = int(request.META.get("CONTENT_LENGTH") or 0)
+    except (TypeError, ValueError):
+        content_length = 0
+    if content_length > settings.BLOG_MAX_UPLOAD_BYTES + (1024 * 1024):
+        return _upload_too_large()
 
-        # Create BlogImage instance
-        blog_image = BlogImage.objects.create(
-            image=image_file, uploaded_by=request.user, filename=image_file.name
+    uploaded = request.FILES.get("file") or request.FILES.get("image")
+    if not uploaded:
+        return JsonResponse({"error": "No file provided"}, status=400)
+    if uploaded.size > settings.BLOG_MAX_UPLOAD_BYTES:
+        return _upload_too_large()
+
+    safe_name = clean_upload_filename(uploaded.name)
+    if not safe_name:
+        return JsonResponse({"error": "That file type can't be uploaded."}, status=400)
+
+    uploaded.name = safe_name
+    saved = BlogImage.objects.create(
+        image=uploaded, uploaded_by=request.user, filename=safe_name
+    )
+    return JsonResponse(
+        {
+            "success": True,
+            "url": saved.image.url,
+            "markdown": saved.markdown_link,
+            "filename": saved.filename,
+        }
+    )
+
+
+def _upload_too_large():
+    return JsonResponse(
+        {"error": "That file is too large."},
+        status=413,
+    )
+
+
+class VRChatListView(BlogListView):
+    """Published posts tagged VRChat, using the normal blog list."""
+
+    def get_queryset(self):
+        queryset = (
+            BlogPost.objects.filter(status="published")
+            .filter(Q(tags__slug__iexact="vrchat") | Q(tags__name__iexact="VRChat"))
+            .select_related("author")
+            .prefetch_related("tags")
+            .distinct()
         )
+        search_query = self.request.GET.get("search")
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) | Q(content__icontains=search_query)
+            ).distinct()
+        return queryset
 
-        return JsonResponse(
-            {
-                "success": True,
-                "url": blog_image.image.url,
-                "markdown_link": blog_image.markdown_link,
-                "filename": blog_image.filename,
-            }
-        )
-
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["page_title"] = "VRChat"
+        context["recent_posts"] = self.get_queryset()[:5]
+        return context
 
 
 class BlogRSSFeed(Feed):
@@ -394,6 +445,11 @@ class BlogRSSFeed(Feed):
     link = "/blog/"
     description = "Snowsune.net RSS blog feed."
     feed_type = Rss201rev2Feed
+
+    def _absolute_url(self, maybe_relative_url: str) -> str:
+        # urljoin handles absolute URLs too.
+        base = settings.SITE_URL.rstrip("/") + "/"
+        return urljoin(base, maybe_relative_url.lstrip("/"))
 
     def items(self):
         return BlogPost.objects.filter(status="published").order_by("-published_at")[
@@ -407,7 +463,7 @@ class BlogRSSFeed(Feed):
         return item.excerpt
 
     def item_link(self, item):
-        return item.get_absolute_url()
+        return self._absolute_url(item.get_absolute_url())
 
     def item_author_name(self, item):
         return item.author.username
@@ -420,3 +476,26 @@ class BlogRSSFeed(Feed):
 
     def item_categories(self, item):
         return [tag.name for tag in item.tags.all()]
+
+    # "Enclosure" stuff so we can use the preview images in the rss feeds
+    def item_enclosure_url(self, item):
+        if getattr(item, "featured_image", None) and getattr(
+            item.featured_image, "url", None
+        ):
+            return self._absolute_url(item.featured_image.url)
+        return None
+
+    def item_enclosure_length(self, item):
+        try:
+            if getattr(item, "featured_image", None):
+                return int(item.featured_image.size or 0)
+        except Exception:
+            pass
+        return 0
+
+    def item_enclosure_mime_type(self, item):
+        url = self.item_enclosure_url(item)
+        if not url:
+            return None
+        mime, _encoding = mimetypes.guess_type(url)
+        return mime or "image/jpeg"

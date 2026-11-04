@@ -8,6 +8,11 @@ urlpatterns = [
     path("register/", views.register_view, name="register"),
     path("edit/", views.edit_account_view, name="account-edit"),
     path(
+        "password/",
+        views.AccountPasswordChangeView.as_view(),
+        name="password-change",
+    ),
+    path(
         "verify-email/<int:user_id>/<str:token>/",
         views.verify_email_view,
         name="verify-email",

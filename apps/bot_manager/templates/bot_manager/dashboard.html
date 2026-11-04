@@ -9,105 +9,207 @@
 {% endblock %}
 
 {% block content %}
-<h1>Fops Bot</h1>
+<div class="setup-sections">
+    <section class="fops-hero" id="overview">
+        <div class="hero-text">
+            <h1>Fops Bot</h1>
+            <p class="lead">My helpful foxy Discord bot! Organize your server, add fun things! And lots and lots of
+                external integration!</p>
 
-<div class="info-box">
-    <h2>About Fops Bot</h2>
-    <p>Fops is my own discord bot! There were just so many tools and things I wanted to have around. I keep fops
-        maintained for my own server but I always try and make the features useful for everyone! You're more than
-        welcome to invite fops into your own server. Let me know if you find any bugs ever or have suggestions!</p>
+            <div class="hero-actions">
+                <a class="btn btn-primary hero-invite"
+                    href="https://discord.com/oauth2/authorize?client_id=983461462896963744&scope=bot&permissions=412384378880"
+                    target="_blank" rel="noopener">
+                    Invite Fops Bot!
+                </a>
+                <a class="btn btn-outline" href="#features">Features</a>
+                <a class="btn btn-secondary" href="mailto:vixi@snowsune.net">Contact Vixi</a>
+            </div>
 
-    <h3>Subscription System</h3>
-    <p>Fops can subscribe and follow certain art posting and publishing platforms in your discord channels! You can
-        manage and control these in the per-guild manager below!</p>
+            <ul class="hero-highlights">
+                <li>Automatic reposting for twitter/x</li>
+                <li>Media handling, subscriptions, yt-dlp</li>
+                <li>Image reactions, admin utils and fun things!</li>
+            </ul>
+        </div>
+        <figure class="hero-media">
+            <img src="{% static 'bot_manager/images/FopsCard.png' %}" alt="Fops Bot character illustration">
+            <figcaption>Fops! Foxy AF~</figcaption>
+        </figure>
+    </section>
 
-    <h4>Supported Services</h4>
-    <ul>
-        <li><strong>BixiBooru</strong> - Follow tags and subscriptions on my booru</li>
-        <li><strong>FurAffinity</strong> - Monitor your favorite FA artists!</li>
-    </ul>
-
-    <h3>Getting Started</h3>
-    <ol>
-        <li><a href="{% url 'login' %}" class="button">Login to Snowsune.net</a></li>
-        <li>Connect your Discord account</li>
-        <li>Invite Fops Bot to your server</li>
-        <li>Configure subscriptions, holes, features and whatever else!</li>
-    </ol>
-
-    <p><strong>Invite Fops Bot:</strong> <a
-            href="https://discord.com/oauth2/authorize?client_id=983461462896963744&scope=bot&permissions=412384378880"
-            target="_blank">Click here to invite</a></p>
-
-    If you need help, contact me on Discord or email me at <a href="mailto:vixi@snowsune.net">vixi@snowsune.net</a>!
+    <section class="setup-card" id="getting-started">
+        <h2>Getting Started</h2>
+        <ol>
+            <li><a href="{% url 'login' %}">Login to Snowsune.net</a></li>
+            <li>Connect your Discord account from your profile page</li>
+            <li>Invite Fops Bot to the servers you manage</li>
+            <li>Return here to configure every guild in one place</li>
+        </ol>
+        <a href="{% url 'bot_manager_discord_login' %}" class="btn btn-primary">Connect Discord Account</a>
+    </section>
 </div>
 
-{% if show_discord_login %}
-<div class="alert alert-info">
-    <strong>Connect Discord:</strong> You need to connect your Discord account to manage Fops Bot.
-    <br>
-    <a href="{% url 'bot_manager_discord_login' %}" class="button">Connect Discord Account</a>
-</div>
-{% endif %}
+<section class="feature-tabs" id="features">
+    <header>
+        <h2>Feature Overview</h2>
+        <p>What can fops do!</p>
+    </header>
 
-<h2>Your Shared Guilds with Fops Bot</h2>
+    <div class="tab-button-group" role="tablist" aria-label="Fops Bot features">
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-subscriptions"
+            id="tab-subscriptions-button">Subscription Feeds</button>
+        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-ytdlp"
+            id="tab-ytdlp-button">yt-dlp Integration</button>
+    </div>
 
-{% if not user.is_authenticated %}
-<p>You're not logged in! You can login <a href="{% url 'login' %}" class="button">here</a></p>
-{% else %}
+    <div class="tab-panels">
+        <section id="tab-subscriptions" class="tab-panel active" role="tabpanel"
+            aria-labelledby="tab-subscriptions-button">
+            <h2>Subscription Feeds</h2>
+            <div class="tab-grid">
+                <div>
+                    <p>Automatic subscription feeds!</p>
+                    <ul>
+                        <li>TODO</li>
+                    </ul>
+                </div>
+                <div>
+                    <figure>
+                        <img src="{% static 'bot_manager/images/repost_example.png' %}"
+                            alt="Example of Fops Bot reposting artwork in Discord">
+                        <figcaption>More things!</figcaption>
+                    </figure>
+                </div>
+            </div>
+        </section>
 
-{% if guilds_error %}
-<div class="alert alert-error">
-    <strong>Error loading guilds:</strong> {{ guilds_error }}
-    <br>
-    <small>Try refreshing the page or <a href="{% url 'bot_manager_discord_login' %}">reconnecting Discord</a>.</small>
-</div>
-{% elif shared_guilds is None %}
-<div class="alert alert-error">
-    <strong>Unable to fetch your guilds.</strong>
-    <br>
-    <small>Try refreshing the page or <a href="{% url 'bot_manager_discord_login' %}">reconnecting Discord</a>.</small>
-</div>
-{% elif shared_guilds %}
-<table>
-    <thead>
-        <tr>
-            <th>Server</th>
-            <th>Admin Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for guild in shared_guilds %}
-        <tr>
-            <td>
-                {% if guild.icon %}
-                <img src="https://cdn.discordapp.com/icons/{{ guild.id }}/{{ guild.icon }}.png" width="32" height="32"
-                    style="border-radius: 50%; margin-right: 8px;">
-                {% endif %}
-                <a href="https://discord.com/channels/{{ guild.id }}" target="_blank">{{ guild.name }}</a>
-            </td>
-            <td>
-                {% if guild.is_admin %}
-                <span style="color: green;">✓ Admin</span>
-                {% else %}
-                <span style="color: red;">✗ Not Admin</span>
-                {% endif %}
-            </td>
-            <td>
-                {% if guild.is_admin %}
-                <a href="{% url 'bot_manager_guild' guild_id=guild.id %}">Configure →</a>
-                {% else %}
-                <span style="color: gray;">No Access</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No shared guilds found. If you share a server with fops bot, try refreshing this page in a few seconds!</p>
-{% endif %}
-{% endif %}
+        <section id="tab-ytdlp" class="tab-panel" role="tabpanel" aria-labelledby="tab-ytdlp-button">
+            <h2>yt-dlp Integration</h2>
+            <div class="tab-grid">
+                <div>
+                    <p>Harness the power of <code>yt-dlp</code> to bring media into your Discord server!.</p>
+                    <ul>
+                        <li>Todo!</li>
+                    </ul>
+                </div>
+                <div>
+                    <figure>
+                        <img src="{% static 'bot_manager/images/repost_example.png' %}"
+                            alt="Fops Bot reposting media with yt-dlp integration">
+                        <figcaption>Media reposts appear with thumbnails, titles, and attribution.</figcaption>
+                    </figure>
+                </div>
+            </div>
+        </section>
+    </div>
+</section>
 
+<section class="guild-management" id="guilds">
+    <header>
+        <h2>Your Shared Guilds with Fops Bot</h2>
+        <p>Pick a server where you have admin access to configure subscriptions, reposting, and integrations.</p>
+    </header>
+
+    {% if not user.is_authenticated %}
+    <p class="guild-empty">You're not logged in! You can login <a href="{% url 'login' %}" class="button">here</a>.</p>
+    {% else %}
+
+    {% if guilds_error %}
+    <div class="alert alert-error">
+        <strong>Error loading guilds:</strong> {{ guilds_error }}
+        <br>
+        <small>Try refreshing the page or <a href="{% url 'bot_manager_discord_login' %}">reconnecting
+                Discord</a>.</small>
+    </div>
+    {% elif shared_guilds is None %}
+    <div class="alert alert-error">
+        <strong>Unable to fetch your guilds.</strong>
+        <br>
+        <small>Try refreshing the page or <a href="{% url 'bot_manager_discord_login' %}">reconnecting
+                Discord</a>.</small>
+    </div>
+    {% elif shared_guilds %}
+    <table>
+        <thead>
+            <tr>
+                <th>Server</th>
+                <th>Admin Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for guild in shared_guilds %}
+            <tr>
+                <td>
+                    {% if guild.icon %}
+                    <img src="https://cdn.discordapp.com/icons/{{ guild.id }}/{{ guild.icon }}.png" width="32"
+                        height="32" style="border-radius: 50%; margin-right: 8px;">
+                    {% endif %}
+                    <a href="https://discord.com/channels/{{ guild.id }}" target="_blank"
+                        rel="noopener">{{ guild.name }}</a>
+                </td>
+                <td>
+                    {% if guild.is_admin %}
+                    <span style="color: var(--success-color); font-weight: 600;">✓ Admin</span>
+                    {% else %}
+                    <span style="color: #dc3545; font-weight: 600;">✗ Not Admin</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if guild.is_admin %}
+                    <a href="{% url 'bot_manager_guild' guild_id=guild.id %}">Configure →</a>
+                    {% else %}
+                    <span style="color: gray;">No Access</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="guild-empty">No shared guilds found. If you share a server with Fops Bot, try refreshing this page in a
+        few
+        seconds!</p>
+    {% endif %}
+    {% endif %}
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const buttons = document.querySelectorAll(".tab-button");
+        const panels = document.querySelectorAll(".tab-panel");
+
+        function activateTab(targetId) {
+            buttons.forEach((button) => {
+                const isActive = button.getAttribute("aria-controls") === targetId;
+                button.setAttribute("aria-selected", isActive ? "true" : "false");
+            });
+
+            panels.forEach((panel) => {
+                panel.classList.toggle("active", panel.id === targetId);
+            });
+        }
+
+        buttons.forEach((button) => {
+            button.addEventListener("click", () => {
+                activateTab(button.getAttribute("aria-controls"));
+            });
+
+            button.addEventListener("keydown", (event) => {
+                if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+                    event.preventDefault();
+                    const currentIndex = Array.from(buttons).indexOf(button);
+                    const delta = event.key === "ArrowRight" ? 1 : -1;
+                    const nextIndex = (currentIndex + delta + buttons.length) % buttons.length;
+                    buttons[nextIndex].focus();
+                    activateTab(buttons[nextIndex].getAttribute("aria-controls"));
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

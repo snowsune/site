@@ -1,0 +1,5 @@
+/* Happy vore day! */
+
+body {
+  background: url("/static/background/seasonal/tile_vore_day.png") repeat, var(--background-color);
+}

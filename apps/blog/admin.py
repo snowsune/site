@@ -103,12 +103,12 @@ class BlogImageAdmin(admin.ModelAdmin):
     readonly_fields = ["uploaded_at", "markdown_link"]
 
     def image_preview(self, obj):
-        if obj.image:
+        if obj.image and obj.is_image:
             return format_html(
                 '<img src="{}" style="max-height: 50px; max-width: 100px;" />',
                 obj.image.url,
             )
-        return "No image"
+        return obj.filename or "File"
 
     image_preview.short_description = "Preview"
 

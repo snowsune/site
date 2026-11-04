@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Calendar - Snowsune.net{% endblock %}
+
+{% block meta_description %}View upcoming events and calendar information{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/calendar.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="calendar-container">
+    <div id="calendar"></div>
+</div>
+
+<div id="calendar-legend">
+    <h3>Calendars</h3>
+    <ul>
+        {% for source in calendar_sources %}
+        <li>
+            <span class="legend-color" style="background-color: {{ source.color }};"></span>
+            <span>{{ source.name }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<script>
+    // Set the API URL for the calendar script
+    window.calendarEventsApiUrl = '{% url "calendar_events_api" %}';
+</script>
+<script src="{% static 'js/calendar.js' %}"></script>
+{% endblock %}

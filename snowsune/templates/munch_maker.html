@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Munch Maker{% endblock %}
+
+{% block meta_description %}FILL ME OUT{% endblock %}
+{% block og_title %}Munch Maker{% endblock %}
+{% block og_description %}FILL ME OUT LATER{% endblock %}
+{% block canonical_url %}https://snowsune.net/MunchMaker/{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/munch_maker.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="munch-page">
+    <div class="munch-toolbar">
+        <h1>Munch Maker</h1>
+        <a class="munch-toolbar-link"
+            href="https://git.kitsunehosting.net/snowsune/VoreGamePrototype/releases"
+            target="_blank" rel="noopener noreferrer">Play on Linux</a>
+    </div>
+    <iframe class="munch-frame" src="/godot/index.html" title="Munch Maker"
+        allow="autoplay; fullscreen; gamepad; pointer-lock"></iframe>
+</div>
+{% endblock %}

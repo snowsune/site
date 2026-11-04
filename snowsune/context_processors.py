@@ -1,10 +1,7 @@
 import os
 
 from django.conf import settings
-from django.utils.safestring import mark_safe
-
 from datetime import datetime, date
-from django.utils import timezone as django_timezone
 
 from .models import SiteSetting
 
@@ -28,20 +25,8 @@ def debug_mode(request):
     }
 
 
-# Expiry links
-def expiry_links(request):
-    return {
-        "discord": mark_safe(
-            f"<a href=\"{os.getenv('DISCORD_URL','#')}\">Discord Server</a>"
-        ),
-    }
-
-
-# Quick processor for the discord invite link
-# TODO: Could be made generic for all SiteSettings
-def discord_invite_link(request):
-    invite = SiteSetting.objects.filter(key="discord_invite").first()
-    return {"discord_invite": invite.value if invite else ""}
+def matrix_widget_link(request):
+    return {"matrix_widget": settings.MATRIX_WIDGET_URL}
 
 
 def ko_fi_url(request):
@@ -76,7 +61,16 @@ def seasonal_css(request):
     seasonal_dates = {
         (9, 17): "fox_day.css",  # National fox day!
         (10,): "halloween.css",  # October (whole month counts~)
+        (12,): "christmas.css",  # December (whole month counts!)
+        (2, 14): "valentines.css",  # February 14th (Valentines day!)
+        (6,): "pride.css",  # June (Pride month!)
+        (8, 8): "vore_day.css",  # 8/8 (Vore day!)
     }
 
-    css_file = seasonal_dates.get((today.month,))
+    # First check for exact date match (month, day)
+    css_file = seasonal_dates.get((today.month, today.day))
+    # If no exact match, check for month-only match (month,)
+    if not css_file:
+        css_file = seasonal_dates.get((today.month,))
+
     return {"seasonal_css": f"css/seasonal/{css_file}" if css_file else None}

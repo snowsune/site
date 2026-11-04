@@ -1,10 +1,16 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from urllib.parse import urlparse
+
+from django.conf import settings
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib import messages
 from django import forms
-from django.conf import settings
+from django.urls import reverse_lazy
 import logging
 from .models import CustomUser
 from .utils import send_verification_email, verify_email_token
@@ -55,7 +61,7 @@ def send_new_user_webhook(user):
             if user.last_name:
                 message += f" {user.last_name}"
             message += "\n"
-        message += f"\n**Profile:** {settings.SITE_URL}/user/{user.username}"
+        message += f"\n**Profile:** {settings.SITE_URL}{user.get_absolute_url()}"
 
         # Send webhook
         send_discord_webhook(webhook_url, message)
@@ -91,6 +97,15 @@ def register_view(request):
     else:
         form = CustomRegisterForm()
     return render(request, "users/register.html", {"form": form})
+
+
+class AccountPasswordChangeView(PasswordChangeView):
+    template_name = "users/password_change.html"
+    success_url = reverse_lazy("account-edit")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Password updated successfully!")
+        return super().form_valid(form)
 
 
 # Account editing
@@ -192,6 +207,14 @@ def verify_email_view(request, user_id, token):
     """
     Handle email verification link clicks.
     """
+    canonical = urlparse(settings.EMAIL_VERIFICATION_CANONICAL_ORIGIN)
+    canonical_host = (canonical.hostname or "").lower()
+    req_host = request.get_host().split(":")[0].lower()
+    if canonical_host and req_host != canonical_host:
+        base = settings.EMAIL_VERIFICATION_CANONICAL_ORIGIN.rstrip("/")
+        path = reverse("verify-email", kwargs={"user_id": user_id, "token": token})
+        return HttpResponseRedirect(f"{base}{path}")
+
     user = get_object_or_404(CustomUser, id=user_id)
 
     if verify_email_token(user, token):

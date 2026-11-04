@@ -52,6 +52,13 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 # Site URL for webhooks and external links
 SITE_URL = os.getenv("SITE_URL", "https://snowsune.net")
 
+# Verification emails and /users/verify-email/ redirects: always use production so
+# dev/staging SITE_URL never ends up in inboxes or partial verifies on the wrong DB.
+EMAIL_VERIFICATION_CANONICAL_ORIGIN = os.getenv(
+    "EMAIL_VERIFICATION_CANONICAL_ORIGIN",
+    "https://snowsune.net",
+)
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -60,6 +67,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.humanize",
     # Main app
     "snowsune",
     # Custom apps
@@ -73,18 +81,23 @@ INSTALLED_APPS = [
     "apps.quotes",  # Quotes scroller app
     "apps.bot_manager",  # Fops Bot management app
     "apps.bookclub",  # Comic book club app
+    "apps.custompages",  # Custom pages with markdown
+    "apps.tanks_manager",  # Per-user tank pages + editor
+    "apps.vore_day_rumble",  # Vixi's Vore Day Rumble
+    "django_cleanup.apps.CleanupConfig",  # Deletes FileField/ImageField files when their rows are removed.
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # For serving static files
+    "snowsune.middleware.BlockGeoMiddleware",  # 451 blocks
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "snowsune.middleware.CloudflareAwareVisitorTrackingMiddleware",  # Removed - using Cloudflare Analytics instead
+    "snowsune.middleware.PrivateHtmlNoStoreMiddleware",
 ]
 
 # Trust reverse proxy headers
@@ -93,11 +106,6 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Cloudflare-specific settings
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
-
-# Cloudflare Analytics API configuration
-CLOUDFLARE_ANALYTICS_API_TOKEN = os.getenv("CLOUDFLARE_ANALYTICS_API_TOKEN")
-CLOUDFLARE_ZONE_ID = os.getenv("CLOUDFLARE_ZONE_ID")
-CLOUDFLARE_ACCOUNT_ID = os.getenv("CLOUDFLARE_ACCOUNT_ID")
 
 ROOT_URLCONF = "snowsune.urls"
 
@@ -115,8 +123,7 @@ TEMPLATES = [
                 "snowsune.context_processors.version_processor",
                 "snowsune.context_processors.year_processor",
                 "snowsune.context_processors.debug_mode",
-                "snowsune.context_processors.expiry_links",
-                "snowsune.context_processors.discord_invite_link",  # TODO: Make generic!
+                "snowsune.context_processors.matrix_widget_link",
                 "snowsune.context_processors.ko_fi_url",
                 "snowsune.context_processors.google_analytics_id",
                 "snowsune.context_processors.seasonal_css",
@@ -155,6 +162,8 @@ DISCORD_REDIRECT_URI = os.getenv(
     "DISCORD_REDIRECT_URI", f"{SITE_URL}/fops/discord/callback"
 )
 
+MATRIX_WIDGET_URL = "https://matrix.kitsunehosting.net/widget?admins=snowsune.net"
+
 # I'll use a custom user model for user-storage
 AUTH_USER_MODEL = "users.CustomUser"
 
@@ -190,9 +199,22 @@ STATICFILES_DIRS = [
     BASE_DIR / "apps/thank_yous/static",  # Thank Yous
 ]
 
-# Media Paths (things like profile pictures and such are uploaded here)
-MEDIA_URL = "/media/"  # Base of the URL for media
+# User uploads (profiles, blog images, tanks_manager, …). Each ImageField uses
+# upload_to="some/subdir/" relative to MEDIA_ROOT. Override MEDIA_ROOT in prod
+# for persistent storage (see README: e.g. MEDIA_ROOT=.local/media for dev).
+MEDIA_URL = "/media/"
 MEDIA_ROOT = os.environ.get("MEDIA_ROOT", str(BASE_DIR / "media"))
+
+# Uploads larger than this are streamed to disk.
+# BLOG_MAX_UPLOAD_BYTES is the cap
+# RP in front needs a body
+# limit at least this large!
+FILE_UPLOAD_MAX_MEMORY_SIZE = int(
+    os.environ.get("FILE_UPLOAD_MAX_MEMORY_SIZE", str(10 * 1024 * 1024))
+)
+BLOG_MAX_UPLOAD_BYTES = int(
+    os.environ.get("BLOG_MAX_UPLOAD_BYTES", str(2 * 1024 * 1024 * 1024))
+)
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
