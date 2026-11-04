@@ -2,11 +2,8 @@
 
 document.addEventListener('DOMContentLoaded', function () {
     const pendingComments = document.querySelectorAll('[data-moderation-type="pending"] .comment-row');
-    if (pendingComments.length > 0 && window.notifications) {
-        window.notifications.info(
-            `${pendingComments.length} comment(s) to check`,
-            8000
-        );
+    if (pendingComments.length > 0) {
+        toast(`${pendingComments.length} comment(s) to check`, "info");
     }
 
     document.addEventListener('click', function (e) {
@@ -37,9 +34,7 @@ function handleModerationAction(button) {
     button.textContent = 'Processing...';
     button.classList.add('btn-loading');
 
-    if (window.notifications) {
-        window.notifications.info(`Processing ${action} action...`, 3000);
-    }
+    toast(`Processing ${action} action...`, "info");
 
     fetch(`/blog/comment/${commentId}/${action}/`, {
         method: 'GET',
@@ -50,16 +45,12 @@ function handleModerationAction(button) {
     .then(response => response.json())
     .then(data => {
         if (!data.success) {
-            if (window.notifications) {
-                window.notifications.error(data.message || 'Action failed', 10000);
-            }
+            toast(data.message || 'Action failed', "error");
             resetButton(button, originalText);
             return;
         }
 
-        if (window.notifications) {
-            window.notifications.success(data.message, 5000);
-        }
+        toast(data.message, "success");
 
         const commentRow = document.querySelector(`[data-comment-id="${commentId}"]`);
         if (commentRow) {
@@ -77,9 +68,7 @@ function handleModerationAction(button) {
     })
     .catch(error => {
         console.error('Moderation action error:', error);
-        if (window.notifications) {
-            window.notifications.error('Network error. Please try again.', 10000);
-        }
+        toast('Network error. Please try again.', "error");
         resetButton(button, originalText);
     });
 }

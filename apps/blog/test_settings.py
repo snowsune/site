@@ -69,7 +69,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "apps.blog",
     "apps.users",
-    "apps.notifications",
 ]
 
 # Test user model

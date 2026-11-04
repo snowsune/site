@@ -174,14 +174,7 @@ function submitFormAjax(form, submitBtn, originalText) {
             form.classList.remove('form-submitting');
 
             if (data.success) {
-                // Show success notification
-                if (window.notifications) {
-                    if (data.user_authenticated) {
-                        window.notifications.success(data.message, 5000);
-                    } else {
-                        window.notifications.info(data.message, 8000);
-                    }
-                }
+                toast(data.message, data.user_authenticated ? "success" : "info");
 
                 // Clear form
                 form.reset();
@@ -192,10 +185,7 @@ function submitFormAjax(form, submitBtn, originalText) {
                 }, 1500);
 
             } else {
-                // Show error notification
-                if (window.notifications) {
-                    window.notifications.error(data.message || 'An error occurred', 10000);
-                }
+                toast(data.message || 'An error occurred?', "error");
 
                 // Show field errors if any
                 if (data.errors) {
@@ -222,10 +212,7 @@ function submitFormAjax(form, submitBtn, originalText) {
             submitBtn.classList.remove('btn-loading');
             form.classList.remove('form-submitting');
 
-            // Show error notification
-            if (window.notifications) {
-                window.notifications.error('Network error. Please try again.', 10000);
-            }
+            toast('Network error. Please try again!', "error");
 
             // Fallback to regular form submission
             setTimeout(() => {
