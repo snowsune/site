@@ -53,11 +53,6 @@ jobs:
             pipenv run python manage.py test --verbosity=2
           fi
 
-      - name: Test Summary
-        run: |
-          echo "✅ Test matrix completed for ${{ matrix.test_target || 'all apps' }}"
-          echo "📊 Matrix strategy ensures all apps are tested individually and together"
-
   formatblack:
     name: Black Formatter
     runs-on: ubuntu-latest
