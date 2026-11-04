@@ -110,16 +110,9 @@ def convert_subscription_timestamps(subscription_data):
     I could have done this by just pre-rendering the text but django already has
     shortand for time since, it just takes a timezone input so. Converting the fops
     epoch-timezone became something i wanted to do more often.
-
-    Args:
-        subscription_data: Dict-like object containing subscription data
-
-    Returns:
-        Dict with timestamp fields converted to datetime objects
     """
     subscription_dict = dict(subscription_data)
 
-    # Convert Unix timestamps to datetime objects
     timestamp_fields = ["last_ran", "subscribed_at"]
     for field in timestamp_fields:
         if subscription_dict.get(field) and isinstance(
