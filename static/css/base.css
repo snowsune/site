@@ -185,9 +185,10 @@ a:visited {
 .logo {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   padding-left: 12px;
 }
+
 .logo img {
   height: 60px; /* Smaller logo */
   margin-bottom: 0.5rem; /* Space between logo and stats */
@@ -212,7 +213,6 @@ a:visited {
 }
 
 #active-users-count,
-#server-offset,
 #ko-fi-progress {
   font-weight: 700;
   color: var(--link-default);
