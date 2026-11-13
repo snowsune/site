@@ -1,0 +1,98 @@
+/* Just figured (cuz css is so messy for me)
+ * I could try and reuse all the card stuff from before
+ * especially if i want a more unified website theme and less copy/paste all over
+ */
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.card-tile {
+    background: var(--tile-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.card-tile:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-color);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.card-tile-art {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--sidebar-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-tile-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-tile-body {
+    padding: 0.75rem;
+}
+
+.card-tile-body h3 {
+    font-size: 1rem;
+    margin: 0 0 0.25rem 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-tile-sub {
+    font-size: 0.8rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-grid-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .card-tile-body {
+        padding: 0.5rem;
+    }
+
+    .card-tile-body h3 {
+        font-size: 0.9rem;
+    }
+
+    .card-tile-sub {
+        font-size: 0.75rem;
+    }
+}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ list.title }} - Snowsune.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/card-grid.css' %}">
+<link rel="stylesheet" href="{% static 'lists/lists.css' %}">
+{% endblock %}
+
+{% block meta_description %}{{ list.description }}{% endblock %}
+{% block og_title %}{{ list.title }} - Snowsune.net{% endblock %}
+{% block og_description %}{{ list.description }}{% endblock %}
+
+{% block content %}
+<div class="lists-container">
+  <div class="lists-header">
+    <h1>{{ list.title }}</h1>
+    <p class="lists-subtitle">{{ list.description }}</p>
+  </div>
+
+  <div class="card-grid">
+    {% for item in list.items %}
+    <a href="{% url 'lists:item' list.slug item.slug %}" class="card-tile">
+      <div class="card-tile-art">
+        <img src="{% static item.art %}" alt="{{ item.title }}" loading="lazy" />
+      </div>
+      <div class="card-tile-body">
+        <h3 title="{{ item.title }}">{{ item.title }}</h3>
+        <div class="card-tile-sub">{{ item.tagline }}</div>
+      </div>
+    </a>
+    {% empty %}
+    <div class="card-grid-empty">
+      <p>Nothing here yet!</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

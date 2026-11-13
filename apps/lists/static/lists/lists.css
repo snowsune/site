@@ -1,0 +1,162 @@
+/* Lists app (grid itself lives in static/css/card-grid.css) */
+
+.lists-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.lists-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1rem 0;
+    border-bottom: 2px solid var(--accent-color);
+}
+
+.lists-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.lists-subtitle {
+    color: var(--text-color);
+    opacity: 0.8;
+    margin: 0 0 0.5rem 0;
+}
+
+/* Detail page */
+.lists-detail {
+    max-width: 1000px;
+}
+
+.lists-back {
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.lists-detail-header {
+    display: flex;
+    gap: 2rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--radius-lg);
+}
+
+.lists-detail-art {
+    width: 200px;
+    height: 200px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.lists-detail-info h1 {
+    margin: 0 0 0.5rem 0;
+}
+
+.lists-hosts {
+    margin: 0 0 1rem 0;
+}
+
+.lists-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.lists-links a {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--accent-color);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+}
+
+.lists-links a:hover {
+    background: var(--accent-color);
+    color: var(--invert-text-color);
+}
+
+.lists-section {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--radius-lg);
+}
+
+.lists-section h2 {
+    margin-top: 0;
+}
+
+.lists-episodes {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.lists-episode {
+    padding: 1rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.lists-episode:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+.lists-episode-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+}
+
+.lists-episode-head h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.lists-episode-head time {
+    opacity: 0.7;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.lists-episode p {
+    margin: 0.5rem 0;
+}
+
+.lists-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.lists-tag {
+    font-size: 0.8rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: var(--radius-md);
+    background: var(--sidebar-bg);
+    border: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+    .lists-detail-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .lists-links {
+        justify-content: center;
+    }
+
+    .lists-detail-art {
+        width: 160px;
+        height: 160px;
+    }
+
+    .lists-episode-head {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}

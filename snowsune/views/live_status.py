@@ -1,8 +1,6 @@
 import logging
 from datetime import timedelta
 
-import requests
-from django.core.cache import cache
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
@@ -36,50 +34,16 @@ def get_active_logged_in_session_count():
     return count
 
 
-def get_server_offset():
-    """Home Assistant server offset percentage if configured, else None."""
-    ha_url_setting = SiteSetting.objects.filter(key="HOME_ASSISTANT_URL").first()
-    ha_token_setting = SiteSetting.objects.filter(key="HOME_ASSISTANT_TOKEN").first()
-    if not (ha_url_setting and ha_token_setting):
-        return None
-
-    cache_key = "live_status_server_offset"
-    cached = cache.get(cache_key)
-    if cached is not None:
-        return cached
-
-    try:
-        resp = requests.get(
-            f"{ha_url_setting.value}/api/states/sensor.server_offset_percentage",
-            headers={
-                "Authorization": f"Bearer {ha_token_setting.value}",
-                "Content-Type": "application/json",
-            },
-            timeout=5,
-        )
-        value = (
-            resp.json().get("state", "Unknown") if resp.status_code == 200 else "Error"
-        )
-    except Exception as e:
-        logger.info("Home Assistant server offset unavailable: %s", e)
-        value = "Offline"
-
-    cache.set(cache_key, value, 30)
-    return value
-
-
 @csrf_exempt
 @require_http_methods(["GET"])
 @cache_page(30)
 def live_status_view(request):
     active_users = get_active_logged_in_session_count()
-    server_offset = get_server_offset()
     ko_fi_progress = get_ko_fi_progress()
 
     response = JsonResponse(
         {
             "active_users": active_users,
-            "server_offset": server_offset,
             "ko_fi_progress": ko_fi_progress,
             "timestamp": timezone.now().isoformat(),
         }
