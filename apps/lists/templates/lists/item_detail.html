@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ item.title }} - {{ list.title }} - Snowsune.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'lists/lists.css' %}">
+{% endblock %}
+
+{% block meta_description %}{{ item.tagline }}{% endblock %}
+{% block og_title %}{{ item.title }} - Snowsune.net{% endblock %}
+{% block og_description %}{{ item.tagline }}{% endblock %}
+
+{% block content %}
+<div class="lists-container lists-detail">
+  <a href="{% url 'lists:list' list.slug %}" class="lists-back">← Back to {{ list.title }}</a>
+
+  <section class="lists-detail-header tile">
+    <img class="lists-detail-art" src="{% static item.art %}" alt="{{ item.title }}" />
+    <div class="lists-detail-info">
+      <h1>{{ item.title }}</h1>
+      <p class="lists-subtitle">{{ item.tagline }}</p>
+      <p class="lists-hosts">Hosted by {{ item.hosts|join:", " }}</p>
+      <div class="lists-links">
+        {% for link in item.links %}
+        <a href="{{ link.url }}" target="_blank" rel="noopener">{{ link.label }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section class="lists-section tile">
+    <h2>About</h2>
+    <p>{{ item.bio }}</p>
+  </section>
+
+  <section class="lists-section tile">
+    <h2>Episodes</h2>
+    <ol class="lists-episodes">
+      {% for ep in item.episodes %}
+      <li class="lists-episode">
+        <div class="lists-episode-head">
+          <h3>{{ ep.number }} - {{ ep.title }}</h3>
+          <time datetime="{{ ep.date }}">{{ ep.date }}</time>
+        </div>
+        <p>{{ ep.description }}</p>
+        {% if ep.tags %}
+        <div class="lists-tags">
+          {% for tag in ep.tags %}<span class="lists-tag">{{ tag }}</span>{% endfor %}
+        </div>
+        {% endif %}
+      </li>
+      {% empty %}
+      <li>No episodes yet.</li>
+      {% endfor %}
+    </ol>
+  </section>
+</div>
+{% endblock %}

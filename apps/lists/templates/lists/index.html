@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Lists - Snowsune.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'lists/lists.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="lists-container">
+  <div class="lists-header">
+    <h1>Lists</h1>
+  </div>
+  <ul>
+    {% for lst in lists %}
+    <li><a href="{% url 'lists:list' lst.slug %}">{{ lst.title }}</a> - {{ lst.description }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

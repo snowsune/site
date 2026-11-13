@@ -25,67 +25,6 @@
     opacity: 0.8;
 }
 
-.user-gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1rem;
-}
-
-.user-card {
-    background: var(--tile-background);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    overflow: hidden;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    color: inherit;
-    display: block;
-}
-
-.user-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--accent-color);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.user-avatar-container {
-    height: 180px;
-    overflow: hidden;
-    background: var(--sidebar-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.user-avatar-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.user-card-content {
-    padding: 0.75rem;
-}
-
-.user-card-content h3 {
-    font-size: 1rem;
-    margin: 0 0 0.25rem 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.user-username {
-    font-size: 0.8rem;
-    color: var(--text-color);
-    opacity: 0.8;
-    margin-bottom: 0.5rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
 .badge-row {
     display: flex;
     gap: 0.25rem;
@@ -96,14 +35,6 @@
     width: 32px;
     height: 32px;
     object-fit: contain;
-}
-
-.empty-gallery {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: var(--text-color);
-    opacity: 0.8;
-    grid-column: 1 / -1;
 }
 
 /* Profile Page */
@@ -250,15 +181,7 @@
 
 /* Mobile */
 @media (max-width: 768px) {
-    .user-gallery {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 0.75rem;
-    }
-    
-    .user-avatar-container {
-        height: 140px;
-    }
-    
+
     .profile-header {
         flex-direction: column;
         align-items: center;
@@ -289,27 +212,7 @@
     .users-header h1 {
         font-size: 1.5rem;
     }
-    
-    .user-gallery {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    }
-    
-    .user-avatar-container {
-        height: 120px;
-    }
-    
-    .user-card-content {
-        padding: 0.5rem;
-    }
-    
-    .user-card-content h3 {
-        font-size: 0.9rem;
-    }
-    
-    .user-username {
-        font-size: 0.75rem;
-    }
-    
+
     .profile-container {
         padding: 1rem 0.5rem;
     }

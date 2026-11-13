@@ -4,6 +4,7 @@
 {% block title %}User Gallery - Snowsune.net{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/card-grid.css' %}">
 <link rel="stylesheet" href="{% static 'css/users.css' %}">
 {% endblock %}
 
@@ -14,19 +15,19 @@
 
 {% block content %}
 <div class="users-container">
-  <div class="user-gallery">
+  <div class="card-grid">
     {% for u in users %}
-    <a href="{% url 'user-profile' u.username %}" class="user-card">
-      <div class="user-avatar-container">
+    <a href="{% url 'user-profile' u.username %}" class="card-tile">
+      <div class="card-tile-art">
         {% if u.get_profile_picture_url %}
         <img src="{{ u.get_profile_picture_url }}" alt="{{ u.first_name|default:u.username }}" loading="lazy" />
         {% else %}
         <img src="{% static 'stickers/foxi-sticker-ERROR.png' %}" alt="No profile picture" loading="lazy" />
         {% endif %}
       </div>
-      <div class="user-card-content">
+      <div class="card-tile-body">
         <h3>{{ u.first_name|default:u.username }}</h3>
-        <div class="user-username">@{{ u.username }}</div>
+        <div class="card-tile-sub">@{{ u.username }}</div>
 
         <div class="badge-row">
           {% if u.is_staff %}
@@ -40,7 +41,7 @@
       </div>
     </a>
     {% empty %}
-    <div class="empty-gallery">
+    <div class="card-grid-empty">
       <p>No verified users found. 🦊</p>
       <p>Check back later!</p>
     </div>

@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     "apps.custompages",  # Custom pages with markdown
     "apps.tanks_manager",  # Per-user tank pages + editor
     "apps.vore_day_rumble",  # Vixi's Vore Day Rumble
+    "apps.lists",  # Curated lists (furcasts, etc.)
     "django_cleanup.apps.CleanupConfig",  # Deletes FileField/ImageField files when their rows are removed.
 ]
 
