@@ -42,6 +42,10 @@ class TankSite(models.Model):
         max_length=500,
         help_text="Optional; sample overlay is used when empty.",
     )
+    label_font_scale = models.PositiveSmallIntegerField(
+        default=100,
+        help_text="Liquid label size as % of default (i might remove this!)",
+    )
     stage_fg_label_profile = models.JSONField(
         default=list,
         blank=True,

@@ -20,7 +20,7 @@
     </header>
     {% endif %}
     <section class="tank-layout">
-      <div class="tank-stage" style="aspect-ratio: {{ stage_width }} / {{ stage_height }};">
+      <div class="tank-stage" style="aspect-ratio: {{ stage_width }} / {{ stage_height }}; --label-scale: {{ label_scale|stringformat:'.2f' }};">
         <img class="tank-bg" src="{{ stage_background_url }}" alt="" width="{{ stage_width }}" height="{{ stage_height }}" decoding="async" />
         {% for row in liquid_layers %}
           <div

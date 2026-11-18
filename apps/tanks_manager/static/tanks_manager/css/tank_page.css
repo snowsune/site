@@ -135,11 +135,11 @@
   left: 50%;
   z-index: 1;
   transform: translate(-50%, -50%);
-  padding: 4px 8px;
+  padding: calc(4px * var(--label-scale, 1)) calc(8px * var(--label-scale, 1));
   background: #00000073;
   color: #fff;
   font-weight: 600;
-  font-size: clamp(10px, 2.8vw, 17px);
+  font-size: calc(clamp(10px, 2.8vw, 17px) * var(--label-scale, 1));
   border-radius: 4px;
   white-space: nowrap;
   text-align: center;
@@ -169,8 +169,8 @@
   }
 
   .tank-liquid-label {
-    padding: 6px 12px;
-    font-size: clamp(13px, 1.6vw, 24px);
+    padding: calc(6px * var(--label-scale, 1)) calc(12px * var(--label-scale, 1));
+    font-size: calc(clamp(13px, 1.6vw, 24px) * var(--label-scale, 1));
     border-radius: 6px;
   }
 }

@@ -140,6 +140,7 @@ def _editor_data(site):
             "tankBottomOffset": site.tank_bottom_offset,
             "character_name": site.character_name,
             "character_url": site.character_url,
+            "label_font_scale": site.label_font_scale,
             "stage_background_url": (
                 site.stage_background.url if site.stage_background else ""
             ),
@@ -158,6 +159,17 @@ def _idx(post, files, letter):
     rx = re.compile(rf"^{letter}(\d+)_")
     keys = list(post.keys()) + list(files.keys())
     return sorted({int(m.group(1)) for k in keys if (m := rx.match(k))})
+
+
+_LABEL_SCALE_MIN, _LABEL_SCALE_MAX = 25, 300
+
+
+def _label_scale(raw):
+    try:
+        v = int(raw)
+    except (TypeError, ValueError):
+        return 100
+    return max(_LABEL_SCALE_MIN, min(_LABEL_SCALE_MAX, v))
 
 
 def _build(post, files):
@@ -194,6 +206,7 @@ def _build(post, files):
             "tankBottomOffset": int(post.get("bot") or 0),
             "character_name": post.get("char_name", "").strip()[:200],
             "character_url": post.get("char_url", "").strip()[:500],
+            "label_font_scale": _label_scale(post.get("label_scale")),
         },
         "logs": logs,
     }
@@ -259,6 +272,7 @@ def tank_show(request, slug):
             "stage_foreground_url": fg_url,
             "stage_width": stage_w,
             "stage_height": stage_h,
+            "label_scale": site.label_font_scale / 100.0,
             "liquid_layers": _liquid_layer_rows(
                 liquids,
                 site.tank_top_offset,
@@ -361,12 +375,14 @@ def _persist(data, tank_site):
     tank_site.tank_bottom_offset = data["settings"]["tankBottomOffset"]
     tank_site.character_name = data["settings"]["character_name"]
     tank_site.character_url = data["settings"]["character_url"]
+    tank_site.label_font_scale = data["settings"]["label_font_scale"]
     tank_site.save(
         update_fields=[
             "tank_top_offset",
             "tank_bottom_offset",
             "character_name",
             "character_url",
+            "label_font_scale",
         ]
     )
 
