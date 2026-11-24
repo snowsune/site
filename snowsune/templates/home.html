@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load comic_tags %}
+{% load cons_tags %}
 
 {% block title %}Snowsune.net - Vixi's Hub for Webcomics, Tools & Projects{% endblock %}
 
@@ -81,6 +82,8 @@ creative projects, furry community hub{% endblock %}
 {% endblock %}
 
 {% block content %}
+{% mff_countdown %}
+
 <header class="page-header">
     <h1>Welcome to Snowsune.net!</h1>
     <p class="lead">My own website! I've got tools, webcomics, projects, art, personal things, blogs, and plenty of

@@ -1,0 +1,65 @@
+/* Layout/background comes from .page-header (static/css/base.css). */
+.mff-countdown-widget {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.mff-countdown-title {
+    margin: 0 0 0.75rem;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.mff-countdown-timer {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    max-width: 32rem;
+    margin: 0 auto;
+}
+
+.mff-countdown-timer span {
+    display: block;
+    font-size: 3rem;
+    line-height: 1.1;
+    font-weight: bold;
+    color: var(--accent-color, #00FFFF);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mff-countdown-timer small {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.mff-countdown-location {
+    margin: 0.75rem 0 0;
+    font-style: italic;
+}
+
+.mff-countdown-description {
+    margin: 0.5rem 0 0;
+    font-size: 0.875rem;
+    white-space: pre-line;
+}
+
+.mff-countdown-footer {
+    margin: 0.75rem 0 0;
+    font-size: 0.875rem;
+}
+
+.mff-countdown-footer a {
+    color: var(--accent-color, #00FFFF);
+    text-decoration: none;
+}
+
+.mff-countdown-footer a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .mff-countdown-timer span {
+        font-size: 2.25rem;
+    }
+}

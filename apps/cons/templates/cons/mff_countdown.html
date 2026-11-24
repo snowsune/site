@@ -1,0 +1,20 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'cons/css/mff_countdown.css' %}">
+<div class="page-header mff-countdown-widget" hidden
+     data-events-url="{{ events_api_url }}"
+     data-match="{{ match }}"
+     data-lookahead-days="{{ lookahead_days }}">
+    <p class="mff-countdown-title"></p>
+    <div class="mff-countdown-timer">
+        <div><span data-unit="days">0</span><small>days</small></div>
+        <div><span data-unit="hours">00</span><small>hrs</small></div>
+        <div><span data-unit="minutes">00</span><small>min</small></div>
+        <div><span data-unit="seconds">00</span><small>sec</small></div>
+    </div>
+    <p class="mff-countdown-location" hidden></p>
+    <p class="mff-countdown-description" hidden></p>
+    <p class="mff-countdown-footer">
+        <a href="{{ calendar_url }}">View full calendar →</a>
+    </p>
+</div>
+<script src="{% static 'cons/js/mff_countdown.js' %}" defer></script>
