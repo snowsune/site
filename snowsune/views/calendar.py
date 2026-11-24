@@ -9,21 +9,34 @@ from datetime import datetime, date, timedelta
 import pytz
 import recurring_ical_events
 import json
+import logging
 
 from snowsune.models import SiteSetting
 
+logger = logging.getLogger(__name__)
+
+# Added since reseting the DB kept clearing the default structures
+DEFAULT_CALENDAR_SOURCES = [
+    {
+        "name": "snowsune.net",
+        "url": "https://nextcloud.kitsunehosting.net/remote.php/dav/public-calendars/snaWQqbKSHQKL3zw?export",
+        "color": "#00ffff",
+    }
+]
+
 
 def get_calendar_sources():
-    """Get calendar sources from SiteSetting, with fallback to default"""
-    try:
-        setting = SiteSetting.objects.filter(key="CALENDAR_SOURCES").first()
-        if setting and setting.value:
+    """Get calendar sources from SiteSetting with fallback"""
+    setting = SiteSetting.objects.filter(key="CALENDAR_SOURCES").first()
+    if setting and setting.value.strip():
+        try:
             return json.loads(setting.value)
-    except (json.JSONDecodeError, AttributeError):
-        pass
+        except json.JSONDecodeError as e:
+            logger.warning(
+                f"CALENDAR_SOURCES site setting is not valid JSON ({e}); using defaults"
+            )
 
-    # Default
-    return []
+    return DEFAULT_CALENDAR_SOURCES
 
 
 class CalendarView(View):
@@ -103,9 +116,6 @@ class CalendarEventsAPIView(View):
 
             except Exception as e:
                 # Log error but continue with other calendars
-                import logging
-
-                logger = logging.getLogger(__name__)
                 logger.error(f"Error fetching calendar {calendar_config['name']}: {e}")
                 continue
 
